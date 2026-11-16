@@ -2,14 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ExternalLink, BookOpen, Sparkles } from "lucide-react";
-import { GLOSSARY_ITEMS, KNOWLEDGE_ITEMS } from "@/lib/institutional-data";
+import { ExternalLink, BookOpen, Sparkles, X } from "lucide-react";
+import { GLOSSARY_ITEMS, KNOWLEDGE_ITEMS, type KnowledgeItem } from "@/lib/institutional-data";
 import { SpotlightCard } from "@/components/ReactBitsText";
 
 const CATEGORIES = ["Todas", "Ferramenta Interativa", "Ciência & Mitos", "Direitos & Políticas", "Neuroinclusão"] as const;
 
 export default function ConhecimentoPage() {
   const [selectedCat, setSelectedCat] = useState<string>("Todas");
+  const [activeArticle, setActiveArticle] = useState<KnowledgeItem | null>(null);
 
   const filtered =
     selectedCat === "Todas"
@@ -17,7 +18,7 @@ export default function ConhecimentoPage() {
       : KNOWLEDGE_ITEMS.filter((item) => item.category === selectedCat);
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-12">
+    <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 lg:px-10">
       <div className="max-w-3xl space-y-3">
         <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
           Área de Conhecimento
@@ -80,26 +81,40 @@ export default function ConhecimentoPage() {
               <p className="text-[11px] font-medium" style={{ color: "var(--text-muted)" }}>
                 Fonte: {item.source}
               </p>
-              {item.external ? (
-                <a
-                  href={item.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold underline"
-                  style={{ color: "var(--accent-emerald)" }}
-                >
-                  <span>Abrir recurso externo</span>
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              ) : (
-                <Link
-                  href={item.href}
-                  className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold underline"
-                  style={{ color: "var(--accent-emerald)" }}
-                >
-                  <span>Ler mais no portal</span>
-                </Link>
-              )}
+              <div className="mt-2.5 flex flex-wrap items-center gap-4">
+                {item.fullBody && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveArticle(item)}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold underline"
+                    style={{ color: "var(--accent-emerald)" }}
+                  >
+                    Ler guia completo
+                  </button>
+                )}
+                {item.external ? (
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold underline"
+                    style={{ color: item.fullBody ? "var(--accent-crimson)" : "var(--accent-emerald)" }}
+                  >
+                    <span>Abrir recurso oficial</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                ) : (
+                  !item.fullBody && (
+                    <Link
+                      href={item.href}
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold underline"
+                      style={{ color: "var(--accent-emerald)" }}
+                    >
+                      <span>Acessar no portal</span>
+                    </Link>
+                  )
+                )}
+              </div>
             </div>
           </SpotlightCard>
         ))}
@@ -130,6 +145,58 @@ export default function ConhecimentoPage() {
           ))}
         </div>
       </section>
+
+      {/* Distraction-free Article Reading Modal */}
+      {activeArticle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
+          <article
+            role="dialog"
+            aria-label={activeArticle.title}
+            className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-2xl border p-6 sm:p-8 shadow-2xl space-y-5"
+            style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+          >
+            <div className="flex items-start justify-between gap-4 border-b pb-4" style={{ borderColor: "var(--border-subtle)" }}>
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
+                  {activeArticle.category}
+                </span>
+                <h2 className="mt-1 font-display text-2xl font-semibold">{activeArticle.title}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveArticle(null)}
+                aria-label="Fechar leitura"
+                className="rounded-lg p-2"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              {activeArticle.fullBody?.map((para, i) => (
+                <p key={i}>{para}</p>
+              ))}
+            </div>
+
+            <div className="border-t pt-4 flex flex-wrap items-center justify-between gap-3" style={{ borderColor: "var(--border-subtle)" }}>
+              <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Fonte: {activeArticle.source}
+              </span>
+              {activeArticle.officialRefUrl && (
+                <a
+                  href={activeArticle.officialRefUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary inline-flex min-h-[40px] items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold"
+                >
+                  <span>{activeArticle.officialRefLabel || "Ver fonte oficial"}</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
+            </div>
+          </article>
+        </div>
+      )}
     </div>
   );
 }

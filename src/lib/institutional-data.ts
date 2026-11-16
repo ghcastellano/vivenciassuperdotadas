@@ -49,6 +49,9 @@ export interface KnowledgeItem {
   href: string;
   external?: boolean;
   featured?: boolean;
+  fullBody?: string[];
+  officialRefUrl?: string;
+  officialRefLabel?: string;
 }
 
 export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
@@ -75,6 +78,13 @@ export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
       "Revisão acessível baseada na literatura brasileira (Delou, Virgolim, Fleith & Alencar) e internacional sobre divergências metodológicas, assincronia e singularidade de trajetória.",
     source: "Literatura AH/SD · MEC/SEESP & Delou",
     href: "/sobre",
+    fullBody: [
+      "As Altas Habilidades/Superdotação (AH/SD) constituem um fenômeno neurofisiológico estudado há mais de um século pela psicologia e pela educação, ainda com debates teóricos e metodológicos importantes sobre definição e avaliação.",
+      "Na esfera pública, dois extremos prejudicam quem vive essa realidade: a romantização (a ideia de que ser superdotado garante sucesso automático, notas altas ou genialidade performática) e a patologização (atribuir automaticamente qualquer sofrimento emocional à superdotação).",
+      "A identificação com AH/SD não determina personalidade, sucesso ou trajetória de vida. Cada pessoa deve ser compreendida em sua singularidade, contexto e eventuais necessidades específicas de suporte baseado em evidências.",
+    ],
+    officialRefUrl: "https://portal.mec.gov.br/seesp/arquivos/pdf/altashabilidades.pdf",
+    officialRefLabel: "Caderno MEC/SEESP — Altas Habilidades",
   },
   {
     id: "avaliacao-crp",
@@ -86,6 +96,13 @@ export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
       "No Brasil, a identificação formal considera múltiplas dimensões (intelectual, criatividade, comprometimento, liderança, arte/psicomotora) e inclui instrumentos padronizados de inteligência (QI) privativos de psicólogos.",
     source: "Resoluções CFP / SATEPSI",
     href: "/profissionais",
+    fullBody: [
+      "Testes gratuitos ou questionários online não têm validade diagnóstica. No Brasil, a avaliação psicológica e neuropsicológica formal é atividade privativa de profissionais inscritos no Conselho Regional de Psicologia (CRP).",
+      "Os protocolos validados pelo SATEPSI avaliam não apenas características comportamentais, criatividade e motivação, mas também o funcionamento cognitivo por meio de testes padronizados de inteligência (QI) e funções executivas.",
+      "Essa investigação cuidadosa também ajuda a diferenciar AH/SD de outras condições ou identificar quadros de Dupla Excepcionalidade (2e), garantindo encaminhamento clínico e educacional responsável.",
+    ],
+    officialRefUrl: "https://satepsi.cfp.org.br/",
+    officialRefLabel: "Consultar SATEPSI (CFP)",
   },
   {
     id: "direitos-ldb",
@@ -96,7 +113,15 @@ export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
     detail:
       "Estudantes com AH/SD integram o público da Educação Especial na perspectiva inclusiva, com direito a enriquecimento, suplementação e registro no Censo Escolar.",
     source: "Lei nº 9.394/1996 (alterada pela Lei nº 12.796/2013)",
-    href: "/conhecimento#glossario",
+    href: "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12796.htm",
+    external: true,
+    fullBody: [
+      "A Lei de Diretrizes e Bases da Educação Nacional (LDB, Lei nº 9.394/1996, alterada pela Lei nº 12.796/2013) inclui expressamente os educandos com altas habilidades ou superdotação no público da Educação Especial.",
+      "O Art. 59 assegura currículos, métodos, técnicas e recursos educativos específicos para atender às suas necessidades, incluindo aceleração para concluir em menor tempo o programa escolar, quando pertinente, além de suplementação e enriquecimento curricular no contraturno (AEE).",
+      "Conhecer a legislação permite que famílias e educadores dialoguem com as secretarias de educação e escolas de forma fundamentada.",
+    ],
+    officialRefUrl: "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12796.htm",
+    officialRefLabel: "Texto Oficial — Lei nº 12.796/2013 (Planalto)",
   },
   {
     id: "dupla-excepcionalidade",
@@ -107,7 +132,12 @@ export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
     detail:
       "O esforço contínuo para esconder diferenças (masking) gera exaustão. Compreender o próprio funcionamento ajuda a buscar suporte específico baseado em evidências.",
     source: "Pesquisas sobre Twice-Exceptionality (2e)",
-    href: "/conhecimento#glossario",
+    href: "/profissionais",
+    fullBody: [
+      "Na Dupla Excepcionalidade (2e), a pessoa apresenta Altas Habilidades/Superdotação simultaneamente a outra neurodivergência ou transtorno do neurodesenvolvimento, como TDAH, TEA, dislexia ou discalculia.",
+      "Com frequência, o alto potencial cognitivo compensa dificuldades específicas por anos — enquanto essas dificuldades mascaram o alto potencial. O resultado costuma ser diagnóstico tardio e sobrecarga emocional.",
+      "O mascaramento social (masking), isto é, adaptar continuamente a própria forma de agir para caber em expectativas rígidas, está fortemente ligado à exaustão. Ambientes acolhedores e avaliação especializada ajudam a construir estratégias saudáveis.",
+    ],
   },
 ];
 
