@@ -310,16 +310,15 @@ export function ImageCurtainReveal({
 
   return (
     <motion.div
-      initial={{ clipPath: "inset(0 0 100% 0)" }}
-      whileInView={{ clipPath: "inset(0 0 0% 0)" }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0.9, scale: 1.03 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       className="h-full w-full overflow-hidden"
     >
       <img
         src={src}
         alt={alt}
-        className={`${className} transition-transform duration-700 hover:scale-[1.04]`}
+        className={`${className} transition-transform duration-500 hover:scale-[1.04]`}
       />
     </motion.div>
   );

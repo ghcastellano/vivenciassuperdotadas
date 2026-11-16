@@ -17,6 +17,7 @@ import {
 import { useSensory } from "@/components/SensoryProvider";
 import { motion } from "motion/react";
 import { ReadingProgressBar } from "@/components/EditorialEffects";
+import { BrandMark } from "@/components/BrandMark";
 
 const NAV_LINKS = [
   { href: "/sobre", label: "Associação" },
@@ -63,12 +64,7 @@ export function Navbar() {
           className="flex min-h-[44px] shrink-0 items-center gap-2.5 whitespace-nowrap font-display text-base sm:text-lg font-semibold tracking-tight"
           style={{ color: "var(--text-primary)" }}
         >
-          <img
-            src="/images/logo-vivencias.jpg"
-            alt="Logo Vivências Superdotadas"
-            className="h-9 w-9 shrink-0 rounded-lg object-cover border"
-            style={{ borderColor: "var(--border-subtle)" }}
-          />
+          <BrandMark size={34} />
           <span className="hidden sm:inline">Vivências Superdotadas</span>
           <span className="sm:hidden">Vivências</span>
         </Link>
