@@ -1,0 +1,78 @@
+name: CI — Vivências Superdotadas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck-and-build:
+    name: Typecheck & Next.js Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: Production build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://vivenciassuperdotadas.vercel.app
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit test suite
+        run: node --test tests/unit.test.mjs
+
+  security-review:
+    name: Security & Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Verify no .env files committed
+        run: |
+          if git ls-files | grep -E '^\.env(\.local)?$'; then
+            echo "ERROR: .env file is tracked in git!"
+            exit 1
+          fi
+
+      - name: Dependency vulnerability audit (high+)
+        run: npm audit --audit-level=high
