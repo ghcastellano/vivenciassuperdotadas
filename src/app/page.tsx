@@ -56,7 +56,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section — One focused editorial screen */}
-      <section className="mx-auto max-w-7xl px-5 pb-16 pt-10 sm:px-8 sm:pt-16 lg:px-12 lg:pb-24">
+      <section className="mx-auto max-w-[1400px] px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:px-10 lg:pb-24">
         <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
           <div className="space-y-6">
             <div
@@ -135,7 +135,7 @@ export default function HomePage() {
         className="border-y py-14"
         style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
       >
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-10">
           <div className="mb-6 max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-crimson)" }}>
               Por onde começar
@@ -199,7 +199,7 @@ export default function HomePage() {
       </section>
 
       {/* Bento Pillars */}
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-12">
+      <section className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:px-10">
         <div className="mb-10 max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
             Ecossistema Vivências

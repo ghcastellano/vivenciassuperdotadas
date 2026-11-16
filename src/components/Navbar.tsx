@@ -23,7 +23,7 @@ const NAV_LINKS = [
   { href: "/profissionais", label: "Profissionais" },
   { href: "/eventos", label: "Eventos" },
   { href: "/comunidade", label: "Comunidade" },
-  { href: "/apoie", label: "Apoie & Transparência" },
+  { href: "/apoie", label: "Transparência" },
   { href: "/loja", label: "Lojinha" },
 ];
 
@@ -54,16 +54,16 @@ export function Navbar() {
         borderColor: "var(--border-subtle)",
       }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8 lg:px-12">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-8 lg:px-10">
         <Link
           href="/"
-          className="flex min-h-[44px] items-center gap-3 font-display text-lg font-semibold tracking-tight"
+          className="flex min-h-[44px] shrink-0 items-center gap-2.5 whitespace-nowrap font-display text-base sm:text-lg font-semibold tracking-tight"
           style={{ color: "var(--text-primary)" }}
         >
           <img
             src="/images/logo-vivencias.jpg"
             alt="Logo Vivências Superdotadas"
-            className="h-9 w-9 rounded-lg object-cover border"
+            className="h-9 w-9 shrink-0 rounded-lg object-cover border"
             style={{ borderColor: "var(--border-subtle)" }}
           />
           <span className="hidden sm:inline">Vivências Superdotadas</span>
@@ -71,14 +71,14 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav aria-label="Navegação principal" className="hidden xl:flex items-center gap-1">
+        <nav aria-label="Navegação principal" className="hidden xl:flex items-center gap-0.5 2xl:gap-1.5">
           {NAV_LINKS.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="min-h-[40px] flex items-center rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
+                className="min-h-[40px] flex shrink-0 items-center whitespace-nowrap rounded-lg px-2.5 2xl:px-3 py-1.5 text-[13px] 2xl:text-sm font-medium transition-colors"
                 style={{
                   color: active ? "var(--accent-emerald)" : "var(--text-secondary)",
                   backgroundColor: active ? "var(--bg-surface)" : "transparent",
@@ -91,22 +91,23 @@ export function Navbar() {
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <div className="relative">
             <button
               type="button"
               onClick={() => setSensoryOpen((v) => !v)}
               aria-expanded={sensoryOpen}
               aria-label="Abrir painel de conforto sensorial"
-              className="flex min-h-[44px] items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-colors"
+              className="flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border px-3 py-2 text-xs sm:text-sm font-medium transition-colors"
               style={{
                 borderColor: "var(--border-subtle)",
                 backgroundColor: "var(--bg-card)",
                 color: "var(--text-primary)",
               }}
             >
-              <SlidersHorizontal className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
-              <span className="hidden md:inline">Conforto Sensorial</span>
+              <SlidersHorizontal className="h-4 w-4 shrink-0" style={{ color: "var(--accent-emerald)" }} />
+              <span className="hidden md:inline 2xl:hidden">Sensorial</span>
+              <span className="hidden 2xl:inline">Conforto Sensorial</span>
             </button>
 
             {sensoryOpen && (
@@ -256,7 +257,7 @@ export function Navbar() {
 
           <Link
             href="/associe-se"
-            className="btn-primary hidden sm:inline-flex min-h-[44px] items-center rounded-xl px-4 py-2 text-sm font-semibold"
+            className="btn-primary hidden sm:inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold"
           >
             Associe-se
           </Link>

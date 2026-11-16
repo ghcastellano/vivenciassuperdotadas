@@ -5,7 +5,7 @@ import { useSensory } from "@/components/SensoryProvider";
 
 export function CustomCursor() {
   const { customCursor, reducedMotion, focusMode } = useSensory();
-  const [pos, setPos] = useState({ x: -100, y: -100 });
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [active, setActive] = useState(false);
   const [enabled, setEnabled] = useState(false);
 
@@ -24,11 +24,17 @@ export function CustomCursor() {
       setActive(Boolean(interactive));
     };
 
+    const onLeave = () => setPos(null);
+
     window.addEventListener("mousemove", onMove, { passive: true });
-    return () => window.removeEventListener("mousemove", onMove);
+    document.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
+    };
   }, [enabled]);
 
-  if (!enabled) return null;
+  if (!enabled || !pos) return null;
 
   return (
     <div
