@@ -1,23 +1,21 @@
 import { isDatabaseConfigured, query } from "@/lib/db";
-import { MOCK_PROFESSIONALS } from "@/lib/mock-data";
 import { ProfissionaisClient, type PartnerItem } from "./ProfissionaisClient";
 
 export const revalidate = 30;
 
 export default async function ProfissionaisPage() {
-  let partners: PartnerItem[] = MOCK_PROFESSIONALS;
+  let partners: PartnerItem[] = [];
 
   if (isDatabaseConfigured()) {
     try {
-      const rows = await query<PartnerItem>(
-        `SELECT id, name, registry_code, specialty, approach, city_state, online_available, bio, contact_url
+      partners = await query<PartnerItem>(
+        `SELECT id, name, email, registry_code, specialty, approach, region, state, city, city_state, online_available, whatsapp, social_url, other_qualifications, bio, contact_url
          FROM partner_professionals
          WHERE status = 'approved'
-         ORDER BY created_at DESC`
+         ORDER BY name ASC`
       );
-      if (rows.length > 0) partners = rows;
     } catch {
-      // fallback to mock
+      partners = [];
     }
   }
 

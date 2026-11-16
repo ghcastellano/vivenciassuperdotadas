@@ -67,17 +67,34 @@ export async function ensureSchema(): Promise<void> {
         CREATE TABLE IF NOT EXISTS partner_professionals (
           id TEXT PRIMARY KEY,
           name TEXT NOT NULL,
-          email TEXT NOT NULL,
-          registry_code TEXT NOT NULL,
+          email TEXT DEFAULT '',
+          registry_code TEXT DEFAULT '',
           specialty TEXT NOT NULL,
-          approach TEXT NOT NULL,
+          approach TEXT DEFAULT '',
+          region TEXT DEFAULT '',
+          state TEXT DEFAULT '',
+          city TEXT DEFAULT '',
           city_state TEXT DEFAULT '',
           online_available BOOLEAN NOT NULL DEFAULT TRUE,
-          bio TEXT NOT NULL,
+          whatsapp TEXT DEFAULT '',
+          social_url TEXT DEFAULT '',
+          other_qualifications TEXT DEFAULT '',
+          bio TEXT DEFAULT '',
           contact_url TEXT DEFAULT '',
           status TEXT NOT NULL DEFAULT 'pending',
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+
+        ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS region TEXT DEFAULT '';
+        ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS state TEXT DEFAULT '';
+        ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS city TEXT DEFAULT '';
+        ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS whatsapp TEXT DEFAULT '';
+        ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS social_url TEXT DEFAULT '';
+        ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS other_qualifications TEXT DEFAULT '';
+        ALTER TABLE partner_professionals ALTER COLUMN email DROP NOT NULL;
+        ALTER TABLE partner_professionals ALTER COLUMN registry_code DROP NOT NULL;
+        ALTER TABLE partner_professionals ALTER COLUMN approach DROP NOT NULL;
+        ALTER TABLE partner_professionals ALTER COLUMN bio DROP NOT NULL;
 
         CREATE TABLE IF NOT EXISTS events (
           id TEXT PRIMARY KEY,
