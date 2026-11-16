@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { DEFAULT_PRODUCTS } from "@/lib/institutional-data";
 
+interface CartItemPayload {
+  productId: string;
+  quantity?: number;
+  variant?: string;
+}
+
 export async function POST(req: Request) {
   try {
     const secret = process.env.STRIPE_SECRET_KEY;
@@ -18,7 +24,7 @@ export async function POST(req: Request) {
     const stripe = new Stripe(secret);
     const body = await req.json();
     const kind = body.kind === "store" ? "store" : "donation";
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vivenciassuperdotadas.vercel.app";
 
     if (kind === "donation") {
       const amountReais = Math.max(5, Math.min(50000, Number(body.amountReais || 25)));
@@ -55,31 +61,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: session.url });
     }
 
-    const productId = String(body.productId || "");
-    const product = DEFAULT_PRODUCTS.find((p) => p.id === productId);
-    if (!product) {
-      return NextResponse.json({ error: "Produto não encontrado." }, { status: 404 });
+    const rawItems: CartItemPayload[] = Array.isArray(body.items)
+      ? body.items
+      : body.productId
+      ? [{ productId: String(body.productId), quantity: 1 }]
+      : [];
+
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+    const summaryNames: string[] = [];
+
+    for (const item of rawItems) {
+      const product = DEFAULT_PRODUCTS.find((p) => p.id === item.productId);
+      if (!product) continue;
+      const qty = Math.max(1, Math.min(20, Number(item.quantity || 1)));
+      const label = item.variant ? `${product.name} (${item.variant})` : product.name;
+      summaryNames.push(`${qty}x ${label}`);
+      lineItems.push({
+        price_data: {
+          currency: "brl",
+          product_data: {
+            name: label,
+            description: product.description,
+          },
+          unit_amount: product.price_cents,
+        },
+        quantity: qty,
+      });
+    }
+
+    if (lineItems.length === 0) {
+      return NextResponse.json({ error: "Carrinho vazio ou produto inválido." }, { status: 400 });
     }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "brl",
-            product_data: {
-              name: product.name,
-              description: product.description,
-            },
-            unit_amount: product.price_cents,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       metadata: {
         kind: "store",
-        productId: product.id,
-        description: `Lojinha: ${product.name}`,
+        description: `Lojinha: ${summaryNames.join(", ").slice(0, 200)}`,
       },
       success_url: `${siteUrl}/loja?status=sucesso`,
       cancel_url: `${siteUrl}/loja?status=cancelado`,

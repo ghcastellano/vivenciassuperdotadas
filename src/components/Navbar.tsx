@@ -15,10 +15,11 @@ import {
   User,
 } from "lucide-react";
 import { useSensory } from "@/components/SensoryProvider";
+import { motion } from "motion/react";
+import { ReadingProgressBar } from "@/components/EditorialEffects";
 
 const NAV_LINKS = [
   { href: "/sobre", label: "Associação" },
-  { href: "/exploracao", label: "Exploração" },
   { href: "/conhecimento", label: "Conhecimento" },
   { href: "/profissionais", label: "Profissionais" },
   { href: "/eventos", label: "Eventos" },
@@ -47,13 +48,15 @@ export function Navbar() {
   } = useSensory();
 
   return (
-    <header
-      className="sticky top-0 z-40 border-b backdrop-blur-md"
-      style={{
-        backgroundColor: theme === "dark" ? "rgba(18, 22, 25, 0.90)" : "rgba(250, 247, 242, 0.92)",
-        borderColor: "var(--border-subtle)",
-      }}
-    >
+    <>
+      <ReadingProgressBar />
+      <header
+        className="sticky top-0 z-40 border-b backdrop-blur-md"
+        style={{
+          backgroundColor: theme === "dark" ? "rgba(18, 22, 25, 0.90)" : "rgba(250, 247, 242, 0.92)",
+          borderColor: "var(--border-subtle)",
+        }}
+      >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-8 lg:px-10">
         <Link
           href="/"
@@ -70,7 +73,7 @@ export function Navbar() {
           <span className="sm:hidden">Vivências</span>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav with animated sliding pill */}
         <nav aria-label="Navegação principal" className="hidden xl:flex items-center gap-0.5 2xl:gap-1.5">
           {NAV_LINKS.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -78,12 +81,19 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="min-h-[40px] flex shrink-0 items-center whitespace-nowrap rounded-lg px-2.5 2xl:px-3 py-1.5 text-[13px] 2xl:text-sm font-medium transition-colors"
+                className="relative min-h-[40px] flex shrink-0 items-center whitespace-nowrap rounded-lg px-2.5 2xl:px-3 py-1.5 text-[13px] 2xl:text-sm font-medium transition-colors"
                 style={{
                   color: active ? "var(--accent-emerald)" : "var(--text-secondary)",
-                  backgroundColor: active ? "var(--bg-surface)" : "transparent",
                 }}
               >
+                {active && (
+                  <motion.span
+                    layoutId="nav-pill"
+                    transition={{ type: "spring", stiffness: 360, damping: 30 }}
+                    className="absolute inset-0 rounded-lg -z-10"
+                    style={{ backgroundColor: "var(--bg-surface)" }}
+                  />
+                )}
                 {item.label}
               </Link>
             );
@@ -311,5 +321,6 @@ export function Navbar() {
         </nav>
       )}
     </header>
+    </>
   );
 }

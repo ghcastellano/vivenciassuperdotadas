@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Stethoscope, MapPin, Globe, CheckCircle2 } from "lucide-react";
+import { MOCK_PROFESSIONALS } from "@/lib/mock-data";
 
 interface Partner {
   id: string;
@@ -13,6 +14,7 @@ interface Partner {
   online_available: boolean;
   bio: string;
   contact_url: string;
+  isMock?: boolean;
 }
 
 export default function ProfissionaisPage() {
@@ -36,8 +38,11 @@ export default function ProfissionaisPage() {
   useEffect(() => {
     fetch("/api/professionals")
       .then((r) => r.json())
-      .then((d) => setPartners(d.professionals || []))
-      .catch(() => {});
+      .then((d) => {
+        const list = d.professionals || [];
+        setPartners(list.length > 0 ? list : MOCK_PROFESSIONALS);
+      })
+      .catch(() => setPartners(MOCK_PROFESSIONALS));
   }, []);
 
   const filtered = partners.filter((p) => {

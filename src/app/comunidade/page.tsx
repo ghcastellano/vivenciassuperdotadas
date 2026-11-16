@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Palette, Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2 } from "lucide-react";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
+import { MOCK_SUBMISSIONS } from "@/lib/mock-data";
+import { ImageCurtainReveal } from "@/components/EditorialEffects";
 
 interface Submission {
   id: string;
@@ -18,6 +20,7 @@ interface Submission {
   image_url: string;
   credits: string;
   created_at: string;
+  isMock?: boolean;
 }
 
 export default function ComunidadePage() {
@@ -38,8 +41,11 @@ export default function ComunidadePage() {
   useEffect(() => {
     fetch("/api/community")
       .then((r) => r.json())
-      .then((d) => setSubmissions(d.submissions || []))
-      .catch(() => {});
+      .then((d) => {
+        const list = d.submissions || [];
+        setSubmissions(list.length > 0 ? list : MOCK_SUBMISSIONS);
+      })
+      .catch(() => setSubmissions(MOCK_SUBMISSIONS));
   }, []);
 
   const submit = async (e: React.FormEvent) => {
@@ -236,7 +242,9 @@ export default function ComunidadePage() {
                 </div>
 
                 {s.image_url && (
-                  <img src={s.image_url} alt={s.title} className="mt-4 aspect-[16/10] w-full rounded-xl object-cover" />
+                  <div className="mt-4 aspect-[16/10] w-full overflow-hidden rounded-xl">
+                    <ImageCurtainReveal src={s.image_url} alt={s.title} className="h-full w-full object-cover" />
+                  </div>
                 )}
 
                 <h2 className="mt-4 font-display text-lg font-semibold flex items-center gap-2">

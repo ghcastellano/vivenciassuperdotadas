@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { Calendar, ExternalLink, MapPin } from "lucide-react";
+import { MOCK_EVENTS } from "@/lib/mock-data";
+import { ImageCurtainReveal } from "@/components/EditorialEffects";
 
 interface EventItem {
   id: string;
@@ -11,6 +13,7 @@ interface EventItem {
   format: string;
   image_url: string;
   event_link: string;
+  isMock?: boolean;
 }
 
 export default function EventosPage() {
@@ -19,8 +22,11 @@ export default function EventosPage() {
   useEffect(() => {
     fetch("/api/events")
       .then((r) => r.json())
-      .then((d) => setEvents(d.events || []))
-      .catch(() => {});
+      .then((d) => {
+        const list = d.events || [];
+        setEvents(list.length > 0 ? list : MOCK_EVENTS);
+      })
+      .catch(() => setEvents(MOCK_EVENTS));
   }, []);
 
   return (
@@ -63,7 +69,7 @@ export default function EventosPage() {
             <article key={ev.id} className="editorial-card overflow-hidden rounded-2xl flex flex-col justify-between">
               <div>
                 <div className="aspect-[16/9] w-full overflow-hidden bg-black/5">
-                  <img
+                  <ImageCurtainReveal
                     src={ev.image_url || "/images/logo-vivencias.jpg"}
                     alt={ev.title}
                     className="h-full w-full object-cover"

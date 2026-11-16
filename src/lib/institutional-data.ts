@@ -60,7 +60,7 @@ export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
       "Mapeamento interativo de vieses cognitivos para treinar pensamento crítico, reconhecer atalhos mentais e evitar armadilhas interpretativas.",
     detail:
       "Mesmo mentes analíticas e com alta capacidade de abstração estão sujeitas a vieses cognitivos — inclusive ao interpretar a própria trajetória. O Atlas de Vieses é um dos recursos recomendados da nossa Área de Conhecimento.",
-    source: "Projeto Entrelinhas · ghcastellano",
+    source: "Projeto Entrelinhas · Atlas de Vieses Cognitivos",
     href: "https://atlasvieses.vercel.app/",
     external: true,
     featured: true,
@@ -107,7 +107,7 @@ export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
     detail:
       "O esforço contínuo para esconder diferenças (masking) gera exaustão. Compreender o próprio funcionamento ajuda a buscar suporte específico baseado em evidências.",
     source: "Pesquisas sobre Twice-Exceptionality (2e)",
-    href: "/exploracao",
+    href: "/conhecimento#glossario",
   },
 ];
 

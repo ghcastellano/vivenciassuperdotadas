@@ -11,11 +11,16 @@ test("GET / returns 200 and contains Vivências Superdotadas", async () => {
 });
 
 test("Public pages render cleanly with HTTP 200", async () => {
-  const routes = ["/sobre", "/exploracao", "/conhecimento", "/profissionais", "/eventos", "/associe-se", "/comunidade", "/apoie", "/loja", "/entrar"];
+  const routes = ["/sobre", "/conhecimento", "/profissionais", "/eventos", "/associe-se", "/comunidade", "/apoie", "/loja", "/entrar"];
   for (const route of routes) {
     const res = await fetch(`${BASE_URL}${route}`);
     assert.equal(res.status, 200, `Expected 200 on ${route}`);
   }
+});
+
+test("/exploracao was removed and returns 404", async () => {
+  const res = await fetch(`${BASE_URL}/exploracao`);
+  assert.equal(res.status, 404);
 });
 
 test("Neon Postgres wired APIs: /api/transparency returns valid JSON", async () => {
@@ -36,23 +41,6 @@ test("Neon Postgres wired APIs: /api/professionals, /api/events, /api/community 
   assert.ok(Array.isArray(p.professionals));
   assert.ok(Array.isArray(e.events));
   assert.ok(Array.isArray(c.submissions));
-});
-
-test("Neon Postgres write + read: POST /api/exploration persists anonymous stats", async () => {
-  const res = await fetch(`${BASE_URL}/api/exploration`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      module: "test-suite",
-      ahsdScore: 410,
-      reasoningScore: 10,
-      reasoningTotal: 12,
-    }),
-  });
-  assert.equal(res.status, 201);
-  const data = await res.json();
-  assert.equal(data.ok, true);
-  assert.equal(data.persisted, true);
 });
 
 test("Security guard: /api/admin rejects unauthenticated requests with 403", async () => {

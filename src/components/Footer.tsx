@@ -36,9 +36,9 @@ export function Footer() {
             <p className="font-semibold">Portal</p>
             <ul className="space-y-1.5" style={{ color: "var(--text-secondary)" }}>
               <li><Link href="/sobre" className="hover:underline">Missão, Visão e Valores</Link></li>
-              <li><Link href="/exploracao" className="hover:underline">Exploração Pessoal (não é diagnóstico)</Link></li>
               <li><Link href="/conhecimento" className="hover:underline">Área de Conhecimento</Link></li>
               <li><Link href="/profissionais" className="hover:underline">Profissionais Parceiros</Link></li>
+              <li><Link href="/eventos" className="hover:underline">Próximos Eventos</Link></li>
             </ul>
           </div>
 
