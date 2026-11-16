@@ -11,6 +11,7 @@ export default function AssocieSePage() {
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState("Pessoa com AH/SD");
   const [cityState, setCityState] = useState("");
+  const [hasMedicalReport, setHasMedicalReport] = useState("nao_informado");
   const [manifesto, setManifesto] = useState("");
   const [acceptedCode, setAcceptedCode] = useState(false);
   const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(DEFAULT_AVATAR_CONFIG);
@@ -31,6 +32,7 @@ export default function AssocieSePage() {
         email,
         profile,
         cityState,
+        hasMedicalReport,
         manifesto,
         acceptedCode,
         avatarConfig,
@@ -140,6 +142,22 @@ export default function AssocieSePage() {
                 className="min-h-[44px] rounded-xl border px-3.5 text-sm"
                 style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
               />
+              <label className="block space-y-1 text-xs sm:col-span-2">
+                <span className="font-medium" style={{ color: "var(--text-secondary)" }}>
+                  Possui laudo médico ou avaliação formal (neuropsicológica/psicológica)?
+                </span>
+                <select
+                  value={hasMedicalReport}
+                  onChange={(e) => setHasMedicalReport(e.target.value)}
+                  className="w-full min-h-[44px] rounded-xl border px-3.5 text-sm"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+                >
+                  <option value="sim">Sim, possuo laudo / avaliação formal</option>
+                  <option value="em_avaliacao">Estou em processo de avaliação</option>
+                  <option value="nao">Não possuo laudo (em investigação ou aliado/neurotípico)</option>
+                  <option value="nao_informado">Prefiro não informar</option>
+                </select>
+              </label>
               <input
                 placeholder="Frase curta ou manifesto para seu cartão único (opcional)"
                 value={manifesto}

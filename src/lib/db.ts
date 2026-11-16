@@ -41,8 +41,11 @@ export async function ensureSchema(): Promise<void> {
           avatar_config JSONB,
           neurodivergences TEXT[] DEFAULT '{}',
           manifesto TEXT DEFAULT '',
+          has_medical_report TEXT DEFAULT 'nao_informado',
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS has_medical_report TEXT DEFAULT 'nao_informado';
 
         CREATE TABLE IF NOT EXISTS memberships (
           id TEXT PRIMARY KEY,
@@ -54,9 +57,12 @@ export async function ensureSchema(): Promise<void> {
           neurodivergences TEXT[] DEFAULT '{}',
           avatar_config JSONB NOT NULL,
           manifesto TEXT DEFAULT '',
+          has_medical_report TEXT DEFAULT 'nao_informado',
           accepted_code BOOLEAN NOT NULL DEFAULT TRUE,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS has_medical_report TEXT DEFAULT 'nao_informado';
 
         CREATE TABLE IF NOT EXISTS partner_professionals (
           id TEXT PRIMARY KEY,

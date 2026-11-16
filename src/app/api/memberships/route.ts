@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     const profile = String(body.profile || "Pessoa com AH/SD").trim();
     const cityState = String(body.cityState || "").trim();
     const manifesto = String(body.manifesto || "").trim().slice(0, 240);
+    const hasMedicalReport = String(body.hasMedicalReport || "nao_informado").trim();
     const neurodivergences = Array.isArray(body.neurodivergences) ? body.neurodivergences : ["ahsd"];
     const avatarConfig = body.avatarConfig || {};
     const acceptedCode = Boolean(body.acceptedCode);
@@ -34,8 +35,8 @@ export async function POST(req: Request) {
     const id = crypto.randomUUID();
 
     await query(
-      `INSERT INTO memberships (id, user_id, name, email, profile, city_state, neurodivergences, avatar_config, manifesto, accepted_code)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      `INSERT INTO memberships (id, user_id, name, email, profile, city_state, neurodivergences, avatar_config, manifesto, has_medical_report, accepted_code)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [
         id,
         userId,
@@ -46,14 +47,15 @@ export async function POST(req: Request) {
         neurodivergences,
         JSON.stringify(avatarConfig),
         manifesto,
+        hasMedicalReport,
         acceptedCode,
       ]
     );
 
     if (userId) {
       await query(
-        "UPDATE users SET avatar_config = $1, neurodivergences = $2, manifesto = $3 WHERE id = $4",
-        [JSON.stringify(avatarConfig), neurodivergences, manifesto, userId]
+        "UPDATE users SET avatar_config = $1, neurodivergences = $2, manifesto = $3, has_medical_report = $4 WHERE id = $5",
+        [JSON.stringify(avatarConfig), neurodivergences, manifesto, hasMedicalReport, userId]
       );
     }
 
