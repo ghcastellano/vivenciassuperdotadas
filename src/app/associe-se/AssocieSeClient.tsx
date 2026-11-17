@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { DEFAULT_AVATAR_CONFIG, type AvatarConfig } from "@/lib/avatar";
 import { AvatarStudio } from "@/components/AvatarStudio";
@@ -35,7 +35,73 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
     initial.neurodivergences.length > 0 ? initial.neurodivergences : ["ahsd"]
   );
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
+  const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (!isEditingExisting) {
+      try {
+        const draft = localStorage.getItem("vivencias-avatar-draft");
+        if (draft) {
+          const parsed = JSON.parse(draft);
+          if (parsed.avatarConfig) setAvatarConfig((prev) => ({ ...prev, ...parsed.avatarConfig }));
+          if (Array.isArray(parsed.neurodivergences) && parsed.neurodivergences.length > 0) {
+            setNeurodivergences(parsed.neurodivergences);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [isEditingExisting]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (!isEditingExisting) {
+      try {
+        localStorage.setItem(
+          "vivencias-avatar-draft",
+          JSON.stringify({ avatarConfig, neurodivergences })
+        );
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    if (!name.trim() || !email.trim()) return;
+    setAutoSaveState("saving");
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/memberships", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            profile,
+            cityState,
+            hasMedicalReport,
+            showInDirectory,
+            manifesto,
+            acceptedCode: true,
+            avatarConfig,
+            neurodivergences,
+          }),
+        });
+        setAutoSaveState(res.ok ? "saved" : "error");
+      } catch {
+        setAutoSaveState("error");
+      }
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [avatarConfig, neurodivergences, isEditingExisting, name, email, profile, cityState, hasMedicalReport, showInDirectory, manifesto]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,6 +178,28 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-8 space-y-8">
+          {isEditingExisting && autoSaveState !== "idle" && (
+            <div className="flex justify-end">
+              <span
+                role="status"
+                className="font-mono-num text-xs font-medium"
+                style={{
+                  color:
+                    autoSaveState === "error"
+                      ? "var(--accent-crimson)"
+                      : autoSaveState === "saved"
+                      ? "var(--accent-emerald)"
+                      : "var(--text-muted)",
+                }}
+              >
+                {autoSaveState === "saving"
+                  ? "Salvando características automaticamente..."
+                  : autoSaveState === "saved"
+                  ? "✓ Alterações do avatar salvas automaticamente"
+                  : "Não foi possível salvar automaticamente — tente pelo botão abaixo."}
+              </span>
+            </div>
+          )}
           <AvatarStudio
             config={avatarConfig}
             onChange={setAvatarConfig}
