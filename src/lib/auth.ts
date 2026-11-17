@@ -149,21 +149,41 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         let role = (user as { role?: string }).role || "member";
+        let membershipStatus = "none";
+        let memberNumber = "";
         if (user.email) {
+          const emailLower = user.email.toLowerCase();
           if (isAdminEmail(user.email)) {
             role = "admin";
-          } else if (isDatabaseConfigured()) {
-            const rows = await query<{ id: string; role: string }>(
-              "SELECT id, role FROM users WHERE LOWER(email) = $1 LIMIT 1",
-              [user.email.toLowerCase()]
-            );
-            if (rows[0]) {
-              token.id = rows[0].id;
-              role = rows[0].role;
+          }
+          if (isDatabaseConfigured()) {
+            try {
+              const [uRows, mRows] = await Promise.all([
+                query<{ id: string; role: string }>(
+                  "SELECT id, role FROM users WHERE LOWER(email) = $1 LIMIT 1",
+                  [emailLower]
+                ),
+                query<{ membership_status: string; member_number: string }>(
+                  "SELECT membership_status, member_number FROM memberships WHERE LOWER(email) = $1 ORDER BY created_at DESC LIMIT 1",
+                  [emailLower]
+                ),
+              ]);
+              if (uRows[0]) {
+                token.id = uRows[0].id;
+                if (!isAdminEmail(user.email)) role = uRows[0].role;
+              }
+              if (mRows[0]) {
+                membershipStatus = mRows[0].membership_status || "pending";
+                memberNumber = mRows[0].member_number || "";
+              }
+            } catch {
+              // keep defaults
             }
           }
         }
         token.role = role;
+        token.membershipStatus = membershipStatus;
+        token.memberNumber = memberNumber;
       }
       return token;
     },
@@ -177,23 +197,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
         u.id = String(token.id || "");
         u.role = String(token.role || "member");
-        u.membershipStatus = "none";
-        u.memberNumber = "";
-
-        if (isDatabaseConfigured() && session.user.email) {
-          try {
-            const mRows = await query<{ membership_status: string; member_number: string }>(
-              "SELECT membership_status, member_number FROM memberships WHERE LOWER(email) = $1 ORDER BY created_at DESC LIMIT 1",
-              [session.user.email.toLowerCase()]
-            );
-            if (mRows[0]) {
-              u.membershipStatus = mRows[0].membership_status || "pending";
-              u.memberNumber = mRows[0].member_number || "";
-            }
-          } catch {
-            // keep defaults
-          }
-        }
+        u.membershipStatus = String(token.membershipStatus || "none");
+        u.memberNumber = String(token.memberNumber || "");
       }
       return session;
     },

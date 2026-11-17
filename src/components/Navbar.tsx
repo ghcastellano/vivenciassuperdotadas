@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { useSensory } from "@/components/SensoryProvider";
 import { useSession } from "next-auth/react";
-import { motion } from "motion/react";
 import { ReadingProgressBar } from "@/components/EditorialEffects";
 import { BrandMark } from "@/components/BrandMark";
 
@@ -68,6 +67,12 @@ export function Navbar() {
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sensoryOpen, setSensoryOpen] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPendingHref(null);
+    setMobileOpen(false);
+  }, [pathname]);
   const {
     theme,
     font,
@@ -105,28 +110,30 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Editorial Single-Line Nav with hairline active underline */}
+          {/* Editorial Single-Line Nav with instant optimistic active underline */}
           <nav aria-label="Navegação principal" className="hidden xl:flex items-center gap-1 2xl:gap-2">
             {NAV_LINKS.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const currentPath = pendingHref || pathname;
+              const active = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="relative flex min-h-[40px] shrink-0 items-center whitespace-nowrap px-2.5 2xl:px-3 py-1.5 text-[13px] font-medium transition-colors"
+                  onClick={() => setPendingHref(item.href)}
+                  className="relative flex min-h-[40px] shrink-0 items-center whitespace-nowrap px-2.5 2xl:px-3 py-1.5 text-[13px] font-medium transition-colors hover:opacity-80"
                   style={{
                     color: active ? "var(--text-primary)" : "var(--text-secondary)",
                   }}
                 >
                   {item.label}
-                  {active && (
-                    <motion.span
-                      layoutId="nav-underline"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                      className="absolute bottom-1 left-2.5 right-2.5 h-[1.5px]"
-                      style={{ backgroundColor: "var(--accent-emerald)" }}
-                    />
-                  )}
+                  <span
+                    aria-hidden="true"
+                    className="absolute bottom-1 left-2.5 right-2.5 h-[2px] transition-opacity duration-150"
+                    style={{
+                      backgroundColor: "var(--accent-emerald)",
+                      opacity: active ? 1 : 0,
+                    }}
+                  />
                 </Link>
               );
             })}
