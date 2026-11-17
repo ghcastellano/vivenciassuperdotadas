@@ -52,7 +52,7 @@ export default async function AvatarCardPage({
           </p>
           <Link
             href="/associe-se"
-            className="btn-primary inline-flex min-h-[46px] items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold"
+            className="btn-primary inline-flex min-h-[46px] items-center gap-2 rounded-md px-6 py-2.5 text-sm font-semibold"
           >
             <Sparkles className="h-4 w-4" />
             <span>Criar meu Avatar Único</span>

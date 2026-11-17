@@ -230,7 +230,7 @@ export default function EntrarPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+            className="btn-primary flex min-h-[44px] w-full items-center justify-center gap-2 rounded-md text-sm font-semibold disabled:opacity-60"
           >
             <span>{loading ? "Processando..." : mode === "login" ? "Entrar" : "Criar conta e entrar"}</span>
             <ArrowRight className="h-4 w-4" />

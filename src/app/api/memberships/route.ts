@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const cityState = String(body.cityState || "").trim();
     const manifesto = String(body.manifesto || "").trim().slice(0, 240);
     const hasMedicalReport = String(body.hasMedicalReport || "nao_informado").trim();
-    const showInDirectory = body.showInDirectory !== false;
+    const showInDirectory = Boolean(body.showInDirectory);
     const neurodivergences = Array.isArray(body.neurodivergences) ? body.neurodivergences : ["ahsd"];
     const avatarConfig = body.avatarConfig || {};
     const acceptedCode = Boolean(body.acceptedCode);

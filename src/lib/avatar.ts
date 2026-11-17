@@ -23,14 +23,14 @@ export const NEURODIVERGENCE_BADGES: NeurodivergenceBadge[] = [
     id: "ahsd",
     label: "Altas Habilidades / Superdotação",
     short: "AH/SD",
-    color: "#0F5C4D",
+    color: "#18492D",
     description: "Potencial elevado em uma ou mais áreas combinadas ou isoladas.",
   },
   {
     id: "dupla-excepcionalidade",
     label: "Dupla Excepcionalidade (2e)",
     short: "2e",
-    color: "#C83E37",
+    color: "#BD4626",
     description: "AH/SD coexistindo com outra neurodivergência ou condição.",
   },
   {
@@ -230,8 +230,8 @@ export function renderShareableAvatarSvg(
   const activeBadges = NEURODIVERGENCE_BADGES.filter((b) =>
     neurodivergences.includes(b.id)
   );
-  const primary = activeBadges[0]?.color || "#0F5C4D";
-  const secondary = activeBadges[1]?.color || "#D98A2B";
+  const primary = activeBadges[0]?.color || "#18492D";
+  const secondary = activeBadges[1]?.color || "#BD4626";
 
   const badgePills = activeBadges
     .slice(0, 4)
@@ -241,8 +241,8 @@ export function renderShareableAvatarSvg(
       const x = 42 + col * 172;
       const y = 342 + row * 38;
       return `<g transform="translate(${x},${y})">
-        <rect width="160" height="28" rx="14" fill="${b.color}" />
-        <text x="80" y="18" text-anchor="middle" fill="#FAF7F2" font-family="system-ui,Segoe UI,sans-serif" font-size="11.5" font-weight="700">∞ ${escapeXml(b.short)}</text>
+        <rect width="160" height="28" rx="6" fill="${b.color}" />
+        <text x="80" y="18" text-anchor="middle" fill="#EDEFF0" font-family="system-ui,Segoe UI,sans-serif" font-size="11.5" font-weight="700">${escapeXml(b.short)}</text>
       </g>`;
     })
     .join("");
@@ -257,17 +257,15 @@ export function renderShareableAvatarSvg(
       <circle cx="210" cy="170" r="102" />
     </clipPath>
   </defs>
-  <rect width="420" height="470" rx="28" fill="#FAF7F2" stroke="#E4DCCE" stroke-width="2" />
-  <text x="210" y="42" text-anchor="middle" fill="#0F5C4D" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="700" letter-spacing="2">CADA PESSOA É ÚNICA</text>
+  <rect width="420" height="470" rx="28" fill="#EDEFF0" stroke="#CDD8D5" stroke-width="2" />
+  <text x="210" y="42" text-anchor="middle" fill="#18492D" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="700" letter-spacing="2">CADA PESSOA É ÚNICA</text>
   <circle cx="210" cy="170" r="110" fill="url(#neuroRing)" />
   <circle cx="210" cy="170" r="102" fill="#FFFFFF" />
   <g clip-path="url(#avatarClip)">
     <svg x="108" y="68" width="204" height="204" viewBox="0 0 280 280">${innerSvg}</svg>
   </g>
-  <circle cx="286" cy="246" r="20" fill="${primary}" stroke="#FAF7F2" stroke-width="4" />
-  <text x="286" y="252" text-anchor="middle" fill="#FFFFFF" font-family="system-ui,sans-serif" font-size="16" font-weight="700">∞</text>
-  <text x="210" y="315" text-anchor="middle" fill="#1E2422" font-family="Georgia,serif" font-size="22" font-weight="700">${escapeXml(personName || "Você")}</text>
+  <text x="210" y="315" text-anchor="middle" fill="#191B1C" font-family="Georgia,serif" font-size="22" font-weight="700">${escapeXml(personName || "Você")}</text>
   ${badgePills}
-  <text x="210" y="446" text-anchor="middle" fill="#66736E" font-family="system-ui,Segoe UI,sans-serif" font-size="11">Associação Vivências Superdotadas</text>
+  <text x="210" y="446" text-anchor="middle" fill="#595F61" font-family="system-ui,Segoe UI,sans-serif" font-size="11">Associação Vivências Superdotadas</text>
 </svg>`;
 }

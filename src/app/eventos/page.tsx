@@ -91,7 +91,7 @@ export default async function EventosPage() {
                   href={ev.event_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold"
+                  className="btn-primary inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold"
                 >
                   <span>Acessar / Inscrever-se</span>
                   <ExternalLink className="h-4 w-4" />

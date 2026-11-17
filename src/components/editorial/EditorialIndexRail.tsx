@@ -100,7 +100,7 @@ export function EditorialIndexRail({ items }: { items: IndexJourneyItem[] }) {
         <div className="mt-8 flex flex-wrap items-center gap-5 pt-4 border-t" style={{ borderColor: "var(--border-subtle)" }}>
           <Link
             href={current.ctaHref}
-            className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
+            className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold"
           >
             <span>{current.ctaLabel}</span>
             <ArrowRight className="h-4 w-4" />

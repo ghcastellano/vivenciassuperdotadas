@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Globe, CheckCircle2, Phone, Mail, ExternalLink, MessageCircle } from "lucide-react";
+import Link from "next/link";
+import { MapPin, CheckCircle2, Mail, ExternalLink, MessageCircle } from "lucide-react";
 
 function toWhatsAppHref(rawPhone: string, profName: string): string {
   const digits = rawPhone.replace(/\D/g, "");
@@ -48,24 +49,31 @@ const REGIONS = [
   "Online",
 ] as const;
 
+function normalizeText(value?: string | null): string {
+  return (value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 const SPECIALTY_FILTERS = [
-  { key: "todas", label: "Todas Especialidades", terms: [] as string[] },
-  { key: "psicologia", label: "Psicologia", terms: ["psicólog", "psicolog", "tcc"] },
-  { key: "neuropsicologia", label: "Neuropsicologia", terms: ["neuropsic"] },
+  { key: "todas", label: "Todas Especialidades", pattern: null },
+  { key: "psicologia", label: "Psicologia", pattern: /\bpsicolog|\btcc\b/ },
+  { key: "neuropsicologia", label: "Neuropsicologia", pattern: /\bneuropsicolog/ },
   {
     key: "psicopedagogia",
     label: "Psicopedagogia / Neuropsicopedagogia",
-    terms: ["psicopedagog", "neuropsicopedagog", "neuroaprendizagem"],
+    pattern: /\bpsicopedagog|\bneuropsicopedagog|\bneuroaprendizagem/,
   },
   {
     key: "educacao",
     label: "Avaliação Pedagógica / Educação",
-    terms: ["pedagóg", "pedagog", "educação", "educacao", "pei", "enriquecimento"],
+    pattern: /\bpedagog|\beducac|\bpei\b|\benriquecimento/,
   },
   {
     key: "terapias",
     label: "Musicoterapia / Arteterapia",
-    terms: ["musicoterapia", "arteterapia"],
+    pattern: /\bmusicoterapia|\barteterapia/,
   },
 ] as const;
 
@@ -93,44 +101,62 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
     email: "",
     socialUrl: "",
     otherQualifications: "",
+    acceptedDataPolicy: false,
   });
 
   const filtered = partners.filter((p) => {
-    const q = filter.toLowerCase();
-    const haystack = [
-      p.name,
-      p.specialty,
-      p.approach,
-      p.city_state,
-      p.state,
-      p.city,
-      p.other_qualifications,
-      p.bio,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
+    const q = normalizeText(filter.trim());
+    const haystack = normalizeText(
+      [
+        p.name,
+        p.specialty,
+        p.approach,
+        p.region,
+        p.city_state,
+        p.state,
+        p.city,
+        p.other_qualifications,
+        p.bio,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    );
 
     const matchesText = !q || haystack.includes(q);
     const matchesRegion =
       regionFilter === "Todas" ||
-      (p.region || "").toLowerCase().includes(regionFilter.toLowerCase()) ||
+      normalizeText(p.region).includes(normalizeText(regionFilter)) ||
       (regionFilter === "Online" && p.online_available);
 
     const specObj = SPECIALTY_FILTERS.find((s) => s.key === specialtyFilter);
-    const matchesSpecialty =
-      !specObj ||
-      specObj.terms.length === 0 ||
-      specObj.terms.some((term) => haystack.includes(term));
+    const specialtyTarget = normalizeText([p.specialty, p.approach].filter(Boolean).join(" "));
+    const matchesSpecialty = !specObj || !specObj.pattern || specObj.pattern.test(specialtyTarget);
 
+    const svc = normalizeText(p.service_type || "ambos");
     const matchesService =
       serviceFilter === "todos" ||
-      (p.service_type || "ambos") === serviceFilter ||
-      (p.service_type || "ambos") === "ambos";
+      svc === serviceFilter ||
+      svc === "ambos" ||
+      svc.includes(serviceFilter);
 
     const matchesOnline = !onlineOnly || p.online_available;
     return matchesText && matchesRegion && matchesSpecialty && matchesService && matchesOnline;
   });
+
+  const hasActiveFilters =
+    filter.trim() !== "" ||
+    regionFilter !== "Todas" ||
+    specialtyFilter !== "todas" ||
+    serviceFilter !== "todos" ||
+    onlineOnly;
+
+  const clearFilters = () => {
+    setFilter("");
+    setRegionFilter("Todas");
+    setSpecialtyFilter("todas");
+    setServiceFilter("todos");
+    setOnlineOnly(false);
+  };
 
   const submitForm = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,7 +195,7 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
         <button
           type="button"
           onClick={() => setFormOpen((v) => !v)}
-          className="btn-primary min-h-[44px] shrink-0 rounded-xl px-5 py-2.5 text-sm font-semibold"
+          className="btn-primary min-h-[44px] shrink-0 rounded-md px-5 py-2.5 text-sm font-semibold"
         >
           {formOpen ? "Fechar formulário" : "Sou profissional · Quero me cadastrar"}
         </button>
@@ -356,7 +382,25 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
             />
           </label>
 
-          <button type="submit" className="btn-primary min-h-[44px] rounded-xl px-6 py-2.5 text-sm font-semibold">
+          <label className="flex items-start gap-3 pt-1 text-xs sm:text-sm">
+            <input
+              type="checkbox"
+              required
+              checked={form.acceptedDataPolicy}
+              onChange={(e) => setForm({ ...form, acceptedDataPolicy: e.target.checked })}
+              className="mt-1 h-4 w-4 shrink-0"
+            />
+            <span style={{ color: "var(--text-secondary)" }}>
+              Li e concordo com a{" "}
+              <Link href="/privacidade" target="_blank" className="underline font-semibold" style={{ color: "var(--accent-emerald)" }}>
+                Política de Tratamento de Dados (LGPD)
+              </Link>{" "}
+              e autorizo explicitamente o tratamento e a exposição pública dos dados informados (nome, especialidade,
+              registro, localização e contatos profissionais) no diretório do portal após aprovação. *
+            </span>
+          </label>
+
+          <button type="submit" className="btn-primary min-h-[44px] rounded-md px-6 py-2.5 text-sm font-semibold">
             Enviar para aprovação
           </button>
         </form>
@@ -410,10 +454,10 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
               key={spec.key}
               type="button"
               onClick={() => setSpecialtyFilter(spec.key)}
-              className="min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold transition-colors"
+              className="min-h-[38px] rounded-md border px-3.5 py-1.5 text-xs font-semibold transition-colors"
               style={{
                 backgroundColor: specialtyFilter === spec.key ? "var(--accent-emerald)" : "var(--bg-card)",
-                color: specialtyFilter === spec.key ? "#FAF7F2" : "var(--text-primary)",
+                color: specialtyFilter === spec.key ? "#FFFFFF" : "var(--text-primary)",
                 borderColor: specialtyFilter === spec.key ? "var(--accent-emerald)" : "var(--border-subtle)",
               }}
             >
@@ -421,28 +465,52 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
             </button>
           ))}
         </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
+          <span>
+            {filtered.length === 1
+              ? "1 profissional encontrado"
+              : `${filtered.length} profissionais encontrados`}
+          </span>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="rounded-md border px-3 py-1 font-semibold transition-colors hover:opacity-80"
+              style={{ borderColor: "var(--border-subtle)", color: "var(--text-primary)" }}
+            >
+              Limpar filtros
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Professionals Grid */}
+      {filtered.length === 0 ? (
+        <div
+          className="mt-8 rounded-xl border p-8 text-center text-sm space-y-3"
+          style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
+        >
+          <p>Nenhum profissional encontrado com os filtros selecionados.</p>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="btn-secondary inline-flex min-h-[38px] items-center rounded-md px-4 py-1.5 text-xs font-semibold"
+            >
+              Limpar filtros
+            </button>
+          )}
+        </div>
+      ) : (
       <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((p) => (
           <div key={p.id} className="editorial-card rounded-xl p-6 flex flex-col justify-between">
             <div>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span
-                  className="rounded-md border px-2.5 py-0.5 text-[11px] font-semibold"
-                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
-                >
-                  {p.specialty}
-                </span>
-                {p.online_available && (
-                  <span className="inline-flex items-center gap-1 font-mono-num text-[11px] font-medium" style={{ color: "var(--accent-emerald)" }}>
-                    <Globe className="h-3 w-3" /> Online
-                  </span>
-                )}
-              </div>
-
-              <h2 className="mt-3.5 font-display text-xl font-semibold">{p.name}</h2>
+              <h2 className="font-display text-xl font-semibold">{p.name}</h2>
+              <p className="mt-1 text-xs font-semibold" style={{ color: "var(--accent-emerald)" }}>
+                {p.specialty}
+              </p>
               <p className="mt-1 text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
                 {SERVICE_TYPE_LABELS[p.service_type || "ambos"] || "Avaliação e Acompanhamento"}
                 {p.approach ? ` · ${p.approach}` : ""}
@@ -465,7 +533,7 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
                     href={toWhatsAppHref(p.whatsapp, p.name)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-primary inline-flex min-h-[38px] items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold"
+                    className="btn-primary inline-flex min-h-[38px] items-center gap-2 rounded-md px-3.5 py-1.5 text-xs font-semibold"
                     title="Abrir conversa no WhatsApp"
                   >
                     <MessageCircle className="h-3.5 w-3.5 shrink-0" />
@@ -505,6 +573,7 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

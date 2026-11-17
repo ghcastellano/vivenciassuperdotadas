@@ -1,17 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --bg-canvas: #FAF7F2;
-  --bg-surface: #F2ECE1;
+  --bg-canvas: #EDEFF0;
+  --bg-surface: #E2E7E5;
   --bg-card: #FFFFFF;
-  --text-primary: #171C1A;
-  --text-secondary: #48524E;
-  --text-muted: #66736E;
-  --border-subtle: #DDD4C3;
-  --accent-emerald: #0F5C4D;
-  --accent-emerald-hover: #0B473B;
-  --accent-crimson: #A8322D;
-  --accent-amber: #B8862D;
+  --text-primary: #191B1C;
+  --text-secondary: #383B3D;
+  --text-muted: #595F61;
+  --border-subtle: #CDD8D5;
+  --accent-emerald: #18492D;
+  --accent-emerald-hover: #2A7148;
+  --accent-crimson: #BD4626;
+  --accent-crimson-hover: #883018;
+  --accent-amber: #BD4626;
+  --accent-santas: #9C9AAF;
   --font-body: var(--font-atkinson), system-ui, sans-serif;
   --font-display: var(--font-fraunces), Georgia, serif;
   --font-mono: var(--font-jetbrains), monospace;
@@ -19,17 +21,19 @@
 }
 
 html.dark {
-  --bg-canvas: #111514;
-  --bg-surface: #181E1C;
-  --bg-card: #1D2422;
-  --text-primary: #F3EFE8;
-  --text-secondary: #C5CFCB;
-  --text-muted: #93A09B;
-  --border-subtle: #28312E;
-  --accent-emerald: #269B84;
-  --accent-emerald-hover: #1E7E6B;
-  --accent-crimson: #D9655E;
-  --accent-amber: #D9A74A;
+  --bg-canvas: #090A0A;
+  --bg-surface: #191B1C;
+  --bg-card: #252827;
+  --text-primary: #EDEFF0;
+  --text-secondary: #C2C9CC;
+  --text-muted: #9BA3A8;
+  --border-subtle: #383B3D;
+  --accent-emerald: #4CC07D;
+  --accent-emerald-hover: #5FEB9B;
+  --accent-crimson: #F05C34;
+  --accent-crimson-hover: #F59F88;
+  --accent-amber: #F05C34;
+  --accent-santas: #9C9AAF;
 }
 
 html[data-font="lexend"] {
@@ -100,8 +104,13 @@ html[data-focus-mode="true"] .decorative-only {
 
 .btn-primary {
   background-color: var(--accent-emerald);
-  color: #FAF7F2;
+  color: #FFFFFF;
+  border-radius: 6px;
   transition: background-color 160ms ease, transform 120ms ease;
+}
+
+html.dark .btn-primary {
+  color: #082414;
 }
 
 .btn-primary:hover {
@@ -114,14 +123,16 @@ html[data-focus-mode="true"] .decorative-only {
 
 .btn-secondary {
   background-color: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
-  transition: border-color 160ms ease, background-color 160ms ease;
+  color: var(--accent-crimson);
+  border: 1px solid var(--accent-crimson);
+  border-radius: 6px;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
 }
 
 .btn-secondary:hover {
-  border-color: var(--text-primary);
-  background-color: var(--bg-surface);
+  border-color: var(--accent-crimson-hover);
+  background-color: var(--accent-crimson);
+  color: #FFFFFF;
 }
 
 .link-editorial {

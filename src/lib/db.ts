@@ -58,7 +58,7 @@ export async function ensureSchema(): Promise<void> {
           avatar_config JSONB NOT NULL,
           manifesto TEXT DEFAULT '',
           has_medical_report TEXT DEFAULT 'nao_informado',
-          show_in_directory BOOLEAN NOT NULL DEFAULT TRUE,
+          show_in_directory BOOLEAN NOT NULL DEFAULT FALSE,
           accepted_code BOOLEAN NOT NULL DEFAULT TRUE,
           membership_status TEXT NOT NULL DEFAULT 'pending',
           member_number TEXT DEFAULT '',
@@ -70,7 +70,8 @@ export async function ensureSchema(): Promise<void> {
         );
 
         ALTER TABLE memberships ADD COLUMN IF NOT EXISTS has_medical_report TEXT DEFAULT 'nao_informado';
-        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS show_in_directory BOOLEAN NOT NULL DEFAULT TRUE;
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS show_in_directory BOOLEAN NOT NULL DEFAULT FALSE;
+        ALTER TABLE memberships ALTER COLUMN show_in_directory SET DEFAULT FALSE;
         ALTER TABLE memberships ADD COLUMN IF NOT EXISTS membership_status TEXT NOT NULL DEFAULT 'active';
         ALTER TABLE memberships ALTER COLUMN membership_status SET DEFAULT 'pending';
         ALTER TABLE memberships ADD COLUMN IF NOT EXISTS member_number TEXT DEFAULT '';

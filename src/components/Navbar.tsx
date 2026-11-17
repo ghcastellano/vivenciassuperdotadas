@@ -303,7 +303,7 @@ export function Navbar() {
 
             <Link
               href="/associe-se"
-              className="btn-primary hidden sm:inline-flex min-h-[40px] shrink-0 items-center whitespace-nowrap rounded-lg px-4 py-1.5 text-xs sm:text-sm font-semibold"
+              className="btn-primary hidden sm:inline-flex min-h-[40px] shrink-0 items-center whitespace-nowrap rounded-md px-4 py-1.5 text-xs sm:text-sm font-semibold"
             >
               {session?.user ? "Meu Avatar" : "Associe-se"}
             </Link>
@@ -312,7 +312,7 @@ export function Navbar() {
               href={session?.user ? "/perfil" : "/entrar"}
               aria-label={session?.user ? "Abrir meu perfil" : "Entrar na conta"}
               title={session?.user ? `Logado como ${session.user.name || session.user.email}` : "Entrar ou criar conta"}
-              className="flex min-h-[38px] sm:min-h-[40px] items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors hover:bg-black/5"
+              className="flex min-h-[38px] sm:min-h-[40px] items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors hover:bg-black/5"
               style={{
                 borderColor: session?.user ? "var(--accent-emerald)" : "var(--border-subtle)",
                 backgroundColor: "transparent",
@@ -329,7 +329,7 @@ export function Navbar() {
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
-              className="flex xl:hidden min-h-[38px] min-w-[38px] sm:min-h-[40px] sm:min-w-[40px] items-center justify-center rounded-lg border"
+              className="flex xl:hidden min-h-[38px] min-w-[38px] sm:min-h-[40px] sm:min-w-[40px] items-center justify-center rounded-md border"
               style={{ borderColor: "var(--border-subtle)", backgroundColor: "transparent" }}
             >
               {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -366,14 +366,14 @@ export function Navbar() {
               <Link
                 href="/associe-se"
                 onClick={() => setMobileOpen(false)}
-                className="btn-primary flex-1 min-h-[44px] inline-flex items-center justify-center rounded-lg px-4 text-sm font-semibold"
+                className="btn-primary flex-1 min-h-[44px] inline-flex items-center justify-center rounded-md px-4 text-sm font-semibold"
               >
                 {session?.user ? "Meu Avatar" : "Associe-se"}
               </Link>
               <Link
                 href={session?.user ? "/perfil" : "/entrar"}
                 onClick={() => setMobileOpen(false)}
-                className="btn-secondary min-h-[44px] inline-flex items-center justify-center rounded-lg px-4 text-sm font-semibold"
+                className="btn-secondary min-h-[44px] inline-flex items-center justify-center rounded-md px-4 text-sm font-semibold"
               >
                 {session?.user ? "Meu Perfil" : "Entrar"}
               </Link>

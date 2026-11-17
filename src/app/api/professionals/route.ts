@@ -45,10 +45,18 @@ export async function POST(req: Request) {
     const serviceType = String(body.serviceType || "ambos").trim();
     const bio = String(body.bio || otherQualifications || "").trim();
     const contactUrl = socialUrl || String(body.contactUrl || "").trim();
+    const acceptedDataPolicy = Boolean(body.acceptedDataPolicy);
 
     if (!name || !specialty || !region || !state) {
       return NextResponse.json(
         { error: "Preencha os campos obrigatórios: nome, especialização, região e estado." },
+        { status: 400 }
+      );
+    }
+
+    if (!acceptedDataPolicy) {
+      return NextResponse.json(
+        { error: "É necessário concordar com a Política de Tratamento de Dados para enviar o cadastro." },
         { status: 400 }
       );
     }

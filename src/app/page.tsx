@@ -94,7 +94,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-5 pt-2">
                 <Link
                   href="/associe-se"
-                  className="btn-primary inline-flex min-h-[46px] items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold"
+                  className="btn-primary inline-flex min-h-[46px] items-center gap-2 rounded-md px-6 py-3 text-sm font-semibold"
                 >
                   <span>Associe-se e crie seu Avatar</span>
                   <ArrowRight className="h-4 w-4" />
@@ -138,71 +138,9 @@ export default function HomePage() {
         <EditorialIndexRail items={JOURNEYS} />
       </section>
 
-      {/* ATO 3: Os 3 Pilares em Grid Aberto com Hairlines + Diagrama de Assincronia */}
-      <section className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:px-10">
-        <div
-          className="grid gap-10 border-y py-12 lg:grid-cols-3 lg:gap-0 lg:divide-x"
-          style={{ borderColor: "var(--border-subtle)" }}
-        >
-          <div className="space-y-3 lg:pr-8">
-            <span className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
-              01 · Divulgação Científica
-            </span>
-            <h3 className="font-display text-2xl font-semibold">Conhecimento &amp; Vieses</h3>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-              Artigos em primeira pessoa, guia para educadores, direitos na LDB/AEE e o Atlas de Vieses Cognitivos para
-              questionar mitos comuns.
-            </p>
-            <div className="pt-2">
-              <Link href="/conhecimento" className="link-editorial inline-flex items-center gap-1.5 text-sm font-semibold">
-                <span>Abrir biblioteca</span>
-                <span>→</span>
-              </Link>
-            </div>
-          </div>
-
-          <div className="space-y-3 lg:px-8" style={{ borderColor: "var(--border-subtle)" }}>
-            <span className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
-              02 · Encaminhamento Ético
-            </span>
-            <h3 className="font-display text-2xl font-semibold">Profissionais Parceiros</h3>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-              Avaliação e acompanhamento terapêutico ou pedagógico exigem especialistas habilitados. Filtre por estado,
-              atendimento online e fale direto via WhatsApp.
-            </p>
-            <div className="pt-2">
-              <Link href="/profissionais" className="link-editorial inline-flex items-center gap-1.5 text-sm font-semibold">
-                <span>Consultar diretório</span>
-                <span>→</span>
-              </Link>
-            </div>
-          </div>
-
-          <div className="space-y-3 lg:pl-8" style={{ borderColor: "var(--border-subtle)" }}>
-            <span className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
-              03 · Voz em Primeira Pessoa
-            </span>
-            <h3 className="font-display text-2xl font-semibold">Comunidade &amp; Singularidade</h3>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-              Relatos reais, artes, links comentados e o Mural da Singularidade — onde cada associado cria seu avatar
-              único com seus traços de neurodivergência.
-            </p>
-            <div className="pt-2 flex flex-wrap gap-5">
-              <Link href="/comunidade" className="link-editorial inline-flex items-center gap-1.5 text-sm font-semibold">
-                <span>Ver comunidade</span>
-                <span>→</span>
-              </Link>
-              <Link href="/associe-se" className="link-editorial inline-flex items-center gap-1.5 text-sm font-semibold">
-                <span>Criar avatar</span>
-                <span>→</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-14">
-          <AssynchronyDiagram />
-        </div>
+      {/* ATO 3: Diagrama de Assincronia */}
+      <section className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:px-10">
+        <AssynchronyDiagram />
       </section>
 
       {/* ATO 4: Faixa Editorial de Transparência, Apoio & Convivência */}
@@ -227,14 +165,14 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center gap-4">
             <Link
               href="/apoie"
-              className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
+              className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold"
             >
               <span>Apoiar &amp; Ver Transparência</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/loja"
-              className="btn-secondary inline-flex min-h-[44px] items-center rounded-lg px-4 py-2.5 text-sm font-semibold"
+              className="btn-secondary inline-flex min-h-[44px] items-center rounded-md px-4 py-2.5 text-sm font-semibold"
             >
               Lojinha Oficial
             </Link>

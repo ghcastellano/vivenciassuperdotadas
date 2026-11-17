@@ -2,19 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2 } from "lucide-react";
+import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2, Users } from "lucide-react";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
 import { ImageCurtainReveal } from "@/components/EditorialEffects";
-import { SpotlightCard } from "@/components/ReactBitsText";
 
 export interface MemberAvatarCard {
   id: string;
-  first_name: string;
-  profile: string;
   avatar_config: Partial<AvatarConfig> | null;
   neurodivergences: string[];
-  manifesto: string;
 }
 
 export interface CommunitySubmissionItem {
@@ -35,12 +31,15 @@ export interface CommunitySubmissionItem {
 export function ComunidadeClient({
   initialSubmissions,
   initialMembers = [],
+  totalMembers = 0,
 }: {
   initialSubmissions: CommunitySubmissionItem[];
   initialMembers?: MemberAvatarCard[];
+  totalMembers?: number;
 }) {
   const [submissions] = useState<CommunitySubmissionItem[]>(initialSubmissions);
   const [kindFilter, setKindFilter] = useState("todos");
+  const [showAllAvatars, setShowAllAvatars] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -97,7 +96,7 @@ export function ComunidadeClient({
             href="https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-md border px-4 py-2.5 text-sm font-semibold"
             style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
           >
             <MessageCircle className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
@@ -106,7 +105,7 @@ export function ComunidadeClient({
           <button
             type="button"
             onClick={() => setFormOpen((v) => !v)}
-            className="btn-primary min-h-[44px] rounded-xl px-5 py-2.5 text-sm font-semibold"
+            className="btn-primary min-h-[44px] rounded-md px-5 py-2.5 text-sm font-semibold"
           >
             {formOpen ? "Fechar envio" : "Enviar arte, link ou relato"}
           </button>
@@ -193,7 +192,7 @@ export function ComunidadeClient({
             className="w-full min-h-[44px] rounded-xl border px-3.5 text-sm"
             style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
           />
-          <button type="submit" className="btn-primary min-h-[44px] rounded-xl px-6 py-2.5 text-sm font-semibold">
+          <button type="submit" className="btn-primary min-h-[44px] rounded-md px-6 py-2.5 text-sm font-semibold">
             Enviar para moderação
           </button>
         </form>
@@ -212,10 +211,10 @@ export function ComunidadeClient({
             key={k}
             type="button"
             onClick={() => setKindFilter(k)}
-            className="min-h-[40px] rounded-xl border px-3.5 py-1.5 text-xs sm:text-sm font-semibold"
+            className="min-h-[40px] rounded-md border px-3.5 py-1.5 text-xs sm:text-sm font-semibold"
             style={{
               backgroundColor: kindFilter === k ? "var(--accent-emerald)" : "var(--bg-card)",
-              color: kindFilter === k ? "#FAF7F2" : "var(--text-primary)",
+              color: kindFilter === k ? "#FFFFFF" : "var(--text-primary)",
               borderColor: kindFilter === k ? "var(--accent-emerald)" : "var(--border-subtle)",
             }}
           >
@@ -296,45 +295,73 @@ export function ComunidadeClient({
         </div>
       )}
 
-      {/* Mural da Singularidade — Associados com Avatares Únicos */}
-      {initialMembers.length > 0 && (
-        <section className="mt-16 border-t pt-12" style={{ borderColor: "var(--border-subtle)" }}>
-          <div className="mb-6 max-w-2xl space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
-              Cada pessoa é única · ∞
-            </p>
-            <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-              Mural da Singularidade — Quem faz o Vivências
-            </h2>
-            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              Associados(as) que escolheram compartilhar seu Avatar Único e suas marcas de neurodivergência.
-            </p>
-          </div>
+      {/* Mural da Singularidade — Contagem pública e avatares consentidos (sem exposição de nomes) */}
+      {(totalMembers > 0 || initialMembers.length > 0) && (() => {
+        const displayCount = totalMembers > 0 ? totalMembers : initialMembers.length;
+        const AVATAR_PREVIEW_LIMIT = 48;
+        const visibleAvatars = showAllAvatars
+          ? initialMembers
+          : initialMembers.slice(0, AVATAR_PREVIEW_LIMIT);
+        const remainingCount = initialMembers.length - visibleAvatars.length;
 
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {initialMembers.map((m) => (
-              <SpotlightCard key={m.id} className="p-5 text-center flex flex-col items-center justify-between">
-                <AvatarDisplay
-                  config={m.avatar_config}
-                  neurodivergences={m.neurodivergences?.length ? m.neurodivergences : ["ahsd"]}
-                  size={84}
-                />
-                <div className="mt-3">
-                  <p className="font-display text-base font-semibold">{m.first_name}</p>
-                  <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                    {m.profile}
-                  </p>
-                  {m.manifesto && (
-                    <p className="mt-2 text-xs italic line-clamp-2" style={{ color: "var(--text-secondary)" }}>
-                      “{m.manifesto}”
-                    </p>
+        return (
+          <section className="mt-16 border-t pt-12" style={{ borderColor: "var(--border-subtle)" }}>
+            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div className="max-w-2xl space-y-1.5">
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
+                  Cada pessoa é única
+                </p>
+                <h2 className="font-display text-2xl font-semibold sm:text-3xl">
+                  Mural da Singularidade — Quem faz o Vivências
+                </h2>
+                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                  Para preservar a privacidade em uma comunidade em crescimento, exibimos apenas a contagem pública de
+                  membros e os avatares de quem concordou expressamente em compartilhá-los.
+                </p>
+              </div>
+
+              <div
+                className="inline-flex shrink-0 items-center gap-2.5 rounded-md border px-4 py-2.5"
+                style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+              >
+                <Users className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
+                <span className="font-mono-num text-sm font-semibold">
+                  {displayCount} {displayCount === 1 ? "pessoa associada" : "pessoas associadas"}
+                </span>
+              </div>
+            </div>
+
+            {visibleAvatars.length > 0 && (
+              <div
+                className="rounded-xl border p-6"
+                style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  {visibleAvatars.map((m) => (
+                    <div key={m.id} className="shrink-0">
+                      <AvatarDisplay
+                        config={m.avatar_config}
+                        neurodivergences={m.neurodivergences?.length ? m.neurodivergences : ["ahsd"]}
+                        size={56}
+                        showBadges={false}
+                      />
+                    </div>
+                  ))}
+                  {remainingCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAllAvatars(true)}
+                      className="btn-secondary inline-flex h-[64px] items-center rounded-md px-4 text-xs font-semibold"
+                    >
+                      +{remainingCount} avatares
+                    </button>
                   )}
                 </div>
-              </SpotlightCard>
-            ))}
-          </div>
-        </section>
-      )}
+              </div>
+            )}
+          </section>
+        );
+      })()}
     </div>
   );
 }
