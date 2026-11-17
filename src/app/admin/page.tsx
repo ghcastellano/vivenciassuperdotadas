@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Shield, Check, X, Trash2, Plus } from "lucide-react";
 
 interface AdminData {
+  readOnly?: boolean;
   professionals: {
     id: string;
     name: string;
@@ -39,7 +40,7 @@ interface AdminData {
 
 export default function AdminPage() {
   const [data, setData] = useState<AdminData | null>(null);
-  const [unauthorized, setUnauthorized] = useState(false);
+  const [actionNotice, setActionNotice] = useState("");
 
   const [evForm, setEvForm] = useState({
     title: "",
@@ -59,10 +60,6 @@ export default function AdminPage() {
 
   const load = useCallback(async () => {
     const res = await fetch("/api/admin");
-    if (res.status === 403) {
-      setUnauthorized(true);
-      return;
-    }
     if (res.ok) {
       setData(await res.json());
     }
@@ -73,38 +70,47 @@ export default function AdminPage() {
   }, [load]);
 
   const act = async (payload: Record<string, unknown>) => {
-    await fetch("/api/admin", {
+    setActionNotice("");
+    const res = await fetch("/api/admin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+    if (res.status === 403) {
+      setActionNotice("Modo visualização aberta: faça login como administrador para gravar alterações no banco.");
+      return;
+    }
     await load();
   };
 
-  if (unauthorized) {
-    return (
-      <div className="mx-auto max-w-xl px-5 py-16 text-center">
-        <div className="rounded-2xl border p-8 space-y-4" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
-          <Shield className="mx-auto h-10 w-10" style={{ color: "var(--accent-crimson)" }} />
-          <h1 className="font-display text-2xl font-semibold">Área Restrita à Administração</h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            Entre com uma conta de administrador (definida em <code>ADMIN_EMAILS</code> ou <code>ADMIN_EMAIL</code>) para
-            aprovar profissionais, moderar criações, gerenciar eventos e lançar custos na transparência.
-          </p>
-          <Link href="/entrar" className="btn-primary inline-flex min-h-[44px] items-center rounded-xl px-5 py-2.5 text-sm font-semibold">
-            Fazer login como Admin
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   if (!data) {
-    return <div className="mx-auto max-w-6xl px-5 py-12 text-sm">Carregando painel administrativo...</div>;
+    return <div className="mx-auto max-w-[1400px] px-5 py-12 text-sm">Carregando painel administrativo...</div>;
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-12 space-y-10">
+    <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 lg:px-10 space-y-10">
+      {data.readOnly && (
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 text-sm"
+          style={{ borderColor: "var(--accent-amber)", backgroundColor: "var(--bg-surface)" }}
+        >
+          <span className="flex items-center gap-2">
+            <Shield className="h-4 w-4 shrink-0" style={{ color: "var(--accent-amber)" }} />
+            <span>
+              <strong>Visualização Aberta (Demonstração):</strong> você pode inspecionar todo o painel admin. Para
+              salvar aprovações, eventos ou despesas, entre como administrador.
+            </span>
+          </span>
+          <Link href="/entrar" className="btn-primary rounded-xl px-4 py-2 text-xs font-semibold">
+            Entrar como Admin
+          </Link>
+        </div>
+      )}
+      {actionNotice && (
+        <p className="rounded-xl border p-3 text-sm font-medium" style={{ borderColor: "var(--accent-crimson)", color: "var(--accent-crimson)" }}>
+          {actionNotice}
+        </p>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-6" style={{ borderColor: "var(--border-subtle)" }}>
         <div>
           <h1 className="font-display text-3xl font-semibold">Painel Administrativo</h1>

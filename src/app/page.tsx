@@ -90,13 +90,18 @@ export default function HomePage() {
                 }}
               >
                 <span>∞</span>
-                <span>Associação Vivências Superdotadas</span>
+                <span>Vivências Superdotadas</span>
               </div>
 
-              <SplitHeadline
-                text="Acolhimento, ciência e voz em primeira pessoa para Altas Habilidades."
-                className="font-display text-3xl font-semibold leading-[1.12] sm:text-5xl lg:text-[3.35rem]"
-              />
+              <div className="space-y-2">
+                <SplitHeadline
+                  text="Vivências Superdotadas"
+                  className="font-display text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-[3.5rem]"
+                />
+                <p className="font-display text-lg sm:text-xl font-medium" style={{ color: "var(--accent-emerald)" }}>
+                  Associação de Apoio às Altas Habilidades/Superdotação e Dupla Excepcionalidade
+                </p>
+              </div>
 
               <div className="text-lg sm:text-xl font-display font-medium" style={{ color: "var(--accent-crimson)" }}>
                 <span>Construindo compreensão </span>
@@ -389,7 +394,7 @@ export default function HomePage() {
                 className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
               >
                 <MessageCircle className="h-4 w-4" />
-                <span>Grupo no WhatsApp</span>
+                <span>WhatsApp</span>
               </a>
               <a
                 href="https://www.instagram.com/vivenciassuperdotadas/"
@@ -398,7 +403,25 @@ export default function HomePage() {
                 className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
                 style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
               >
-                <span>@vivenciassuperdotadas</span>
+                <span>Instagram</span>
+              </a>
+              <a
+                href="https://www.youtube.com/@Viv%C3%AAnciasSuperdotadas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+              >
+                <span>YouTube</span>
+              </a>
+              <a
+                href="https://www.tiktok.com/@vivenciassuperdotadas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+              >
+                <span>TikTok</span>
               </a>
             </div>
           </div>

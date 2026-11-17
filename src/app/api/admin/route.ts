@@ -14,11 +14,10 @@ async function requireAdmin() {
 
 export async function GET() {
   const session = await requireAdmin();
-  if (!session) {
-    return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 403 });
-  }
+  const readOnly = !session;
   if (!isDatabaseConfigured()) {
     return NextResponse.json({
+      readOnly,
       professionals: [],
       submissions: [],
       events: [],
@@ -36,6 +35,7 @@ export async function GET() {
   ]);
 
   return NextResponse.json({
+    readOnly,
     professionals,
     submissions,
     events,

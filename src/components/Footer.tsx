@@ -21,8 +21,8 @@ export function Footer() {
               />
               <div>
                 <p className="font-display text-base font-semibold">Vivências Superdotadas</p>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  Acolhimento, ciência e voz em primeira pessoa
+                <p className="text-[11px] leading-snug" style={{ color: "var(--text-muted)" }}>
+                  Associação de Apoio às Altas Habilidades/Superdotação e Dupla Excepcionalidade
                 </p>
               </div>
             </div>
@@ -64,6 +64,33 @@ export function Footer() {
                 style={{ color: "var(--accent-emerald)" }}
               >
                 Instagram @vivenciassuperdotadas
+              </a>
+              <a
+                href="https://www.youtube.com/@Viv%C3%AAnciasSuperdotadas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+                style={{ color: "var(--accent-emerald)" }}
+              >
+                YouTube @VivênciasSuperdotadas
+              </a>
+              <a
+                href="https://www.tiktok.com/@vivenciassuperdotadas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+                style={{ color: "var(--accent-emerald)" }}
+              >
+                TikTok @vivenciassuperdotadas
+              </a>
+              <a
+                href="https://apoia.se/vivenciassuperdotadas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+                style={{ color: "var(--accent-crimson)" }}
+              >
+                Apoiar no APOIA.se
               </a>
               <a
                 href="https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b"

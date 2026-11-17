@@ -61,12 +61,21 @@ export function Navbar() {
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-8 lg:px-10">
         <Link
           href="/"
-          className="flex min-h-[44px] shrink-0 items-center gap-2.5 whitespace-nowrap font-display text-base sm:text-lg font-semibold tracking-tight"
+          className="flex min-h-[44px] shrink-0 items-center gap-2.5"
           style={{ color: "var(--text-primary)" }}
         >
           <BrandMark size={34} />
-          <span className="hidden sm:inline">Vivências Superdotadas</span>
-          <span className="sm:hidden">Vivências</span>
+          <div className="flex flex-col leading-none">
+            <span className="font-display text-base sm:text-lg font-semibold tracking-tight whitespace-nowrap">
+              Vivências Superdotadas
+            </span>
+            <span
+              className="hidden lg:block text-[10px] font-medium tracking-tight whitespace-nowrap mt-0.5"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Associação de Apoio às Altas Habilidades/Superdotação e Dupla Excepcionalidade
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Nav with animated sliding pill */}
