@@ -1,5 +1,4 @@
 import { INSTITUTIONAL_DOC } from "@/lib/institutional-data";
-import { AssynchronyDiagram } from "@/components/editorial/AssynchronyDiagram";
 
 export const metadata = {
   title: "Missão, Visão e Valores",
@@ -77,10 +76,6 @@ export default function SobrePage() {
             </div>
           ))}
         </div>
-      </section>
-
-      <section className="mt-16">
-        <AssynchronyDiagram />
       </section>
     </div>
   );

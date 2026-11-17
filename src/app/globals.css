@@ -1,35 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  --bg-canvas: #FAF7F2;
-  --bg-surface: #F2ECE1;
+  /* Palette extracted from Vivências logo (Green Pea, Tall Poppy, Conch, Santas Gray) */
+  --color-primary: #18492D;
+  --color-primary-hover: #082414;
+  --color-primary-soft: #DCFDE6;
+  --color-secondary: #BD4626;
+  --color-secondary-hover: #883018;
+  --color-secondary-soft: #FAD6CC;
+  --color-conch: #CDD8D5;
+  --color-santas: #9C9AAF;
+
+  /* Semantic tokens */
+  --bg-canvas: #F7F9F8;
+  --bg-surface: #E9EFED;
   --bg-card: #FFFFFF;
-  --text-primary: #171C1A;
-  --text-secondary: #48524E;
-  --text-muted: #66736E;
-  --border-subtle: #DDD4C3;
-  --accent-emerald: #0F5C4D;
-  --accent-emerald-hover: #0B473B;
-  --accent-crimson: #A8322D;
-  --accent-amber: #B8862D;
+  --text-primary: #090A0A;
+  --text-secondary: #454948;
+  --text-muted: #656B6A;
+  --border-subtle: #CDD8D5;
+
+  /* Compatibility aliases mapped to the official palette */
+  --accent-emerald: var(--color-primary);
+  --accent-emerald-hover: var(--color-primary-hover);
+  --accent-crimson: var(--color-secondary);
+  --accent-amber: var(--color-santas);
+
+  /* Typography & Radii */
   --font-body: var(--font-atkinson), system-ui, sans-serif;
   --font-display: var(--font-fraunces), Georgia, serif;
   --font-mono: var(--font-jetbrains), monospace;
   --base-font-size: 16px;
+  --radius-btn: 4px;
+  --radius-card: 6px;
 }
 
 html.dark {
-  --bg-canvas: #111514;
-  --bg-surface: #181E1C;
-  --bg-card: #1D2422;
-  --text-primary: #F3EFE8;
-  --text-secondary: #C5CFCB;
-  --text-muted: #93A09B;
-  --border-subtle: #28312E;
-  --accent-emerald: #269B84;
-  --accent-emerald-hover: #1E7E6B;
-  --accent-crimson: #D9655E;
-  --accent-amber: #D9A74A;
+  --color-primary: #3B9963;
+  --color-primary-hover: #4CC07D;
+  --color-primary-soft: #082414;
+  --color-secondary: #F05C34;
+  --color-secondary-hover: #F59F88;
+  --color-secondary-soft: #521A0A;
+
+  --bg-canvas: #090A0A;
+  --bg-surface: #171620;
+  --bg-card: #191B1C;
+  --text-primary: #EDEFF0;
+  --text-secondary: #C2C1CD;
+  --text-muted: #9BA3A8;
+  --border-subtle: #363447;
 }
 
 html[data-font="lexend"] {
@@ -87,10 +107,11 @@ html[data-focus-mode="true"] .decorative-only {
   display: none !important;
 }
 
-/* Tactile editorial card (hairline border transition, zero AI drop-shadow) */
+/* Standardized editorial surfaces & button hierarchy (4px crisp corners) */
 .editorial-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
   transition: border-color 180ms ease, background-color 180ms ease;
 }
 
@@ -101,6 +122,7 @@ html[data-focus-mode="true"] .decorative-only {
 .btn-primary {
   background-color: var(--accent-emerald);
   color: #FAF7F2;
+  border-radius: var(--radius-btn);
   transition: background-color 160ms ease, transform 120ms ease;
 }
 
@@ -116,11 +138,12 @@ html[data-focus-mode="true"] .decorative-only {
   background-color: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-btn);
   transition: border-color 160ms ease, background-color 160ms ease;
 }
 
 .btn-secondary:hover {
-  border-color: var(--text-primary);
+  border-color: var(--accent-emerald);
   background-color: var(--bg-surface);
 }
 

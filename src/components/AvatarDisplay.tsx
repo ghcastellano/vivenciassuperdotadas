@@ -50,16 +50,6 @@ export function AvatarDisplay({
           className="h-full w-full overflow-hidden rounded-full bg-white"
           dangerouslySetInnerHTML={{ __html: svg }}
         />
-        <span
-          title="Símbolo da neurodiversidade"
-          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold text-white shadow"
-          style={{
-            backgroundColor: primaryColor,
-            borderColor: "var(--bg-card)",
-          }}
-        >
-          ∞
-        </span>
       </div>
 
       {showBadges && activeBadges.length > 0 && (
@@ -67,12 +57,11 @@ export function AvatarDisplay({
           {activeBadges.map((badge) => (
             <span
               key={badge.id}
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-white"
+              className="inline-flex items-center rounded px-2.5 py-0.5 text-[11px] font-semibold text-white"
               style={{ backgroundColor: badge.color }}
               title={badge.description}
             >
-              <span>∞</span>
-              <span>{badge.short}</span>
+              {badge.short}
             </span>
           ))}
         </div>

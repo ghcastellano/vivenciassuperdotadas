@@ -10,11 +10,8 @@ import { SpotlightCard } from "@/components/ReactBitsText";
 
 export interface MemberAvatarCard {
   id: string;
-  first_name: string;
-  profile: string;
   avatar_config: Partial<AvatarConfig> | null;
   neurodivergences: string[];
-  manifesto: string;
 }
 
 export interface CommunitySubmissionItem {
@@ -35,9 +32,11 @@ export interface CommunitySubmissionItem {
 export function ComunidadeClient({
   initialSubmissions,
   initialMembers = [],
+  activeMembersCount = 0,
 }: {
   initialSubmissions: CommunitySubmissionItem[];
   initialMembers?: MemberAvatarCard[];
+  activeMembersCount?: number;
 }) {
   const [submissions] = useState<CommunitySubmissionItem[]>(initialSubmissions);
   const [kindFilter, setKindFilter] = useState("todos");
@@ -296,42 +295,51 @@ export function ComunidadeClient({
         </div>
       )}
 
-      {/* Mural da Singularidade — Associados com Avatares Únicos */}
-      {initialMembers.length > 0 && (
+      {/* Painel Coletivo da Comunidade — Escalável para 200+ membros com privacidade */}
+      {(activeMembersCount > 0 || initialMembers.length > 0) && (
         <section className="mt-16 border-t pt-12" style={{ borderColor: "var(--border-subtle)" }}>
-          <div className="mb-6 max-w-2xl space-y-1.5">
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
-              Cada pessoa é única · ∞
-            </p>
-            <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-              Mural da Singularidade — Quem faz o Vivências
-            </h2>
-            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              Associados(as) que escolheram compartilhar seu Avatar Único e suas marcas de neurodivergência.
-            </p>
-          </div>
+          <div className="editorial-card p-6 sm:p-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-xl space-y-2">
+              <p className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
+                Rede Ativa · Privacidade Preservada
+              </p>
+              <h2 className="font-display text-2xl font-semibold sm:text-3xl">
+                <span className="font-mono-num" style={{ color: "var(--accent-emerald)" }}>
+                  {activeMembersCount}
+                </span>{" "}
+                {activeMembersCount === 1 ? "pessoa associada ativa" : "pessoas associadas ativas"}
+              </h2>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                Por privacidade e escala, exibimos apenas a contagem total da comunidade e uma amostra anônima de
+                avatares de quem autorizou explicitamente a exibição pública.
+              </p>
+            </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {initialMembers.map((m) => (
-              <SpotlightCard key={m.id} className="p-5 text-center flex flex-col items-center justify-between">
-                <AvatarDisplay
-                  config={m.avatar_config}
-                  neurodivergences={m.neurodivergences?.length ? m.neurodivergences : ["ahsd"]}
-                  size={84}
-                />
-                <div className="mt-3">
-                  <p className="font-display text-base font-semibold">{m.first_name}</p>
-                  <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                    {m.profile}
-                  </p>
-                  {m.manifesto && (
-                    <p className="mt-2 text-xs italic line-clamp-2" style={{ color: "var(--text-secondary)" }}>
-                      “{m.manifesto}”
-                    </p>
-                  )}
-                </div>
-              </SpotlightCard>
-            ))}
+            {initialMembers.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2.5 max-w-md lg:justify-end">
+                {initialMembers.map((m) => (
+                  <AvatarDisplay
+                    key={m.id}
+                    config={m.avatar_config}
+                    neurodivergences={m.neurodivergences?.length ? m.neurodivergences : ["ahsd"]}
+                    size={52}
+                    showBadges={false}
+                  />
+                ))}
+                {activeMembersCount > initialMembers.length && (
+                  <span
+                    className="inline-flex h-[56px] min-w-[56px] items-center justify-center rounded-full border px-2 font-mono-num text-xs font-semibold"
+                    style={{
+                      borderColor: "var(--border-subtle)",
+                      backgroundColor: "var(--bg-surface)",
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    +{activeMembersCount - initialMembers.length}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </section>
       )}

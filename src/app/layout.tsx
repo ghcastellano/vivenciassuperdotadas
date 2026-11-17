@@ -11,6 +11,7 @@ import { AuthSessionProvider } from "@/components/AuthSessionProvider";
 import { CustomCursor } from "@/components/CustomCursor";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { auth } from "@/lib/auth";
 
 const atkinson = Atkinson_Hyperlegible({
   subsets: ["latin"],
@@ -61,11 +62,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth().catch(() => null);
   return (
     <html
       lang="pt-BR"
@@ -73,7 +75,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen flex flex-col">
-        <AuthSessionProvider>
+        <AuthSessionProvider session={session}>
           <SensoryProvider>
             <CustomCursor />
             <Navbar />

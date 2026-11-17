@@ -45,10 +45,11 @@ export async function POST(req: Request) {
     const serviceType = String(body.serviceType || "ambos").trim();
     const bio = String(body.bio || otherQualifications || "").trim();
     const contactUrl = socialUrl || String(body.contactUrl || "").trim();
+    const acceptedPrivacy = Boolean(body.acceptedPrivacy);
 
-    if (!name || !specialty || !region || !state) {
+    if (!name || !specialty || !region || !state || !acceptedPrivacy) {
       return NextResponse.json(
-        { error: "Preencha os campos obrigatórios: nome, especialização, região e estado." },
+        { error: "Preencha os campos obrigatórios e concorde com a Política de Tratamento de Dados." },
         { status: 400 }
       );
     }

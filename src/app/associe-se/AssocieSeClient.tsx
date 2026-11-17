@@ -26,7 +26,7 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
   const [cityState, setCityState] = useState(initial.cityState);
   const [hasMedicalReport, setHasMedicalReport] = useState(initial.hasMedicalReport || "nao_informado");
   const [manifesto, setManifesto] = useState(initial.manifesto);
-  const [showInDirectory, setShowInDirectory] = useState(true);
+  const [showInDirectory, setShowInDirectory] = useState(false);
   const [acceptedCode, setAcceptedCode] = useState(initial.isEditingExisting);
   const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(
     initial.avatarConfig || DEFAULT_AVATAR_CONFIG
