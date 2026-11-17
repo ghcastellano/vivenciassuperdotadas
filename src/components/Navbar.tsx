@@ -60,22 +60,22 @@ export function Navbar() {
           borderColor: "var(--border-subtle)",
         }}
       >
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-2 sm:gap-3 px-3 py-3 sm:px-8 lg:px-10">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-2 sm:gap-4 px-3 py-2.5 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="flex min-h-[44px] min-w-0 items-center gap-2 sm:gap-2.5"
+          className="flex min-h-[44px] shrink-0 items-center gap-2 sm:gap-2.5"
           style={{ color: "var(--text-primary)" }}
         >
-          <BrandMark size={34} />
-          <div className="flex min-w-0 flex-col leading-none">
-            <span className="font-display text-[15px] sm:text-lg font-semibold tracking-tight truncate">
+          <BrandMark size={32} />
+          <div className="flex flex-col leading-none">
+            <span className="font-display text-[15px] sm:text-[17px] font-semibold tracking-tight whitespace-nowrap">
               Vivências Superdotadas
             </span>
             <span
-              className="hidden lg:block text-[10px] font-medium tracking-tight whitespace-nowrap mt-0.5"
+              className="hidden 2xl:block text-[10px] font-medium tracking-wider uppercase whitespace-nowrap mt-0.5"
               style={{ color: "var(--text-muted)" }}
             >
-              Associação de Apoio às Altas Habilidades/Superdotação e Dupla Excepcionalidade
+              AH/SD &amp; Dupla Excepcionalidade
             </span>
           </div>
         </Link>
@@ -115,7 +115,8 @@ export function Navbar() {
               onClick={() => setSensoryOpen((v) => !v)}
               aria-expanded={sensoryOpen}
               aria-label="Abrir painel de conforto sensorial"
-              className="flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border px-3 py-2 text-xs sm:text-sm font-medium transition-colors"
+              title="Conforto Sensorial"
+              className="flex min-h-[40px] sm:min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium transition-colors"
               style={{
                 borderColor: "var(--border-subtle)",
                 backgroundColor: "var(--bg-card)",
@@ -123,8 +124,7 @@ export function Navbar() {
               }}
             >
               <SlidersHorizontal className="h-4 w-4 shrink-0" style={{ color: "var(--accent-emerald)" }} />
-              <span className="hidden md:inline 2xl:hidden">Sensorial</span>
-              <span className="hidden 2xl:inline">Conforto Sensorial</span>
+              <span className="hidden md:inline xl:hidden 2xl:inline">Sensorial</span>
             </button>
 
             {sensoryOpen && (
@@ -283,7 +283,7 @@ export function Navbar() {
             href={session?.user ? "/perfil" : "/entrar"}
             aria-label={session?.user ? "Abrir meu perfil" : "Entrar na conta"}
             title={session?.user ? `Logado como ${session.user.name || session.user.email}` : "Entrar ou criar conta"}
-            className="flex min-h-[44px] items-center gap-2 rounded-xl border px-3"
+            className="flex min-h-[40px] sm:min-h-[44px] items-center gap-2 rounded-xl border px-2.5 sm:px-3"
             style={{
               borderColor: session?.user ? "var(--accent-emerald)" : "var(--border-subtle)",
               backgroundColor: "var(--bg-card)",
@@ -299,7 +299,7 @@ export function Navbar() {
             type="button"
             onClick={() => setMobileOpen((v) => !v)}
             aria-label={mobileOpen ? "Fechar menu" : "Abrir menu"}
-            className="flex xl:hidden min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border"
+            className="flex xl:hidden min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] items-center justify-center rounded-xl border"
             style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
