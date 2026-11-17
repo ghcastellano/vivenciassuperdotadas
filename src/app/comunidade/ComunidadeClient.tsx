@@ -224,7 +224,19 @@ export function ComunidadeClient({
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {filtered.length === 0 ? (
+        <div
+          className="mt-6 rounded-2xl border p-8 text-center text-sm"
+          style={{
+            backgroundColor: "var(--bg-card)",
+            borderColor: "var(--border-subtle)",
+            color: "var(--text-muted)",
+          }}
+        >
+          Nenhuma publicação aprovada nesta categoria ainda. Seja a primeira pessoa associada a compartilhar um relato, arte ou link de conhecimento!
+        </div>
+      ) : (
+        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((s) => (
           <article key={s.id} className="editorial-card min-w-0 rounded-2xl p-5 flex flex-col justify-between">
             <div className="min-w-0">
@@ -281,7 +293,8 @@ export function ComunidadeClient({
             </div>
           </article>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Mural da Singularidade — Associados com Avatares Únicos */}
       {initialMembers.length > 0 && (

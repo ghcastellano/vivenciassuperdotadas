@@ -23,7 +23,13 @@ import {
   TiltedArtworkCard,
 } from "@/components/EditorialEffects";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
-import { MOCK_SUBMISSIONS } from "@/lib/mock-data";
+import { DEFAULT_AVATAR_CONFIG, type AvatarConfig } from "@/lib/avatar";
+
+const AVATAR_PREVIEWS: { id: string; config: AvatarConfig; nd: string[] }[] = [
+  { id: "p1", config: { ...DEFAULT_AVATAR_CONFIG, seed: "Vivencias-1", top: "curly", backgroundColor: "e3ece8" }, nd: ["ahsd"] },
+  { id: "p2", config: { ...DEFAULT_AVATAR_CONFIG, seed: "Vivencias-2", top: "bob", accessories: "prescription02", backgroundColor: "f2eadf" }, nd: ["ahsd", "tea"] },
+  { id: "p3", config: { ...DEFAULT_AVATAR_CONFIG, seed: "Vivencias-3", top: "fro", hairColor: "0f5c4d", backgroundColor: "eee7f5" }, nd: ["ahsd", "tdah"] },
+];
 
 type JourneyKey = "entender" | "identificado" | "aliado" | "apoiar";
 
@@ -288,11 +294,11 @@ export default function HomePage() {
 
                 {/* Live Mini Gallery of Member Avatars */}
                 <div className="flex items-center justify-center gap-3 rounded-2xl border p-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}>
-                  {MOCK_SUBMISSIONS.slice(0, 3).map((m) => (
+                  {AVATAR_PREVIEWS.map((m) => (
                     <AvatarDisplay
                       key={m.id}
-                      config={m.author_avatar}
-                      neurodivergences={m.author_neurodivergences}
+                      config={m.config}
+                      neurodivergences={m.nd}
                       size={64}
                       showBadges={false}
                     />

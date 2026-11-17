@@ -117,7 +117,7 @@ export default function LojaPage() {
       }
       window.location.href = json.url;
     } catch {
-      setError("Erro ao conectar com o Stripe.");
+      setError("Erro ao conectar com o gateway de pagamento.");
       setLoadingCheckout(false);
     }
   };

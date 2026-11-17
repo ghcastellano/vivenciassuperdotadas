@@ -1,11 +1,10 @@
 import { isDatabaseConfigured, query } from "@/lib/db";
-import { MOCK_SUBMISSIONS } from "@/lib/mock-data";
 import { ComunidadeClient, type CommunitySubmissionItem, type MemberAvatarCard } from "./ComunidadeClient";
 
 export const revalidate = 30;
 
 export default async function ComunidadePage() {
-  let submissions: CommunitySubmissionItem[] = MOCK_SUBMISSIONS;
+  let submissions: CommunitySubmissionItem[] = [];
   let members: MemberAvatarCard[] = [];
 
   if (isDatabaseConfigured()) {
@@ -25,10 +24,11 @@ export default async function ComunidadePage() {
            LIMIT 24`
         ),
       ]);
-      if (subRows.length > 0) submissions = subRows;
+      submissions = subRows;
       members = memRows;
     } catch {
-      // fallback to mock
+      submissions = [];
+      members = [];
     }
   }
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { MercadoPagoConfig, Preference } from "mercadopago";
 import { DEFAULT_PRODUCTS } from "@/lib/institutional-data";
 
 interface CartItemPayload {
@@ -8,23 +9,134 @@ interface CartItemPayload {
   variant?: string;
 }
 
+export async function GET() {
+  return NextResponse.json({
+    mercadopago: Boolean(process.env.MERCADOPAGO_ACCESS_TOKEN),
+    stripe: Boolean(process.env.STRIPE_SECRET_KEY),
+  });
+}
+
 export async function POST(req: Request) {
   try {
-    const secret = process.env.STRIPE_SECRET_KEY;
-    if (!secret) {
+    const mpToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    const stripeSecret = process.env.STRIPE_SECRET_KEY;
+
+    const body = await req.json();
+    const kind = body.kind === "store" ? "store" : "donation";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vivenciassuperdotadas.vercel.app";
+
+    const requestedProvider = body.provider === "stripe" ? "stripe" : "mercadopago";
+    const useMercadoPago = Boolean(mpToken) && (requestedProvider === "mercadopago" || !stripeSecret);
+    const useStripe = !useMercadoPago && Boolean(stripeSecret);
+
+    if (!useMercadoPago && !useStripe) {
       return NextResponse.json(
         {
           error:
-            "Stripe ainda não configurado neste ambiente (adicione STRIPE_SECRET_KEY no .env.local / Vercel).",
+            "Gateway de pagamento ainda não configurado neste ambiente (adicione MERCADOPAGO_ACCESS_TOKEN ou STRIPE_SECRET_KEY no .env.local / Vercel).",
         },
         { status: 503 }
       );
     }
 
-    const stripe = new Stripe(secret);
-    const body = await req.json();
-    const kind = body.kind === "store" ? "store" : "donation";
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vivenciassuperdotadas.vercel.app";
+    if (useMercadoPago && mpToken) {
+      const client = new MercadoPagoConfig({ accessToken: mpToken });
+      const preference = new Preference(client);
+      const isSandbox = mpToken.startsWith("TEST-");
+
+      if (kind === "donation") {
+        const amountReais = Math.max(5, Math.min(50000, Number(body.amountReais || 25)));
+        const recurring = Boolean(body.recurring);
+        const description = recurring
+          ? "Apoio Mensal — Associação Vivências Superdotadas"
+          : "Doação Pontual — Associação Vivências Superdotadas";
+
+        const result = await preference.create({
+          body: {
+            items: [
+              {
+                id: recurring ? "doacao-mensal" : "doacao-pontual",
+                title: description,
+                description: "Contribuição transparente para manter infraestrutura, divulgação científica e eventos gratuitos.",
+                quantity: 1,
+                unit_price: Number(amountReais.toFixed(2)),
+                currency_id: "BRL",
+              },
+            ],
+            back_urls: {
+              success: `${siteUrl}/apoie?status=sucesso`,
+              failure: `${siteUrl}/apoie?status=cancelado`,
+              pending: `${siteUrl}/apoie?status=pendente`,
+            },
+            auto_return: "approved",
+            notification_url: `${siteUrl}/api/webhooks/mercadopago`,
+            metadata: { kind: "donation", description },
+          },
+        });
+
+        const url = isSandbox ? result.sandbox_init_point || result.init_point : result.init_point;
+        return NextResponse.json({ url, provider: "mercadopago", preferenceId: result.id });
+      }
+
+      const rawItems: CartItemPayload[] = Array.isArray(body.items)
+        ? body.items
+        : body.productId
+        ? [{ productId: String(body.productId), quantity: 1 }]
+        : [];
+
+      const mpItems: {
+        id: string;
+        title: string;
+        description: string;
+        quantity: number;
+        unit_price: number;
+        currency_id: string;
+      }[] = [];
+      const summaryNames: string[] = [];
+
+      for (const item of rawItems) {
+        const product = DEFAULT_PRODUCTS.find((p) => p.id === item.productId);
+        if (!product) continue;
+        const qty = Math.max(1, Math.min(20, Number(item.quantity || 1)));
+        const label = item.variant ? `${product.name} (${item.variant})` : product.name;
+        summaryNames.push(`${qty}x ${label}`);
+        mpItems.push({
+          id: product.id,
+          title: label,
+          description: product.description,
+          quantity: qty,
+          unit_price: Number((product.price_cents / 100).toFixed(2)),
+          currency_id: "BRL",
+        });
+      }
+
+      if (mpItems.length === 0) {
+        return NextResponse.json({ error: "Carrinho vazio ou produto inválido." }, { status: 400 });
+      }
+
+      const result = await preference.create({
+        body: {
+          items: mpItems,
+          back_urls: {
+            success: `${siteUrl}/loja?status=sucesso`,
+            failure: `${siteUrl}/loja?status=cancelado`,
+            pending: `${siteUrl}/loja?status=pendente`,
+          },
+          auto_return: "approved",
+          notification_url: `${siteUrl}/api/webhooks/mercadopago`,
+          metadata: {
+            kind: "store",
+            description: `Lojinha: ${summaryNames.join(", ").slice(0, 200)}`,
+          },
+        },
+      });
+
+      const url = isSandbox ? result.sandbox_init_point || result.init_point : result.init_point;
+      return NextResponse.json({ url, provider: "mercadopago", preferenceId: result.id });
+    }
+
+    // Stripe fallback
+    const stripe = new Stripe(stripeSecret!);
 
     if (kind === "donation") {
       const amountReais = Math.max(5, Math.min(50000, Number(body.amountReais || 25)));
@@ -58,7 +170,7 @@ export async function POST(req: Request) {
         cancel_url: `${siteUrl}/apoie?status=cancelado`,
       });
 
-      return NextResponse.json({ url: session.url });
+      return NextResponse.json({ url: session.url, provider: "stripe" });
     }
 
     const rawItems: CartItemPayload[] = Array.isArray(body.items)
@@ -104,9 +216,9 @@ export async function POST(req: Request) {
       cancel_url: `${siteUrl}/loja?status=cancelado`,
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url, provider: "stripe" });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Erro ao iniciar checkout do Stripe." }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao iniciar checkout de pagamento." }, { status: 500 });
   }
 }
