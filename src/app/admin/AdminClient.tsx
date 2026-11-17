@@ -247,23 +247,55 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                   </p>
                 </div>
 
-                <div className="flex gap-2 border-t pt-3" style={{ borderColor: "var(--border-subtle)" }}>
-                  <button
-                    type="button"
-                    onClick={() => act({ action: "moderate_professional", id: p.id, status: "approved" })}
-                    className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-white"
-                    style={{ backgroundColor: "var(--accent-emerald)" }}
-                  >
-                    <Check className="h-3.5 w-3.5" /> Aprovar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => act({ action: "moderate_professional", id: p.id, status: "rejected" })}
-                    className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-white"
-                    style={{ backgroundColor: "var(--accent-crimson)" }}
-                  >
-                    <X className="h-3.5 w-3.5" /> Recusar
-                  </button>
+                <div className="flex items-center justify-between gap-2 border-t pt-3" style={{ borderColor: "var(--border-subtle)" }}>
+                  {p.status === "pending" ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => act({ action: "moderate_professional", id: p.id, status: "approved" })}
+                        className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-white"
+                        style={{ backgroundColor: "var(--accent-emerald)" }}
+                      >
+                        <Check className="h-3.5 w-3.5" /> Aprovar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => act({ action: "moderate_professional", id: p.id, status: "rejected" })}
+                        className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-white"
+                        style={{ backgroundColor: "var(--accent-crimson)" }}
+                      >
+                        <X className="h-3.5 w-3.5" /> Recusar
+                      </button>
+                    </>
+                  ) : p.status === "approved" ? (
+                    <>
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--accent-emerald)" }}>
+                        <Check className="h-3.5 w-3.5" /> Publicado no diretório
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => act({ action: "moderate_professional", id: p.id, status: "rejected" })}
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors hover:bg-black/5"
+                        style={{ borderColor: "var(--border-subtle)", color: "var(--accent-crimson)" }}
+                      >
+                        <X className="h-3 w-3" /> Ocultar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: "var(--accent-crimson)" }}>
+                        <X className="h-3.5 w-3.5" /> Oculto do diretório
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => act({ action: "moderate_professional", id: p.id, status: "approved" })}
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors hover:bg-black/5"
+                        style={{ borderColor: "var(--accent-emerald)", color: "var(--accent-emerald)" }}
+                      >
+                        <Check className="h-3 w-3" /> Reaprovar
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -297,23 +329,55 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                     <p className="text-xs" style={{ color: "var(--text-muted)" }}>Por {s.author_name}</p>
                     <p className="mt-2 text-sm line-clamp-3 break-all" style={{ color: "var(--text-secondary)" }}>{s.content}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => act({ action: "moderate_submission", id: s.id, status: "approved" })}
-                      className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-2 text-xs font-semibold text-white"
-                      style={{ backgroundColor: "var(--accent-emerald)" }}
-                    >
-                      <Check className="h-3.5 w-3.5" /> Aprovar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => act({ action: "moderate_submission", id: s.id, status: "rejected" })}
-                      className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-2 text-xs font-semibold text-white"
-                      style={{ backgroundColor: "var(--accent-crimson)" }}
-                    >
-                      <X className="h-3.5 w-3.5" /> Recusar
-                    </button>
+                  <div className="flex items-center justify-between gap-2 border-t pt-3" style={{ borderColor: "var(--border-subtle)" }}>
+                    {s.status === "pending" ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => act({ action: "moderate_submission", id: s.id, status: "approved" })}
+                          className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-2 text-xs font-semibold text-white"
+                          style={{ backgroundColor: "var(--accent-emerald)" }}
+                        >
+                          <Check className="h-3.5 w-3.5" /> Aprovar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => act({ action: "moderate_submission", id: s.id, status: "rejected" })}
+                          className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-2 text-xs font-semibold text-white"
+                          style={{ backgroundColor: "var(--accent-crimson)" }}
+                        >
+                          <X className="h-3.5 w-3.5" /> Recusar
+                        </button>
+                      </>
+                    ) : s.status === "approved" ? (
+                      <>
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--accent-emerald)" }}>
+                          <Check className="h-3.5 w-3.5" /> Publicado na comunidade
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => act({ action: "moderate_submission", id: s.id, status: "rejected" })}
+                          className="inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors hover:bg-black/5"
+                          style={{ borderColor: "var(--border-subtle)", color: "var(--accent-crimson)" }}
+                        >
+                          <X className="h-3 w-3" /> Ocultar
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: "var(--accent-crimson)" }}>
+                          <X className="h-3.5 w-3.5" /> Recusado / Oculto
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => act({ action: "moderate_submission", id: s.id, status: "approved" })}
+                          className="inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors hover:bg-black/5"
+                          style={{ borderColor: "var(--accent-emerald)", color: "var(--accent-emerald)" }}
+                        >
+                          <Check className="h-3 w-3" /> Reaprovar
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
