@@ -181,10 +181,11 @@ export async function GET(req: Request) {
       user_avatar: Record<string, unknown> | null;
       created_at: string;
     }>(
-      `SELECT user_id, user_name, user_avatar, created_at::text
-       FROM community_likes
-       WHERE submission_id = $1
-       ORDER BY created_at DESC`,
+      `SELECT cl.user_id, cl.user_name, COALESCE(u.avatar_config, cl.user_avatar) AS user_avatar, cl.created_at::text
+       FROM community_likes cl
+       LEFT JOIN users u ON u.id = cl.user_id
+       WHERE cl.submission_id = $1
+       ORDER BY cl.created_at DESC`,
       [submissionId]
     ),
     query<{
@@ -197,10 +198,11 @@ export async function GET(req: Request) {
       created_at: string;
       updated_at: string | null;
     }>(
-      `SELECT id, submission_id, user_id, user_name, user_avatar, content, created_at::text, updated_at::text
-       FROM community_comments
-       WHERE submission_id = $1
-       ORDER BY created_at ASC`,
+      `SELECT cc.id, cc.submission_id, cc.user_id, cc.user_name, COALESCE(u.avatar_config, cc.user_avatar) AS user_avatar, cc.content, cc.created_at::text, cc.updated_at::text
+       FROM community_comments cc
+       LEFT JOIN users u ON u.id = cc.user_id
+       WHERE cc.submission_id = $1
+       ORDER BY cc.created_at ASC`,
       [submissionId]
     ),
   ]);

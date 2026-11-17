@@ -125,11 +125,10 @@ export async function POST(req: Request) {
           "UPDATE users SET name = $1, avatar_config = $2, neurodivergences = $3, manifesto = $4, has_medical_report = $5 WHERE id = $6",
           [name, avatarJson, neurodivergences, manifesto, hasMedicalReport, userId]
         ),
-        query("UPDATE community_submissions SET author_avatar = $1::jsonb, author_neurodivergences = $2 WHERE user_id = $3", [
-          avatarJson,
-          neurodivergences,
-          userId,
-        ]),
+        query(
+          "UPDATE community_submissions SET author_avatar = $1::jsonb, author_neurodivergences = $2 WHERE user_id = $3 OR (user_id IS NULL AND LOWER(author_name) = LOWER($4))",
+          [avatarJson, neurodivergences, userId, name]
+        ),
         query("UPDATE community_likes SET user_avatar = $1::jsonb WHERE user_id = $2", [avatarJson, userId]),
         query("UPDATE community_comments SET user_avatar = $1::jsonb WHERE user_id = $2", [avatarJson, userId]),
         query("UPDATE notifications SET actor_avatar = $1::jsonb WHERE actor_user_id = $2", [avatarJson, userId]),

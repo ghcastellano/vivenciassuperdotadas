@@ -14,10 +14,18 @@ export default async function ComunidadePage() {
     try {
       const [subRows, memRows, countRows, likeRows, commentRows] = await Promise.all([
         query<CommunitySubmissionItem>(
-          `SELECT id, author_name, author_avatar, author_neurodivergences, kind, title, content, external_url, image_url, credits, created_at::text
-           FROM community_submissions
-           WHERE status = 'approved'
-           ORDER BY created_at DESC`
+          `SELECT * FROM (
+             SELECT DISTINCT ON (cs.id)
+               cs.id, cs.author_name,
+               COALESCE(u.avatar_config, cs.author_avatar) AS author_avatar,
+               COALESCE(NULLIF(u.neurodivergences, '{}'), cs.author_neurodivergences) AS author_neurodivergences,
+               cs.kind, cs.title, cs.content, cs.external_url, cs.image_url, cs.credits, cs.created_at::text, cs.created_at AS sort_ts
+             FROM community_submissions cs
+             LEFT JOIN users u ON u.id = cs.user_id OR (cs.user_id IS NULL AND LOWER(u.name) = LOWER(cs.author_name))
+             WHERE cs.status = 'approved'
+             ORDER BY cs.id, cs.created_at DESC
+           ) sub
+           ORDER BY sort_ts DESC`
         ),
         query<MemberAvatarCard>(
           `SELECT id, avatar_config, neurodivergences
@@ -32,14 +40,16 @@ export default async function ComunidadePage() {
            WHERE membership_status = 'active'`
         ),
         query<LikeUserItem & { submission_id: string }>(
-          `SELECT submission_id, user_id, user_name, user_avatar, created_at::text
-           FROM community_likes
-           ORDER BY created_at DESC`
+          `SELECT cl.submission_id, cl.user_id, cl.user_name, COALESCE(u.avatar_config, cl.user_avatar) AS user_avatar, cl.created_at::text
+           FROM community_likes cl
+           LEFT JOIN users u ON u.id = cl.user_id
+           ORDER BY cl.created_at DESC`
         ),
         query<CommentItem>(
-          `SELECT id, submission_id, user_id, user_name, user_avatar, content, created_at::text, updated_at::text
-           FROM community_comments
-           ORDER BY created_at ASC`
+          `SELECT cc.id, cc.submission_id, cc.user_id, cc.user_name, COALESCE(u.avatar_config, cc.user_avatar) AS user_avatar, cc.content, cc.created_at::text, cc.updated_at::text
+           FROM community_comments cc
+           LEFT JOIN users u ON u.id = cc.user_id
+           ORDER BY cc.created_at ASC`
         ),
       ]);
       submissions = subRows;
