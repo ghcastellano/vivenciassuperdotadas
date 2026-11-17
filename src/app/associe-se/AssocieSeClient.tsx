@@ -26,6 +26,7 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
   const [cityState, setCityState] = useState(initial.cityState);
   const [hasMedicalReport, setHasMedicalReport] = useState(initial.hasMedicalReport || "nao_informado");
   const [manifesto, setManifesto] = useState(initial.manifesto);
+  const [showInDirectory, setShowInDirectory] = useState(true);
   const [acceptedCode, setAcceptedCode] = useState(initial.isEditingExisting);
   const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(
     initial.avatarConfig || DEFAULT_AVATAR_CONFIG
@@ -50,6 +51,7 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
         profile,
         cityState,
         hasMedicalReport,
+        showInDirectory,
         manifesto,
         acceptedCode,
         avatarConfig,
@@ -187,6 +189,19 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
                 style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
               />
             </div>
+
+            <label className="flex items-start gap-3 pt-1 text-sm">
+              <input
+                type="checkbox"
+                checked={showInDirectory}
+                onChange={(e) => setShowInDirectory(e.target.checked)}
+                className="mt-1 h-4 w-4"
+              />
+              <span style={{ color: "var(--text-secondary)" }}>
+                Exibir meu <strong>Avatar Único</strong>, primeiro nome e manifesto no{" "}
+                <strong>Mural da Singularidade</strong> em <code>/comunidade</code> (seu e-mail nunca é exibido).
+              </span>
+            </label>
 
             <label className="flex items-start gap-3 pt-2 text-sm">
               <input

@@ -20,6 +20,7 @@ export async function POST(req: Request) {
     const cityState = String(body.cityState || "").trim();
     const manifesto = String(body.manifesto || "").trim().slice(0, 240);
     const hasMedicalReport = String(body.hasMedicalReport || "nao_informado").trim();
+    const showInDirectory = body.showInDirectory !== false;
     const neurodivergences = Array.isArray(body.neurodivergences) ? body.neurodivergences : ["ahsd"];
     const avatarConfig = body.avatarConfig || {};
     const acceptedCode = Boolean(body.acceptedCode);
@@ -60,8 +61,9 @@ export async function POST(req: Request) {
              avatar_config = $6,
              manifesto = $7,
              has_medical_report = $8,
-             accepted_code = $9
-         WHERE id = $10`,
+             show_in_directory = $9,
+             accepted_code = $10
+         WHERE id = $11`,
         [
           userId,
           name,
@@ -71,6 +73,7 @@ export async function POST(req: Request) {
           JSON.stringify(avatarConfig),
           manifesto,
           hasMedicalReport,
+          showInDirectory,
           acceptedCode,
           id,
         ]
@@ -78,8 +81,8 @@ export async function POST(req: Request) {
     } else {
       id = crypto.randomUUID();
       await query(
-        `INSERT INTO memberships (id, user_id, name, email, profile, city_state, neurodivergences, avatar_config, manifesto, has_medical_report, accepted_code)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        `INSERT INTO memberships (id, user_id, name, email, profile, city_state, neurodivergences, avatar_config, manifesto, has_medical_report, show_in_directory, accepted_code)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
         [
           id,
           userId,
@@ -91,6 +94,7 @@ export async function POST(req: Request) {
           JSON.stringify(avatarConfig),
           manifesto,
           hasMedicalReport,
+          showInDirectory,
           acceptedCode,
         ]
       );

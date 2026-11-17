@@ -9,7 +9,7 @@ export default async function ProfissionaisPage() {
   if (isDatabaseConfigured()) {
     try {
       partners = await query<PartnerItem>(
-        `SELECT id, name, email, registry_code, specialty, approach, region, state, city, city_state, online_available, whatsapp, social_url, other_qualifications, bio, contact_url
+        `SELECT id, name, email, registry_code, specialty, approach, region, state, city, city_state, online_available, whatsapp, social_url, other_qualifications, service_type, bio, contact_url
          FROM partner_professionals
          WHERE status = 'approved'
          ORDER BY name ASC`

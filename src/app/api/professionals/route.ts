@@ -8,7 +8,7 @@ export async function GET() {
   }
   try {
     const rows = await query(
-      `SELECT id, name, email, registry_code, specialty, approach, region, state, city, city_state, online_available, whatsapp, social_url, other_qualifications, bio, contact_url, created_at
+      `SELECT id, name, email, registry_code, specialty, approach, region, state, city, city_state, online_available, whatsapp, social_url, other_qualifications, service_type, bio, contact_url, created_at
        FROM partner_professionals
        WHERE status = 'approved'
        ORDER BY name ASC`
@@ -42,6 +42,7 @@ export async function POST(req: Request) {
     const whatsapp = String(body.whatsapp || "").trim();
     const socialUrl = String(body.socialUrl || "").trim();
     const otherQualifications = String(body.otherQualifications || "").trim();
+    const serviceType = String(body.serviceType || "ambos").trim();
     const bio = String(body.bio || otherQualifications || "").trim();
     const contactUrl = socialUrl || String(body.contactUrl || "").trim();
 
@@ -55,8 +56,8 @@ export async function POST(req: Request) {
     const id = crypto.randomUUID();
     await query(
       `INSERT INTO partner_professionals
-       (id, name, email, registry_code, specialty, approach, region, state, city, city_state, online_available, whatsapp, social_url, other_qualifications, bio, contact_url, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, 'pending')`,
+       (id, name, email, registry_code, specialty, approach, region, state, city, city_state, online_available, whatsapp, social_url, other_qualifications, service_type, bio, contact_url, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, 'pending')`,
       [
         id,
         name,
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
         whatsapp,
         socialUrl,
         otherQualifications,
+        serviceType,
         bio,
         contactUrl,
       ]

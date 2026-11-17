@@ -1,7 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Globe, CheckCircle2, Phone, Mail, ExternalLink } from "lucide-react";
+import { MapPin, Globe, CheckCircle2, Phone, Mail, ExternalLink, MessageCircle } from "lucide-react";
+
+function toWhatsAppHref(rawPhone: string, profName: string): string {
+  const digits = rawPhone.replace(/\D/g, "");
+  const full = digits.startsWith("55") ? digits : `55${digits}`;
+  const msg = encodeURIComponent(
+    `Olá ${profName}, vim pelo site Vivências Superdotadas e gostaria de mais informações sobre seu atendimento.`
+  );
+  return `https://wa.me/${full}?text=${msg}`;
+}
 
 export interface PartnerItem {
   id: string;
@@ -18,9 +27,16 @@ export interface PartnerItem {
   whatsapp?: string;
   social_url?: string;
   other_qualifications?: string;
+  service_type?: string;
   bio: string;
   contact_url: string;
 }
+
+const SERVICE_TYPE_LABELS: Record<string, string> = {
+  avaliacao: "Avaliação",
+  acompanhamento: "Acompanhamento",
+  ambos: "Avaliação e Acompanhamento",
+};
 
 const REGIONS = [
   "Todas",
@@ -58,6 +74,7 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
   const [filter, setFilter] = useState("");
   const [regionFilter, setRegionFilter] = useState("Todas");
   const [specialtyFilter, setSpecialtyFilter] = useState("todas");
+  const [serviceFilter, setServiceFilter] = useState("todos");
   const [onlineOnly, setOnlineOnly] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -69,6 +86,7 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
     state: "",
     city: "",
     specialty: "",
+    serviceType: "ambos",
     name: "",
     registryCode: "",
     whatsapp: "",
@@ -105,8 +123,13 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
       specObj.terms.length === 0 ||
       specObj.terms.some((term) => haystack.includes(term));
 
+    const matchesService =
+      serviceFilter === "todos" ||
+      (p.service_type || "ambos") === serviceFilter ||
+      (p.service_type || "ambos") === "ambos";
+
     const matchesOnline = !onlineOnly || p.online_available;
-    return matchesText && matchesRegion && matchesSpecialty && matchesOnline;
+    return matchesText && matchesRegion && matchesSpecialty && matchesService && matchesOnline;
   });
 
   const submitForm = async (e: React.FormEvent) => {
@@ -296,6 +319,20 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
             </label>
 
             <label className="block space-y-1 text-xs">
+              <span className="font-semibold">Tipo de atuação *</span>
+              <select
+                value={form.serviceType}
+                onChange={(e) => setForm({ ...form, serviceType: e.target.value })}
+                className="w-full min-h-[44px] rounded-xl border px-3.5 text-sm"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+              >
+                <option value="avaliacao">Avaliação</option>
+                <option value="acompanhamento">Acompanhamento (terapêutico ou pedagógico)</option>
+                <option value="ambos">Ambos (Avaliação e Acompanhamento)</option>
+              </select>
+            </label>
+
+            <label className="block space-y-1 text-xs">
               <span className="font-semibold">Registro profissional (CRP/Conselho, se aplicável)</span>
               <input
                 placeholder="Ex: CRP 06/123456"
@@ -349,6 +386,18 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
               </option>
             ))}
           </select>
+          <select
+            aria-label="Filtrar por tipo de atuação"
+            value={serviceFilter}
+            onChange={(e) => setServiceFilter(e.target.value)}
+            className="min-h-[44px] rounded-xl border px-3.5 text-sm"
+            style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+          >
+            <option value="todos">Atuação: Todas</option>
+            <option value="avaliacao">Avaliação</option>
+            <option value="acompanhamento">Acompanhamento (terapêutico/pedagógico)</option>
+            <option value="ambos">Ambos</option>
+          </select>
           <label className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border px-3.5 text-sm" style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}>
             <input type="checkbox" checked={onlineOnly} onChange={(e) => setOnlineOnly(e.target.checked)} />
             <span>Atendimento Online</span>
@@ -394,6 +443,9 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
               </div>
 
               <h2 className="mt-3 font-display text-xl font-semibold">{p.name}</h2>
+              <p className="text-xs font-semibold mt-0.5" style={{ color: "var(--accent-amber)" }}>
+                {SERVICE_TYPE_LABELS[p.service_type || "ambos"] || "Avaliação e Acompanhamento"}
+              </p>
               {p.approach && (
                 <p className="text-xs font-medium mt-0.5" style={{ color: "var(--accent-crimson)" }}>
                   {p.approach}
@@ -413,10 +465,18 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
 
               <div className="mt-4 space-y-1.5 text-xs" style={{ color: "var(--text-secondary)" }}>
                 {p.whatsapp && (
-                  <p className="flex items-center gap-2">
-                    <Phone className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--accent-emerald)" }} />
-                    <span className="font-mono-num">{p.whatsapp}</span>
-                  </p>
+                  <a
+                    href={toWhatsAppHref(p.whatsapp, p.name)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-lg px-2 py-1 -ml-2 transition-colors hover:opacity-80"
+                    style={{ color: "var(--accent-emerald)" }}
+                    title="Abrir conversa no WhatsApp"
+                  >
+                    <MessageCircle className="h-4 w-4 shrink-0" />
+                    <Phone className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                    <span className="font-mono-num font-semibold underline">{p.whatsapp}</span>
+                  </a>
                 )}
                 {p.email && (
                   <p className="flex items-center gap-2 break-all">

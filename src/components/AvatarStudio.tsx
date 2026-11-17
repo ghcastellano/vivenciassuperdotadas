@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Shuffle, Download, Share2, Check } from "lucide-react";
+import { Shuffle, Download, Share2, Check, MessageCircle } from "lucide-react";
 import {
   AVATAR_OPTIONS,
   NEURODIVERGENCE_BADGES,
@@ -71,13 +71,18 @@ export function AvatarStudio({
     URL.revokeObjectURL(url);
   };
 
-  const shareAvatar = async () => {
+  const buildShareUrl = () => {
     const params = new URLSearchParams({
       c: btoa(JSON.stringify(config)),
       n: neurodivergences.join(","),
       name: personName,
+      ...(manifesto ? { m: manifesto } : {}),
     });
-    const shareUrl = `${window.location.origin}/associe-se?${params.toString()}`;
+    return `${window.location.origin}/avatar?${params.toString()}`;
+  };
+
+  const shareAvatar = async () => {
+    const shareUrl = buildShareUrl();
     try {
       if (navigator.share) {
         await navigator.share({
@@ -93,6 +98,14 @@ export function AvatarStudio({
     } catch {
       // user cancelled share
     }
+  };
+
+  const shareWhatsApp = () => {
+    const shareUrl = buildShareUrl();
+    const text = encodeURIComponent(
+      `Cada pessoa é única! Conheça meu Avatar Único na Associação Vivências Superdotadas: ${shareUrl}`
+    );
+    window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -150,9 +163,18 @@ export function AvatarStudio({
                 style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
-                {copied ? "Copiado!" : "Compartilhar"}
+                {copied ? "Copiado!" : "Copiar Link"}
               </button>
             </div>
+            <button
+              type="button"
+              onClick={shareWhatsApp}
+              className="flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold"
+              style={{ borderColor: "var(--accent-emerald)", color: "var(--accent-emerald)", backgroundColor: "var(--bg-card)" }}
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              <span>Compartilhar no WhatsApp</span>
+            </button>
           </div>
         </div>
 

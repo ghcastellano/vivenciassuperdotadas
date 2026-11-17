@@ -6,6 +6,16 @@ import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2 } 
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
 import { ImageCurtainReveal } from "@/components/EditorialEffects";
+import { SpotlightCard } from "@/components/ReactBitsText";
+
+export interface MemberAvatarCard {
+  id: string;
+  first_name: string;
+  profile: string;
+  avatar_config: Partial<AvatarConfig> | null;
+  neurodivergences: string[];
+  manifesto: string;
+}
 
 export interface CommunitySubmissionItem {
   id: string;
@@ -22,7 +32,13 @@ export interface CommunitySubmissionItem {
   isMock?: boolean;
 }
 
-export function ComunidadeClient({ initialSubmissions }: { initialSubmissions: CommunitySubmissionItem[] }) {
+export function ComunidadeClient({
+  initialSubmissions,
+  initialMembers = [],
+}: {
+  initialSubmissions: CommunitySubmissionItem[];
+  initialMembers?: MemberAvatarCard[];
+}) {
   const [submissions] = useState<CommunitySubmissionItem[]>(initialSubmissions);
   const [kindFilter, setKindFilter] = useState("todos");
   const [formOpen, setFormOpen] = useState(false);
@@ -210,8 +226,8 @@ export function ComunidadeClient({ initialSubmissions }: { initialSubmissions: C
 
       <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((s) => (
-          <article key={s.id} className="editorial-card rounded-2xl p-5 flex flex-col justify-between">
-            <div>
+          <article key={s.id} className="editorial-card min-w-0 rounded-2xl p-5 flex flex-col justify-between">
+            <div className="min-w-0">
               <div className="flex items-center gap-3 border-b pb-3" style={{ borderColor: "var(--border-subtle)" }}>
                 <AvatarDisplay
                   config={s.author_avatar}
@@ -233,15 +249,15 @@ export function ComunidadeClient({ initialSubmissions }: { initialSubmissions: C
                 </div>
               )}
 
-              <h2 className="mt-4 font-display text-lg font-semibold flex items-center gap-2">
+              <h2 className="mt-4 font-display text-lg font-semibold flex items-center gap-2 break-words [overflow-wrap:anywhere]">
                 {s.kind === "link" ? (
                   <Link2 className="h-4 w-4 shrink-0" />
                 ) : (
                   <MessageSquareQuote className="h-4 w-4 shrink-0" />
                 )}
-                <span>{s.title}</span>
+                <span className="min-w-0">{s.title}</span>
               </h2>
-              <p className="mt-2 text-sm leading-relaxed break-words" style={{ color: "var(--text-secondary)" }}>
+              <p className="mt-2 text-sm leading-relaxed break-words [overflow-wrap:anywhere]" style={{ color: "var(--text-secondary)" }}>
                 {s.content}
               </p>
             </div>
@@ -266,6 +282,46 @@ export function ComunidadeClient({ initialSubmissions }: { initialSubmissions: C
           </article>
         ))}
       </div>
+
+      {/* Mural da Singularidade — Associados com Avatares Únicos */}
+      {initialMembers.length > 0 && (
+        <section className="mt-16 border-t pt-12" style={{ borderColor: "var(--border-subtle)" }}>
+          <div className="mb-6 max-w-2xl space-y-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
+              Cada pessoa é única · ∞
+            </p>
+            <h2 className="font-display text-2xl font-semibold sm:text-3xl">
+              Mural da Singularidade — Quem faz o Vivências
+            </h2>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              Associados(as) que escolheram compartilhar seu Avatar Único e suas marcas de neurodivergência.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {initialMembers.map((m) => (
+              <SpotlightCard key={m.id} className="p-5 text-center flex flex-col items-center justify-between">
+                <AvatarDisplay
+                  config={m.avatar_config}
+                  neurodivergences={m.neurodivergences?.length ? m.neurodivergences : ["ahsd"]}
+                  size={84}
+                />
+                <div className="mt-3">
+                  <p className="font-display text-base font-semibold">{m.first_name}</p>
+                  <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
+                    {m.profile}
+                  </p>
+                  {m.manifesto && (
+                    <p className="mt-2 text-xs italic line-clamp-2" style={{ color: "var(--text-secondary)" }}>
+                      “{m.manifesto}”
+                    </p>
+                  )}
+                </div>
+              </SpotlightCard>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

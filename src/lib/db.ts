@@ -58,11 +58,13 @@ export async function ensureSchema(): Promise<void> {
           avatar_config JSONB NOT NULL,
           manifesto TEXT DEFAULT '',
           has_medical_report TEXT DEFAULT 'nao_informado',
+          show_in_directory BOOLEAN NOT NULL DEFAULT TRUE,
           accepted_code BOOLEAN NOT NULL DEFAULT TRUE,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
 
         ALTER TABLE memberships ADD COLUMN IF NOT EXISTS has_medical_report TEXT DEFAULT 'nao_informado';
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS show_in_directory BOOLEAN NOT NULL DEFAULT TRUE;
 
         CREATE TABLE IF NOT EXISTS partner_professionals (
           id TEXT PRIMARY KEY,
@@ -79,6 +81,7 @@ export async function ensureSchema(): Promise<void> {
           whatsapp TEXT DEFAULT '',
           social_url TEXT DEFAULT '',
           other_qualifications TEXT DEFAULT '',
+          service_type TEXT DEFAULT 'ambos',
           bio TEXT DEFAULT '',
           contact_url TEXT DEFAULT '',
           status TEXT NOT NULL DEFAULT 'pending',
@@ -91,6 +94,7 @@ export async function ensureSchema(): Promise<void> {
         ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS whatsapp TEXT DEFAULT '';
         ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS social_url TEXT DEFAULT '';
         ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS other_qualifications TEXT DEFAULT '';
+        ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS service_type TEXT DEFAULT 'ambos';
         ALTER TABLE partner_professionals ALTER COLUMN email DROP NOT NULL;
         ALTER TABLE partner_professionals ALTER COLUMN registry_code DROP NOT NULL;
         ALTER TABLE partner_professionals ALTER COLUMN approach DROP NOT NULL;

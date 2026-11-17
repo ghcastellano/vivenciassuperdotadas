@@ -60,15 +60,15 @@ export function Navbar() {
           borderColor: "var(--border-subtle)",
         }}
       >
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-8 lg:px-10">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-2 sm:gap-3 px-3 py-3 sm:px-8 lg:px-10">
         <Link
           href="/"
-          className="flex min-h-[44px] shrink-0 items-center gap-2.5"
+          className="flex min-h-[44px] min-w-0 items-center gap-2 sm:gap-2.5"
           style={{ color: "var(--text-primary)" }}
         >
           <BrandMark size={34} />
-          <div className="flex flex-col leading-none">
-            <span className="font-display text-base sm:text-lg font-semibold tracking-tight whitespace-nowrap">
+          <div className="flex min-w-0 flex-col leading-none">
+            <span className="font-display text-[15px] sm:text-lg font-semibold tracking-tight truncate">
               Vivências Superdotadas
             </span>
             <span
@@ -108,7 +108,7 @@ export function Navbar() {
         </nav>
 
         {/* Actions */}
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <div className="relative">
             <button
               type="button"
