@@ -15,6 +15,7 @@ export default async function AssocieSePage() {
     cityState: "",
     hasMedicalReport: "nao_informado",
     manifesto: "",
+    showInDirectory: false,
     avatarConfig: DEFAULT_AVATAR_CONFIG,
     neurodivergences: ["ahsd"],
   };
@@ -41,8 +42,9 @@ export default async function AssocieSePage() {
           neurodivergences: string[];
           manifesto: string;
           has_medical_report: string;
+          show_in_directory: boolean;
         }>(
-          "SELECT profile, city_state, avatar_config, neurodivergences, manifesto, has_medical_report FROM memberships WHERE LOWER(email) = $1 ORDER BY created_at DESC LIMIT 1",
+          "SELECT profile, city_state, avatar_config, neurodivergences, manifesto, has_medical_report, show_in_directory FROM memberships WHERE LOWER(email) = $1 ORDER BY created_at DESC LIMIT 1",
           [email]
         ),
       ]);
@@ -61,6 +63,7 @@ export default async function AssocieSePage() {
         cityState: m?.city_state || "",
         hasMedicalReport: u?.has_medical_report || m?.has_medical_report || "nao_informado",
         manifesto: u?.manifesto || m?.manifesto || "",
+        showInDirectory: Boolean(m?.show_in_directory),
         avatarConfig: avatar ? { ...DEFAULT_AVATAR_CONFIG, ...avatar } : DEFAULT_AVATAR_CONFIG,
         neurodivergences: neuro.length > 0 ? neuro : ["ahsd"],
       };

@@ -14,6 +14,7 @@ export interface InitialMemberProfile {
   cityState: string;
   hasMedicalReport: string;
   manifesto: string;
+  showInDirectory?: boolean;
   avatarConfig: AvatarConfig;
   neurodivergences: string[];
 }
@@ -26,7 +27,7 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
   const [cityState, setCityState] = useState(initial.cityState);
   const [hasMedicalReport, setHasMedicalReport] = useState(initial.hasMedicalReport || "nao_informado");
   const [manifesto, setManifesto] = useState(initial.manifesto);
-  const [showInDirectory, setShowInDirectory] = useState(false);
+  const [showInDirectory, setShowInDirectory] = useState(Boolean(initial.showInDirectory));
   const [acceptedCode, setAcceptedCode] = useState(initial.isEditingExisting);
   const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(
     initial.avatarConfig || DEFAULT_AVATAR_CONFIG
@@ -286,8 +287,8 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
                 className="mt-1 h-4 w-4"
               />
               <span style={{ color: "var(--text-secondary)" }}>
-                Exibir meu <strong>Avatar Único</strong>, primeiro nome e manifesto no{" "}
-                <strong>Mural da Singularidade</strong> em <code>/comunidade</code> (seu e-mail nunca é exibido).
+                Exibir meu <strong>Avatar Único</strong> de forma anônima na amostra da comunidade em{" "}
+                <code>/comunidade</code> (seu nome e e-mail nunca são exibidos).
               </span>
             </label>
 

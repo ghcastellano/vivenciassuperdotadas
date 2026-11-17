@@ -141,6 +141,9 @@ export async function POST(req: Request) {
       });
     }
 
+    revalidatePath("/comunidade");
+    revalidatePath("/associe-se");
+
     return NextResponse.json(
       { ok: true, id, updated: isUpdate, membershipStatus, memberNumber },
       { status: isUpdate ? 200 : 201 }
