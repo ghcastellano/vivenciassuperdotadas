@@ -31,10 +31,39 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const id = crypto.randomUUID();
-    await query(
-      "INSERT INTO users (id, name, email, password_hash, role) VALUES ($1, $2, $3, $4, 'member')",
-      [id, name, email, passwordHash]
+    const membershipRows = await query<{
+      avatar_config: unknown;
+      neurodivergences: string[];
+      manifesto: string;
+      has_medical_report: string;
+    }>(
+      `SELECT avatar_config, neurodivergences, manifesto, has_medical_report
+       FROM memberships
+       WHERE LOWER(email) = $1
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [email]
     );
+    const m = membershipRows[0];
+
+    await query(
+      `INSERT INTO users (id, name, email, password_hash, role, avatar_config, neurodivergences, manifesto, has_medical_report)
+       VALUES ($1, $2, $3, $4, 'member', $5, $6, $7, $8)`,
+      [
+        id,
+        name,
+        email,
+        passwordHash,
+        m?.avatar_config ? JSON.stringify(m.avatar_config) : null,
+        m?.neurodivergences || [],
+        m?.manifesto || "",
+        m?.has_medical_report || "nao_informado",
+      ]
+    );
+
+    if (m) {
+      await query("UPDATE memberships SET user_id = $1 WHERE LOWER(email) = $2 AND user_id IS NULL", [id, email]);
+    }
 
     await sendVivenciasEmail({
       to: email,

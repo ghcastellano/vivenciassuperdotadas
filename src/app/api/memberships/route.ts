@@ -31,7 +31,16 @@ export async function POST(req: Request) {
       );
     }
 
-    const userId = (session?.user as { id?: string } | undefined)?.id || null;
+    let userId = (session?.user as { id?: string } | undefined)?.id || null;
+    if (!userId) {
+      const matchedUsers = await query<{ id: string }>(
+        "SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1",
+        [email]
+      );
+      if (matchedUsers[0]?.id) {
+        userId = matchedUsers[0].id;
+      }
+    }
     const id = crypto.randomUUID();
 
     await query(
