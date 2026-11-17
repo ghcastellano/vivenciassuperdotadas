@@ -217,10 +217,12 @@ export async function ensureSchema(): Promise<void> {
           type TEXT NOT NULL,
           submission_id TEXT NOT NULL,
           submission_title TEXT DEFAULT '',
+          comment_id TEXT DEFAULT '',
           comment_preview TEXT DEFAULT '',
           is_read BOOLEAN NOT NULL DEFAULT FALSE,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+        ALTER TABLE notifications ADD COLUMN IF NOT EXISTS comment_id TEXT DEFAULT '';
         CREATE INDEX IF NOT EXISTS idx_notifications_recipient ON notifications(recipient_user_id, is_read, created_at DESC);
       `);
     })();

@@ -257,7 +257,7 @@ export async function POST(req: Request) {
           actor.userId,
         ]);
         await query(
-          "DELETE FROM notifications WHERE submission_id = $1 AND actor_user_id = $2 AND type = 'like' AND is_read = FALSE",
+          "DELETE FROM notifications WHERE submission_id = $1 AND actor_user_id = $2 AND type = 'like'",
           [submissionId, actor.userId]
         );
         likedByMe = false;
@@ -271,6 +271,11 @@ export async function POST(req: Request) {
         likedByMe = true;
 
         if (recipientId) {
+          // Deduplicate like notifications per (recipient, actor, submission) like Instagram
+          await query(
+            "DELETE FROM notifications WHERE recipient_user_id = $1 AND actor_user_id = $2 AND submission_id = $3 AND type = 'like'",
+            [recipientId, actor.userId, submissionId]
+          );
           await query(
             `INSERT INTO notifications (id, recipient_user_id, actor_user_id, actor_name, actor_avatar, type, submission_id, submission_title)
              VALUES ($1, $2, $3, $4, $5::jsonb, 'like', $6, $7)`,
@@ -354,8 +359,8 @@ export async function POST(req: Request) {
 
       if (recipientId) {
         await query(
-          `INSERT INTO notifications (id, recipient_user_id, actor_user_id, actor_name, actor_avatar, type, submission_id, submission_title, comment_preview)
-           VALUES ($1, $2, $3, $4, $5::jsonb, 'comment', $6, $7, $8)`,
+          `INSERT INTO notifications (id, recipient_user_id, actor_user_id, actor_name, actor_avatar, type, submission_id, submission_title, comment_id, comment_preview)
+           VALUES ($1, $2, $3, $4, $5::jsonb, 'comment', $6, $7, $8, $9)`,
           [
             crypto.randomUUID(),
             recipientId,
@@ -364,6 +369,7 @@ export async function POST(req: Request) {
             JSON.stringify(actor.avatar),
             submissionId,
             subRows[0].title.slice(0, 120),
+            id,
             content.slice(0, 140),
           ]
         );
@@ -409,6 +415,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Comentário não encontrado ou sem permissão." }, { status: 404 });
       }
 
+      await query("UPDATE notifications SET comment_preview = $1 WHERE comment_id = $2", [
+        content.slice(0, 140),
+        commentId,
+      ]);
+
       return NextResponse.json({ ok: true, comment: updated[0] });
     }
 
@@ -429,6 +440,8 @@ export async function POST(req: Request) {
       if (!deleted[0]) {
         return NextResponse.json({ error: "Comentário não encontrado ou sem permissão." }, { status: 404 });
       }
+
+      await query("DELETE FROM notifications WHERE comment_id = $1", [commentId]);
 
       revalidatePath("/comunidade");
       return NextResponse.json({ ok: true });

@@ -7,7 +7,11 @@ import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2, U
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
 import { ImageCurtainReveal } from "@/components/EditorialEffects";
-import { CommunityInteractionsModal } from "@/components/CommunityInteractionsModal";
+import {
+  CommunityInteractionsModal,
+  type CommentItem,
+  type LikeUserItem,
+} from "@/components/CommunityInteractionsModal";
 
 export interface MemberAvatarCard {
   id: string;
@@ -34,17 +38,27 @@ export function ComunidadeClient({
   initialSubmissions,
   initialMembers = [],
   activeMembersCount = 0,
+  initialInteractions = {},
 }: {
   initialSubmissions: CommunitySubmissionItem[];
   initialMembers?: MemberAvatarCard[];
   activeMembersCount?: number;
+  initialInteractions?: Record<string, { likes: LikeUserItem[]; comments: CommentItem[] }>;
 }) {
   const { data: session } = useSession();
   const [submissions] = useState<CommunitySubmissionItem[]>(initialSubmissions);
   const [kindFilter, setKindFilter] = useState("todos");
   const [showAllAvatars, setShowAllAvatars] = useState(false);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
-  const [counts, setCounts] = useState<Record<string, { likes: number; comments: number }>>({});
+  const [interactionsMap, setInteractionsMap] =
+    useState<Record<string, { likes: LikeUserItem[]; comments: CommentItem[] }>>(initialInteractions);
+  const [counts, setCounts] = useState<Record<string, { likes: number; comments: number }>>(() => {
+    const map: Record<string, { likes: number; comments: number }> = {};
+    for (const [subId, entry] of Object.entries(initialInteractions)) {
+      map[subId] = { likes: entry.likes.length, comments: entry.comments.length };
+    }
+    return map;
+  });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [modalState, setModalState] = useState<{
     submission: CommunitySubmissionItem;
@@ -95,6 +109,16 @@ export function ComunidadeClient({
       [submissionId]: { likes: likesCount, comments: commentsCount },
     }));
   }, []);
+
+  const handleInteractionsSync = useCallback(
+    (submissionId: string, likes: LikeUserItem[], comments: CommentItem[]) => {
+      setInteractionsMap((prev) => ({
+        ...prev,
+        [submissionId]: { likes, comments },
+      }));
+    },
+    []
+  );
 
   const toggleLike = async (submission: CommunitySubmissionItem) => {
     if (!session?.user) {
@@ -486,6 +510,8 @@ export function ComunidadeClient({
           submissionTitle={modalState.submission.title}
           authorName={modalState.submission.author_name}
           initialTab={modalState.tab}
+          initialLikes={interactionsMap[modalState.submission.id]?.likes || []}
+          initialComments={interactionsMap[modalState.submission.id]?.comments || []}
           isLoggedIn={Boolean(session?.user)}
           currentUserId={currentUserId || ((session?.user as { id?: string } | undefined)?.id ?? null)}
           currentUserName={session?.user?.name || "Você"}
@@ -493,6 +519,7 @@ export function ComunidadeClient({
           likedByMe={likedIds.has(modalState.submission.id)}
           onToggleLike={() => toggleLike(modalState.submission)}
           onCountsChange={handleCountsChange}
+          onInteractionsSync={handleInteractionsSync}
           onClose={() => setModalState(null)}
         />
       )}

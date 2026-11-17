@@ -41,6 +41,8 @@ export function CommunityInteractionsModal({
   submissionTitle,
   authorName,
   initialTab,
+  initialLikes = [],
+  initialComments = [],
   isLoggedIn,
   currentUserId,
   currentUserName,
@@ -48,12 +50,15 @@ export function CommunityInteractionsModal({
   likedByMe,
   onToggleLike,
   onCountsChange,
+  onInteractionsSync,
   onClose,
 }: {
   submissionId: string;
   submissionTitle: string;
   authorName: string;
   initialTab: "comments" | "likes";
+  initialLikes?: LikeUserItem[];
+  initialComments?: CommentItem[];
   isLoggedIn: boolean;
   currentUserId: string | null;
   currentUserName: string;
@@ -61,12 +66,13 @@ export function CommunityInteractionsModal({
   likedByMe: boolean;
   onToggleLike: () => void;
   onCountsChange: (submissionId: string, likesCount: number, commentsCount: number) => void;
+  onInteractionsSync?: (submissionId: string, likes: LikeUserItem[], comments: CommentItem[]) => void;
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<"comments" | "likes">(initialTab);
-  const [likes, setLikes] = useState<LikeUserItem[]>([]);
-  const [comments, setComments] = useState<CommentItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [likes, setLikes] = useState<LikeUserItem[]>(initialLikes);
+  const [comments, setComments] = useState<CommentItem[]>(initialComments);
+  const [loading, setLoading] = useState(false);
   const [draft, setDraft] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -75,18 +81,18 @@ export function CommunityInteractionsModal({
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
     fetch(`/api/community/interactions?submissionId=${encodeURIComponent(submissionId)}`, {
       cache: "no-store",
     })
-      .then((r) => (r.ok ? r.json() : { likes: [], comments: [] }))
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (!active) return;
+        if (!active || !data) return;
         const l = Array.isArray(data.likes) ? data.likes : [];
         const c = Array.isArray(data.comments) ? data.comments : [];
         setLikes(l);
         setComments(c);
         onCountsChange(submissionId, l.length, c.length);
+        onInteractionsSync?.(submissionId, l, c);
       })
       .catch(() => {})
       .finally(() => {
@@ -95,7 +101,7 @@ export function CommunityInteractionsModal({
     return () => {
       active = false;
     };
-  }, [submissionId, onCountsChange]);
+  }, [submissionId, onCountsChange, onInteractionsSync]);
 
   const handleModalLikeToggle = () => {
     if (isLoggedIn && currentUserId) {
@@ -210,6 +216,8 @@ export function CommunityInteractionsModal({
     if (!res.ok) {
       setComments(prevComments);
       onCountsChange(submissionId, likes.length, prevComments.length);
+    } else {
+      window.dispatchEvent(new Event("vs:notifications-updated"));
     }
   };
 
