@@ -273,10 +273,10 @@ export function Navbar() {
           </div>
 
           <Link
-            href="/associe-se"
+            href={session?.user ? "/associe-se" : "/associe-se"}
             className="btn-primary hidden sm:inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold"
           >
-            Associe-se
+            {session?.user ? "Meu Avatar" : "Associe-se"}
           </Link>
 
           <Link
@@ -330,7 +330,7 @@ export function Navbar() {
             onClick={() => setMobileOpen(false)}
             className="btn-primary mt-2 flex min-h-[44px] items-center justify-center rounded-xl px-4 py-2.5 text-base font-semibold"
           >
-            Associe-se e crie seu Avatar
+            {session?.user ? "Editar meu Avatar & Dados" : "Associe-se e crie seu Avatar"}
           </Link>
         </nav>
       )}

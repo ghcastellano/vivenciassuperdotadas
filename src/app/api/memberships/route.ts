@@ -41,48 +41,85 @@ export async function POST(req: Request) {
         userId = matchedUsers[0].id;
       }
     }
-    const id = crypto.randomUUID();
-
-    await query(
-      `INSERT INTO memberships (id, user_id, name, email, profile, city_state, neurodivergences, avatar_config, manifesto, has_medical_report, accepted_code)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-      [
-        id,
-        userId,
-        name,
-        email,
-        profile,
-        cityState,
-        neurodivergences,
-        JSON.stringify(avatarConfig),
-        manifesto,
-        hasMedicalReport,
-        acceptedCode,
-      ]
+    const existingMembership = await query<{ id: string }>(
+      "SELECT id FROM memberships WHERE LOWER(email) = $1 OR ($2::text IS NOT NULL AND user_id = $2) ORDER BY created_at DESC LIMIT 1",
+      [email, userId]
     );
 
-    if (userId) {
+    let id = existingMembership[0]?.id;
+    const isUpdate = Boolean(id);
+
+    if (id) {
       await query(
-        "UPDATE users SET avatar_config = $1, neurodivergences = $2, manifesto = $3, has_medical_report = $4 WHERE id = $5",
-        [JSON.stringify(avatarConfig), neurodivergences, manifesto, hasMedicalReport, userId]
+        `UPDATE memberships
+         SET user_id = COALESCE($1, user_id),
+             name = $2,
+             profile = $3,
+             city_state = $4,
+             neurodivergences = $5,
+             avatar_config = $6,
+             manifesto = $7,
+             has_medical_report = $8,
+             accepted_code = $9
+         WHERE id = $10`,
+        [
+          userId,
+          name,
+          profile,
+          cityState,
+          neurodivergences,
+          JSON.stringify(avatarConfig),
+          manifesto,
+          hasMedicalReport,
+          acceptedCode,
+          id,
+        ]
+      );
+    } else {
+      id = crypto.randomUUID();
+      await query(
+        `INSERT INTO memberships (id, user_id, name, email, profile, city_state, neurodivergences, avatar_config, manifesto, has_medical_report, accepted_code)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+        [
+          id,
+          userId,
+          name,
+          email,
+          profile,
+          cityState,
+          neurodivergences,
+          JSON.stringify(avatarConfig),
+          manifesto,
+          hasMedicalReport,
+          acceptedCode,
+        ]
       );
     }
 
-    await sendVivenciasEmail({
-      to: email,
-      subject: "Associação confirmada — Vivências Superdotadas",
-      heading: `Bem-vindo(a), ${name}!`,
-      intro: "Sua solicitação de associação e seu Avatar Único foram registrados.",
-      bodyHtml: `
-        <p>Ficamos muito felizes em caminhar com você. Nossa associação reúne pessoas com AH/SD, familiares, educadores e aliados neurotípicos em torno do respeito à singularidade e da divulgação científica responsável.</p>
-        <p><strong>Perfil selecionado:</strong> ${profile}</p>
-        <p>Você também pode participar do nosso grupo de convivência no WhatsApp respeitando o Código de Boa Convivência.</p>
-      `,
-      ctaLabel: "Entrar no grupo do WhatsApp",
-      ctaUrl: "https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b",
-    });
+    if (userId) {
+      await query(
+        "UPDATE users SET name = $1, avatar_config = $2, neurodivergences = $3, manifesto = $4, has_medical_report = $5 WHERE id = $6",
+        [name, JSON.stringify(avatarConfig), neurodivergences, manifesto, hasMedicalReport, userId]
+      );
+    }
 
-    return NextResponse.json({ ok: true, id }, { status: 201 });
+    if (!isUpdate) {
+      await sendVivenciasEmail({
+        to: email,
+        subject: "Associação confirmada — Vivências Superdotadas",
+        heading: `Bem-vindo(a), ${name}!`,
+        intro: "Sua solicitação de associação e seu Avatar Único foram registrados.",
+        bodyHtml: `
+          <p>Ficamos muito felizes em caminhar com você. Nossa associação reúne pessoas com AH/SD, familiares, educadores e aliados neurotípicos em torno do respeito à singularidade e da divulgação científica responsável.</p>
+          <p><strong>Perfil selecionado:</strong> ${profile}</p>
+          <p>Você também pode participar do nosso grupo de convivência no WhatsApp respeitando o Código de Boa Convivência.</p>
+        `,
+        ctaLabel: "Entrar no grupo do WhatsApp",
+        ctaUrl: "https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b",
+      });
+    }
+
+    return NextResponse.json({ ok: true, id, updated: isUpdate }, { status: isUpdate ? 200 : 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Não foi possível salvar a associação." }, { status: 500 });

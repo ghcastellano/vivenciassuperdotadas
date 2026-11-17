@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { DEFAULT_AVATAR_CONFIG, type AvatarConfig } from "@/lib/avatar";
 import { AvatarStudio } from "@/components/AvatarStudio";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 
 export default function AssocieSePage() {
+  const { status: authStatus } = useSession();
+  const [isEditingExisting, setIsEditingExisting] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [profile, setProfile] = useState("Pessoa com AH/SD");
@@ -18,6 +21,30 @@ export default function AssocieSePage() {
   const [neurodivergences, setNeurodivergences] = useState<string[]>(["ahsd"]);
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    if (authStatus === "authenticated") {
+      fetch("/api/me")
+        .then((r) => r.json())
+        .then((d) => {
+          const u = d.user;
+          if (!u) return;
+          if (u.name) setName(u.name);
+          if (u.email) setEmail(u.email);
+          if (u.manifesto) setManifesto(u.manifesto);
+          if (u.has_medical_report) setHasMedicalReport(u.has_medical_report);
+          if (Array.isArray(u.neurodivergences) && u.neurodivergences.length > 0) {
+            setNeurodivergences(u.neurodivergences);
+          }
+          if (u.avatar_config) {
+            setAvatarConfig({ ...DEFAULT_AVATAR_CONFIG, ...u.avatar_config });
+            setIsEditingExisting(true);
+            setAcceptedCode(true);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [authStatus]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +84,9 @@ export default function AssocieSePage() {
           <span>Associação & Identidade Única</span>
         </div>
         <h1 className="font-display text-3xl font-semibold sm:text-4xl">
-          Associe-se ao Vivências Superdotadas e crie seu Avatar Único
+          {isEditingExisting
+            ? "Editar seu Avatar Único & Dados de Associado(a)"
+            : "Associe-se ao Vivências Superdotadas e crie seu Avatar Único"}
         </h1>
         <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
           Recebemos pessoas com AH/SD, dupla excepcionalidade, familiares, educadores e aliados neurotípicos. Personalize
@@ -187,7 +216,11 @@ export default function AssocieSePage() {
               disabled={status === "saving"}
               className="btn-primary min-h-[46px] rounded-xl px-6 py-3 text-sm font-semibold disabled:opacity-60"
             >
-              {status === "saving" ? "Salvando..." : "Concluir Associação com meu Avatar"}
+              {status === "saving"
+                ? "Salvando..."
+                : isEditingExisting
+                ? "Salvar alterações do meu Avatar"
+                : "Concluir Associação com meu Avatar"}
             </button>
           </div>
         </form>
