@@ -18,6 +18,8 @@ import { useSensory } from "@/components/SensoryProvider";
 import { useSession } from "next-auth/react";
 import { ReadingProgressBar } from "@/components/EditorialEffects";
 import { BrandMark } from "@/components/BrandMark";
+import { NotificationBell } from "@/components/NotificationBell";
+import { RouteFreshnessSync } from "@/components/RouteFreshnessSync";
 
 const NAV_LINKS = [
   { href: "/sobre", label: "Associação" },
@@ -348,6 +350,8 @@ export function Navbar() {
               {isLoggedIn ? "Meu Avatar" : "Associe-se"}
             </Link>
 
+            <NotificationBell enabled={Boolean(session?.user)} />
+
             <Link
               href={isLoggedIn ? "/perfil" : "/entrar"}
               aria-label={isLoggedIn ? "Abrir meu perfil" : "Entrar na conta"}
@@ -421,6 +425,7 @@ export function Navbar() {
           </nav>
         )}
       </header>
+      <RouteFreshnessSync />
     </>
   );
 }

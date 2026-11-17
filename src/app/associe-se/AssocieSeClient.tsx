@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { CheckCircle2, Sparkles } from "lucide-react";
 import { DEFAULT_AVATAR_CONFIG, type AvatarConfig } from "@/lib/avatar";
 import { AvatarStudio } from "@/components/AvatarStudio";
@@ -13,7 +14,6 @@ export interface InitialMemberProfile {
   profile: string;
   cityState: string;
   hasMedicalReport: string;
-  showInDirectory: boolean;
   manifesto: string;
   showInDirectory?: boolean;
   avatarConfig: AvatarConfig;
@@ -96,6 +96,10 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
             neurodivergences,
           }),
         });
+        if (res.ok) {
+          const { markRoutesDirty } = await import("@/lib/route-freshness");
+          markRoutesDirty(["/comunidade", "/perfil"]);
+        }
         setAutoSaveState(res.ok ? "saved" : "error");
       } catch {
         setAutoSaveState("error");

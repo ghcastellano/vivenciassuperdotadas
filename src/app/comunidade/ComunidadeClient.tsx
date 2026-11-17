@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2, Users, Heart } from "lucide-react";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
 import { ImageCurtainReveal } from "@/components/EditorialEffects";
+import { CommunityInteractionsModal } from "@/components/CommunityInteractionsModal";
 
 export interface MemberAvatarCard {
   id: string;
@@ -37,9 +39,18 @@ export function ComunidadeClient({
   initialMembers?: MemberAvatarCard[];
   activeMembersCount?: number;
 }) {
+  const { data: session } = useSession();
   const [submissions] = useState<CommunitySubmissionItem[]>(initialSubmissions);
   const [kindFilter, setKindFilter] = useState("todos");
   const [showAllAvatars, setShowAllAvatars] = useState(false);
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [counts, setCounts] = useState<Record<string, { likes: number; comments: number }>>({});
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [modalState, setModalState] = useState<{
+    submission: CommunitySubmissionItem;
+    tab: "comments" | "likes";
+  } | null>(null);
+  const [highlightedPostId, setHighlightedPostId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -51,6 +62,82 @@ export function ComunidadeClient({
     imageUrl: "",
     credits: "",
   });
+
+  useEffect(() => {
+    fetch("/api/community/interactions?summary=1", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return;
+        if (data.currentUserId) setCurrentUserId(data.currentUserId);
+        if (Array.isArray(data.likedIds)) setLikedIds(new Set(data.likedIds));
+        if (data.counts) setCounts(data.counts);
+      })
+      .catch(() => {});
+  }, [session?.user?.email]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const postParam = new URLSearchParams(window.location.search).get("post");
+    if (!postParam) return;
+    const target = submissions.find((s) => s.id === postParam);
+    if (!target) return;
+    setKindFilter("todos");
+    setHighlightedPostId(target.id);
+    setModalState({ submission: target, tab: "comments" });
+    setTimeout(() => {
+      document.getElementById(`post-${target.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+  }, [submissions]);
+
+  const handleCountsChange = useCallback((submissionId: string, likesCount: number, commentsCount: number) => {
+    setCounts((prev) => ({
+      ...prev,
+      [submissionId]: { likes: likesCount, comments: commentsCount },
+    }));
+  }, []);
+
+  const toggleLike = async (submission: CommunitySubmissionItem) => {
+    if (!session?.user) {
+      setModalState({ submission, tab: "likes" });
+      return;
+    }
+    const wasLiked = likedIds.has(submission.id);
+    setLikedIds((prev) => {
+      const next = new Set(prev);
+      if (wasLiked) next.delete(submission.id);
+      else next.add(submission.id);
+      return next;
+    });
+    setCounts((prev) => {
+      const curr = prev[submission.id] || { likes: 0, comments: 0 };
+      return {
+        ...prev,
+        [submission.id]: { ...curr, likes: Math.max(0, curr.likes + (wasLiked ? -1 : 1)) },
+      };
+    });
+
+    const res = await fetch("/api/community/interactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "toggle_like", submissionId: submission.id }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setLikedIds((prev) => {
+        const next = new Set(prev);
+        if (data.likedByMe) next.add(submission.id);
+        else next.delete(submission.id);
+        return next;
+      });
+      setCounts((prev) => ({
+        ...prev,
+        [submission.id]: {
+          likes: Number(data.likesCount ?? 0),
+          comments: prev[submission.id]?.comments ?? 0,
+        },
+      }));
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,8 +323,18 @@ export function ComunidadeClient({
         </div>
       ) : (
         <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((s) => (
-          <article key={s.id} className="editorial-card min-w-0 rounded-2xl p-5 flex flex-col justify-between">
+        {filtered.map((s) => {
+          const postCounts = counts[s.id] || { likes: 0, comments: 0 };
+          const isLiked = likedIds.has(s.id);
+          const isHighlighted = highlightedPostId === s.id;
+          return (
+          <article
+            key={s.id}
+            id={`post-${s.id}`}
+            className={`editorial-card min-w-0 rounded-2xl p-5 flex flex-col justify-between transition-shadow ${
+              isHighlighted ? "ring-2 ring-[#18492D]" : ""
+            }`}
+          >
             <div className="min-w-0">
               <div className="flex items-center gap-3 border-b pb-3" style={{ borderColor: "var(--border-subtle)" }}>
                 <AvatarDisplay
@@ -273,25 +370,59 @@ export function ComunidadeClient({
               </p>
             </div>
 
-            <div
-              className="mt-4 pt-3 border-t text-xs flex items-center justify-between"
-              style={{ borderColor: "var(--border-subtle)" }}
-            >
-              <span style={{ color: "var(--text-muted)" }}>{s.credits || "Autoria da comunidade"}</span>
-              {s.external_url && (
-                <a
-                  href={s.external_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-semibold underline"
-                  style={{ color: "var(--accent-emerald)" }}
+            <div className="mt-4 pt-3 border-t space-y-2.5" style={{ borderColor: "var(--border-subtle)" }}>
+              <div className="flex items-center justify-between text-xs">
+                <span style={{ color: "var(--text-muted)" }}>{s.credits || "Autoria da comunidade"}</span>
+                {s.external_url && (
+                  <a
+                    href={s.external_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-semibold underline"
+                    style={{ color: "var(--accent-emerald)" }}
+                  >
+                    Abrir <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+
+              <div className="flex items-center gap-4 pt-1">
+                <div className="inline-flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleLike(s)}
+                    aria-label={isLiked ? "Descurtir" : "Curtir"}
+                    className="inline-flex items-center justify-center rounded-full p-1 transition-transform active:scale-125 hover:bg-black/5"
+                    style={{ color: isLiked ? "#BD4626" : "var(--text-secondary)" }}
+                  >
+                    <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalState({ submission: s, tab: "likes" })}
+                    className="text-xs font-semibold hover:underline"
+                    style={{ color: postCounts.likes > 0 ? "var(--text-primary)" : "var(--text-muted)" }}
+                  >
+                    {postCounts.likes} {postCounts.likes === 1 ? "curtida" : "curtidas"}
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setModalState({ submission: s, tab: "comments" })}
+                  className="inline-flex items-center gap-1.5 rounded-full px-1.5 py-1 text-xs font-semibold transition-colors hover:bg-black/5"
+                  style={{ color: postCounts.comments > 0 ? "var(--text-primary)" : "var(--text-muted)" }}
                 >
-                  Abrir <ExternalLink className="h-3 w-3" />
-                </a>
-              )}
+                  <MessageCircle className="h-4 w-4" />
+                  <span>
+                    {postCounts.comments} {postCounts.comments === 1 ? "comentário" : "comentários"}
+                  </span>
+                </button>
+              </div>
             </div>
           </article>
-        ))}
+          );
+        })}
         </div>
       )}
 
@@ -342,6 +473,21 @@ export function ComunidadeClient({
             )}
           </div>
         </section>
+      )}
+      {modalState && (
+        <CommunityInteractionsModal
+          submissionId={modalState.submission.id}
+          submissionTitle={modalState.submission.title}
+          authorName={modalState.submission.author_name}
+          initialTab={modalState.tab}
+          isLoggedIn={Boolean(session?.user)}
+          currentUserId={currentUserId || ((session?.user as { id?: string } | undefined)?.id ?? null)}
+          isAdmin={(session?.user as { role?: string } | undefined)?.role === "admin"}
+          likedByMe={likedIds.has(modalState.submission.id)}
+          onToggleLike={() => toggleLike(modalState.submission)}
+          onCountsChange={handleCountsChange}
+          onClose={() => setModalState(null)}
+        />
       )}
     </div>
   );

@@ -183,6 +183,43 @@ export async function ensureSchema(): Promise<void> {
           reasoning_total INTEGER DEFAULT 0,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+
+        CREATE TABLE IF NOT EXISTS community_likes (
+          submission_id TEXT NOT NULL REFERENCES community_submissions(id) ON DELETE CASCADE,
+          user_id TEXT NOT NULL,
+          user_name TEXT NOT NULL,
+          user_avatar JSONB,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          PRIMARY KEY (submission_id, user_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_community_likes_submission ON community_likes(submission_id);
+
+        CREATE TABLE IF NOT EXISTS community_comments (
+          id TEXT PRIMARY KEY,
+          submission_id TEXT NOT NULL REFERENCES community_submissions(id) ON DELETE CASCADE,
+          user_id TEXT NOT NULL,
+          user_name TEXT NOT NULL,
+          user_avatar JSONB,
+          content TEXT NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ
+        );
+        CREATE INDEX IF NOT EXISTS idx_community_comments_submission ON community_comments(submission_id, created_at);
+
+        CREATE TABLE IF NOT EXISTS notifications (
+          id TEXT PRIMARY KEY,
+          recipient_user_id TEXT NOT NULL,
+          actor_user_id TEXT,
+          actor_name TEXT NOT NULL,
+          actor_avatar JSONB,
+          type TEXT NOT NULL,
+          submission_id TEXT NOT NULL,
+          submission_title TEXT DEFAULT '',
+          comment_preview TEXT DEFAULT '',
+          is_read BOOLEAN NOT NULL DEFAULT FALSE,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_notifications_recipient ON notifications(recipient_user_id, is_read, created_at DESC);
       `);
     })();
   }

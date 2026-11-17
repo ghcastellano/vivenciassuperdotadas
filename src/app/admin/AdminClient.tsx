@@ -103,6 +103,19 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       setActionNotice("Modo visualização aberta: entre como administrador para gravar alterações no banco.");
       return;
     }
+    if (res.ok) {
+      const action = String(payload.action || "");
+      const { markRoutesDirty } = await import("@/lib/route-freshness");
+      if (action === "moderate_submission" || action === "moderate_membership") {
+        markRoutesDirty(["/comunidade", "/perfil"]);
+      } else if (action === "moderate_professional") {
+        markRoutesDirty(["/profissionais"]);
+      } else if (action === "create_event" || action === "delete_event") {
+        markRoutesDirty(["/eventos"]);
+      } else if (action === "create_expense" || action === "delete_expense") {
+        markRoutesDirty(["/apoie"]);
+      }
+    }
     await load();
   };
 
