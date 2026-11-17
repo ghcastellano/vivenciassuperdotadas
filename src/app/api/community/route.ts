@@ -35,6 +35,20 @@ export async function POST(req: Request) {
       );
     }
 
+    const userRole = (session.user as { role?: string; membershipStatus?: string }).role;
+    const membershipStatus = (session.user as { membershipStatus?: string }).membershipStatus;
+    if (userRole !== "admin" && membershipStatus !== "active") {
+      return NextResponse.json(
+        {
+          error:
+            membershipStatus === "pending"
+              ? "Sua solicitação de associação está em análise pela diretoria. Assim que for aprovada, você poderá publicar na comunidade."
+              : "Apenas associados ativos podem publicar na comunidade. Conclua o processo formal de associação em /associe-se.",
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const kind = String(body.kind || "relato").trim();
     const title = String(body.title || "").trim();

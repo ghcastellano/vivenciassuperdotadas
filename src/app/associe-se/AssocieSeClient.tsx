@@ -212,8 +212,9 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
                 className="mt-1 h-4 w-4"
               />
               <span style={{ color: "var(--text-secondary)" }}>
-                Li e concordo com o <strong>Código de Boa Convivência</strong> (respeito à diversidade, diálogo não
-                exclusivista, tolerância zero a assédio e ética na divulgação científica).
+                Li e concordo com o <strong>Estatuto Social</strong>, a <strong>Política de Privacidade (LGPD)</strong> e o{" "}
+                <strong>Código de Boa Convivência</strong> (respeito à diversidade, diálogo não exclusivista, tolerância
+                zero a assédio e ética na divulgação científica). Minha solicitação passará pela aprovação da diretoria.
               </span>
             </label>
 
@@ -226,7 +227,7 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
                 ? "Salvando..."
                 : isEditingExisting
                 ? "Salvar alterações do meu Avatar"
-                : "Concluir Associação com meu Avatar"}
+                : "Enviar Solicitação de Associação"}
             </button>
           </div>
         </form>

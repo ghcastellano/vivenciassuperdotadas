@@ -15,6 +15,8 @@ export interface MeUser {
   neurodivergences: string[];
   manifesto: string;
   has_medical_report: string;
+  membership_status?: string;
+  member_number?: string;
 }
 
 const REPORT_LABELS: Record<string, string> = {
@@ -86,6 +88,42 @@ export function PerfilClient({ initialMe }: { initialMe: MeUser | null }) {
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
             Avaliação / Laudo: <strong>{REPORT_LABELS[initialMe.has_medical_report || "nao_informado"]}</strong>
           </p>
+        </div>
+
+        {/* Legal Membership Status */}
+        <div
+          className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+        >
+          <div className="space-y-0.5">
+            <p className="font-mono-num text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
+              Vínculo Associativo Legal
+            </p>
+            <p className="text-sm font-semibold">
+              {initialMe.membership_status === "active"
+                ? `Associado(a) Ativo(a)${initialMe.member_number ? ` · Matrícula ${initialMe.member_number}` : ""}`
+                : initialMe.membership_status === "pending"
+                ? "Solicitação em análise pela diretoria"
+                : initialMe.membership_status === "suspended"
+                ? "Vínculo suspenso — fale com a administração"
+                : initialMe.membership_status === "rejected"
+                ? "Solicitação não aprovada — revise sua ficha"
+                : "Conta criada · Associação formal pendente"}
+            </p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              {initialMe.membership_status === "active"
+                ? "Você tem acesso completo para publicar na comunidade e aparecer no Mural da Singularidade."
+                : "Publicar na comunidade e acessar áreas exclusivas exige aprovação formal da associação."}
+            </p>
+          </div>
+          {initialMe.membership_status !== "active" && (
+            <Link
+              href="/associe-se"
+              className="btn-secondary shrink-0 inline-flex min-h-[38px] items-center rounded-lg px-3.5 text-xs font-semibold"
+            >
+              {initialMe.membership_status === "pending" ? "Ver ficha enviada" : "Completar associação →"}
+            </Link>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-3">

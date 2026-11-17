@@ -19,7 +19,7 @@ export default async function ComunidadePage() {
         query<MemberAvatarCard>(
           `SELECT id, split_part(name, ' ', 1) AS first_name, profile, avatar_config, neurodivergences, manifesto
            FROM memberships
-           WHERE show_in_directory = TRUE
+           WHERE show_in_directory = TRUE AND membership_status = 'active'
            ORDER BY created_at DESC
            LIMIT 24`
         ),

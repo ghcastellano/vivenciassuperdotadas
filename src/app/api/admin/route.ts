@@ -27,17 +27,22 @@ export async function GET() {
       events: [],
       expenses: [],
       users: [],
+      memberships: [],
       membersCount: 0,
     });
   }
 
-  const [professionals, submissions, events, expenses, users, members] = await Promise.all([
+  const [professionals, submissions, events, expenses, users, memberships] = await Promise.all([
     query("SELECT * FROM partner_professionals ORDER BY created_at DESC"),
     query("SELECT * FROM community_submissions ORDER BY created_at DESC"),
     query("SELECT * FROM events ORDER BY event_date ASC"),
     query("SELECT * FROM financial_expenses ORDER BY reference_date DESC, created_at DESC"),
     query("SELECT id, name, email, role, created_at FROM users ORDER BY CASE WHEN role = 'admin' THEN 0 ELSE 1 END, created_at DESC"),
-    query<{ count: string }>("SELECT COUNT(*) AS count FROM memberships"),
+    query(
+      `SELECT id, name, email, profile, city_state, has_medical_report, manifesto, membership_status, member_number, accepted_at, created_at
+       FROM memberships
+       ORDER BY CASE WHEN membership_status = 'pending' THEN 0 WHEN membership_status = 'active' THEN 1 ELSE 2 END, created_at DESC`
+    ),
   ]);
 
   return NextResponse.json({
@@ -47,7 +52,8 @@ export async function GET() {
     events,
     expenses,
     users,
-    membersCount: Number(members[0]?.count || 0),
+    memberships,
+    membersCount: memberships.filter((m: Record<string, unknown>) => m.membership_status === "active").length,
   });
 }
 
@@ -165,6 +171,57 @@ export async function POST(req: Request) {
       );
     }
     return NextResponse.json({ ok: true });
+  }
+
+  if (action === "moderate_membership") {
+    const id = String(body.id || "");
+    const status =
+      body.status === "active"
+        ? "active"
+        : body.status === "suspended"
+        ? "suspended"
+        : "rejected";
+    const approver = session.user?.email || "admin";
+
+    const existing = await query<{ name: string; email: string; member_number: string }>(
+      "SELECT name, email, member_number FROM memberships WHERE id = $1 LIMIT 1",
+      [id]
+    );
+    if (!existing[0]) {
+      return NextResponse.json({ error: "Solicitação de associação não encontrada." }, { status: 404 });
+    }
+
+    const memberNumber =
+      status === "active"
+        ? existing[0].member_number ||
+          `VS-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
+        : existing[0].member_number || "";
+
+    await query(
+      `UPDATE memberships
+       SET membership_status = $1,
+           member_number = $2,
+           approved_at = CASE WHEN $1 = 'active' THEN COALESCE(approved_at, NOW()) ELSE approved_at END,
+           approved_by = CASE WHEN $1 = 'active' THEN $3 ELSE approved_by END
+       WHERE id = $4`,
+      [status, memberNumber, approver, id]
+    );
+
+    if (status === "active" && existing[0].email) {
+      await sendVivenciasEmail({
+        to: existing[0].email,
+        subject: `Associação aprovada (${memberNumber}) — Vivências Superdotadas`,
+        heading: `Boas-vindas oficiais, ${existing[0].name}!`,
+        intro: `Sua associação foi aprovada pela diretoria. Sua matrícula é ${memberNumber}.`,
+        bodyHtml: `<p>Você já pode publicar relatos, artes e links na Comunidade, exibir seu Avatar Único no Mural da Singularidade e acessar o grupo oficial de convivência.</p>`,
+        ctaLabel: "Entrar no grupo do WhatsApp",
+        ctaUrl: "https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b",
+      });
+    }
+
+    revalidatePath("/comunidade");
+    revalidatePath("/perfil");
+    return NextResponse.json({ ok: true, memberNumber });
   }
 
   return NextResponse.json({ error: "Ação inválida." }, { status: 400 });

@@ -45,10 +45,23 @@ export interface AdminData {
     role: string;
     created_at: string;
   }[];
+  memberships: {
+    id: string;
+    name: string;
+    email: string;
+    profile: string;
+    city_state: string;
+    has_medical_report: string;
+    manifesto: string;
+    membership_status: string;
+    member_number: string;
+    accepted_at: string;
+    created_at: string;
+  }[];
   membersCount: number;
 }
 
-type AdminTab = "profissionais" | "comunidade" | "eventos" | "custos" | "admins";
+type AdminTab = "associacoes" | "profissionais" | "comunidade" | "eventos" | "custos" | "admins";
 
 export function AdminClient({ initialData }: { initialData: AdminData }) {
   const [data, setData] = useState<AdminData>(initialData);
@@ -96,6 +109,21 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
   const pendingProfs = data.professionals.filter((p) => p.status === "pending");
   const approvedProfs = data.professionals.filter((p) => p.status === "approved");
   const pendingSubs = data.submissions.filter((s) => s.status === "pending");
+  const pendingMembers = (data.memberships || []).filter((m) => m.membership_status === "pending");
+
+  const mergedAccounts = React.useMemo(() => {
+    const map = new Map<string, { id: string; name: string; email: string; role: string }>();
+    for (const u of data.users || []) {
+      map.set(u.email.toLowerCase(), { id: u.id, name: u.name, email: u.email, role: u.role });
+    }
+    for (const m of data.memberships || []) {
+      const key = m.email.toLowerCase();
+      if (!map.has(key)) {
+        map.set(key, { id: `mem-${m.id}`, name: m.name, email: m.email, role: "member" });
+      }
+    }
+    return Array.from(map.values());
+  }, [data.users, data.memberships]);
 
   return (
     <div className="mx-auto max-w-[1400px] px-5 py-10 sm:px-8 lg:px-10 space-y-8">
@@ -123,10 +151,15 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
           <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
-            <span>Associados</span>
+            <span>Associados Ativos</span>
             <Users className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
           </div>
-          <p className="font-mono-num mt-2 text-2xl font-bold">{data.membersCount}</p>
+          <p className="font-mono-num mt-2 text-2xl font-bold">
+            {data.membersCount}{" "}
+            <span className="text-xs font-normal" style={{ color: "var(--accent-amber)" }}>
+              ({pendingMembers.length} pendentes)
+            </span>
+          </p>
         </div>
 
         <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
@@ -171,11 +204,12 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       <div className="flex flex-wrap gap-2 border-b pb-3" style={{ borderColor: "var(--border-subtle)" }}>
         {(
           [
+            ["associacoes", `Associações (${(data.memberships || []).length})`],
             ["profissionais", `Profissionais (${data.professionals.length})`],
             ["comunidade", `Comunidade (${data.submissions.length})`],
             ["eventos", `Eventos (${data.events.length})`],
             ["custos", `Transparência & Custos (${data.expenses.length})`],
-            ["admins", `Admins & Membros (${data.users?.length || 0})`],
+            ["admins", `Admins & Membros (${mergedAccounts.length})`],
           ] as const
         ).map(([key, label]) => (
           <button
@@ -192,6 +226,120 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
           </button>
         ))}
       </div>
+
+      {/* TAB 0: Associações */}
+      {tab === "associacoes" && (
+        <section className="space-y-4">
+          {(data.memberships || []).length === 0 ? (
+            <div className="rounded-2xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+              Nenhuma solicitação de associação recebida ainda.
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {data.memberships.map((m) => (
+                <div
+                  key={m.id}
+                  className="rounded-2xl border p-4 flex flex-col justify-between gap-3"
+                  style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                        style={{
+                          backgroundColor: "var(--bg-surface)",
+                          color:
+                            m.membership_status === "active"
+                              ? "var(--accent-emerald)"
+                              : m.membership_status === "pending"
+                              ? "var(--accent-amber)"
+                              : "var(--accent-crimson)",
+                        }}
+                      >
+                        {m.membership_status === "active"
+                          ? `Ativo${m.member_number ? ` · ${m.member_number}` : ""}`
+                          : m.membership_status === "pending"
+                          ? "Pendente"
+                          : m.membership_status === "suspended"
+                          ? "Suspenso"
+                          : "Recusado"}
+                      </span>
+                      {m.city_state && (
+                        <span className="text-[11px] truncate" style={{ color: "var(--text-muted)" }}>
+                          {m.city_state}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-2 font-display text-base font-semibold">{m.name}</p>
+                    <p className="text-xs font-mono-num truncate" style={{ color: "var(--text-muted)" }}>
+                      {m.email}
+                    </p>
+                    <p className="text-xs mt-1 font-medium" style={{ color: "var(--text-secondary)" }}>
+                      {m.profile}
+                    </p>
+                    {m.manifesto && (
+                      <p className="mt-2 text-xs italic line-clamp-2" style={{ color: "var(--text-secondary)" }}>
+                        &ldquo;{m.manifesto}&rdquo;
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 border-t pt-3" style={{ borderColor: "var(--border-subtle)" }}>
+                    {m.membership_status === "pending" ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => act({ action: "moderate_membership", id: m.id, status: "active" })}
+                          className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-white"
+                          style={{ backgroundColor: "var(--accent-emerald)" }}
+                        >
+                          <Check className="h-3.5 w-3.5" /> Aprovar Associado
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => act({ action: "moderate_membership", id: m.id, status: "rejected" })}
+                          className="flex-1 inline-flex items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-semibold text-white"
+                          style={{ backgroundColor: "var(--accent-crimson)" }}
+                        >
+                          <X className="h-3.5 w-3.5" /> Recusar
+                        </button>
+                      </>
+                    ) : m.membership_status === "active" ? (
+                      <>
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--accent-emerald)" }}>
+                          <Check className="h-3.5 w-3.5" /> Associado ativo
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => act({ action: "moderate_membership", id: m.id, status: "suspended" })}
+                          className="inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors hover:bg-black/5"
+                          style={{ borderColor: "var(--border-subtle)", color: "var(--accent-crimson)" }}
+                        >
+                          <X className="h-3 w-3" /> Suspender
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: "var(--accent-crimson)" }}>
+                          <X className="h-3.5 w-3.5" /> {m.membership_status === "suspended" ? "Suspenso" : "Recusado"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => act({ action: "moderate_membership", id: m.id, status: "active" })}
+                          className="inline-flex items-center justify-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors hover:bg-black/5"
+                          style={{ borderColor: "var(--accent-emerald)", color: "var(--accent-emerald)" }}
+                        >
+                          <Check className="h-3 w-3" /> Aprovar / Reativar
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* TAB 1: Profissionais */}
       {tab === "profissionais" && (
@@ -512,12 +660,12 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
         <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
           <div className="space-y-3">
             <h2 className="font-display text-xl font-semibold">Contas Cadastradas & Permissões</h2>
-            {(data.users || []).length === 0 ? (
+            {mergedAccounts.length === 0 ? (
               <p className="text-sm rounded-2xl border p-6" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
                 Nenhuma conta registrada ainda. Quando os membros entrarem ou você pré-autorizar um e-mail ao lado, eles aparecerão aqui.
               </p>
             ) : (
-              data.users.map((u) => {
+              mergedAccounts.map((u) => {
                 const isMaster = u.email.toLowerCase() === "ghcastellano@gmail.com";
                 const isAdmin = u.role === "admin" || isMaster;
                 return (

@@ -20,12 +20,13 @@ export default async function AdminPage() {
     events: [],
     expenses: [],
     users: [],
+    memberships: [],
     membersCount: 0,
   };
 
   if (isDatabaseConfigured()) {
     try {
-      const [professionals, submissions, events, expenses, users, members] = await Promise.all([
+      const [professionals, submissions, events, expenses, users, memberships] = await Promise.all([
         query<AdminData["professionals"][number]>(
           "SELECT id, name, email, registry_code, specialty, city_state, status FROM partner_professionals ORDER BY created_at DESC"
         ),
@@ -41,7 +42,11 @@ export default async function AdminPage() {
         query<AdminData["users"][number]>(
           "SELECT id, name, email, role, created_at::text FROM users ORDER BY CASE WHEN role = 'admin' THEN 0 ELSE 1 END, created_at DESC"
         ),
-        query<{ count: string }>("SELECT COUNT(*) AS count FROM memberships"),
+        query<AdminData["memberships"][number]>(
+          `SELECT id, name, email, profile, city_state, has_medical_report, manifesto, membership_status, member_number, accepted_at::text, created_at::text
+           FROM memberships
+           ORDER BY CASE WHEN membership_status = 'pending' THEN 0 WHEN membership_status = 'active' THEN 1 ELSE 2 END, created_at DESC`
+        ),
       ]);
 
       initialData = {
@@ -51,7 +56,8 @@ export default async function AdminPage() {
         events,
         expenses,
         users,
-        membersCount: Number(members[0]?.count || 0),
+        memberships,
+        membersCount: memberships.filter((m) => m.membership_status === "active").length,
       };
     } catch {
       // keep fallback empty data

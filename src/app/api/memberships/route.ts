@@ -44,13 +44,15 @@ export async function POST(req: Request) {
       const byId = await query<{ id: string }>("SELECT id FROM users WHERE id = $1 LIMIT 1", [candidateId]);
       if (byId[0]?.id) userId = byId[0].id;
     }
-    const existingMembership = await query<{ id: string }>(
-      "SELECT id FROM memberships WHERE LOWER(email) = $1 OR ($2::text IS NOT NULL AND user_id = $2) ORDER BY created_at DESC LIMIT 1",
+    const existingMembership = await query<{ id: string; membership_status: string; member_number: string }>(
+      "SELECT id, membership_status, member_number FROM memberships WHERE LOWER(email) = $1 OR ($2::text IS NOT NULL AND user_id = $2) ORDER BY created_at DESC LIMIT 1",
       [email, userId]
     );
 
     let id = existingMembership[0]?.id;
     const isUpdate = Boolean(id);
+    const membershipStatus = existingMembership[0]?.membership_status || "pending";
+    const memberNumber = existingMembership[0]?.member_number || "";
 
     if (id) {
       await query(
@@ -64,7 +66,8 @@ export async function POST(req: Request) {
              manifesto = $7,
              has_medical_report = $8,
              show_in_directory = $9,
-             accepted_code = $10
+             accepted_code = $10,
+             accepted_at = COALESCE(accepted_at, NOW())
          WHERE id = $11`,
         [
           userId,
@@ -83,8 +86,8 @@ export async function POST(req: Request) {
     } else {
       id = crypto.randomUUID();
       await query(
-        `INSERT INTO memberships (id, user_id, name, email, profile, city_state, neurodivergences, avatar_config, manifesto, has_medical_report, show_in_directory, accepted_code)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        `INSERT INTO memberships (id, user_id, name, email, profile, city_state, neurodivergences, avatar_config, manifesto, has_medical_report, show_in_directory, accepted_code, membership_status, terms_version, accepted_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'pending', 'estatuto-v1-2026', NOW())`,
         [
           id,
           userId,
@@ -112,20 +115,23 @@ export async function POST(req: Request) {
     if (!isUpdate) {
       await sendVivenciasEmail({
         to: email,
-        subject: "Associação confirmada — Vivências Superdotadas",
-        heading: `Bem-vindo(a), ${name}!`,
-        intro: "Sua solicitação de associação e seu Avatar Único foram registrados.",
+        subject: "Solicitação de associação recebida — Vivências Superdotadas",
+        heading: `Recebemos sua solicitação, ${name}!`,
+        intro: "Seu cadastro e seu Avatar Único foram registrados e estão em análise pela diretoria.",
         bodyHtml: `
-          <p>Ficamos muito felizes em caminhar com você. Nossa associação reúne pessoas com AH/SD, familiares, educadores e aliados neurotípicos em torno do respeito à singularidade e da divulgação científica responsável.</p>
+          <p>Separamos a criação de conta do processo formal de associação: sua ficha (Estatuto + Código de Boa Convivência) já está na fila de aprovação da equipe.</p>
           <p><strong>Perfil selecionado:</strong> ${profile}</p>
-          <p>Você também pode participar do nosso grupo de convivência no WhatsApp respeitando o Código de Boa Convivência.</p>
+          <p>Assim que a diretoria confirmar sua associação, você receberá sua matrícula e o acesso completo às áreas exclusivas.</p>
         `,
-        ctaLabel: "Entrar no grupo do WhatsApp",
-        ctaUrl: "https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b",
+        ctaLabel: "Acompanhar no Meu Perfil",
+        ctaUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://vivenciassuperdotadas.vercel.app"}/perfil`,
       });
     }
 
-    return NextResponse.json({ ok: true, id, updated: isUpdate }, { status: isUpdate ? 200 : 201 });
+    return NextResponse.json(
+      { ok: true, id, updated: isUpdate, membershipStatus, memberNumber },
+      { status: isUpdate ? 200 : 201 }
+    );
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Não foi possível salvar a associação." }, { status: 500 });

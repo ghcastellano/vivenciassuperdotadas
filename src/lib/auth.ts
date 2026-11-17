@@ -169,8 +169,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as { id?: string; role?: string }).id = String(token.id || "");
-        (session.user as { id?: string; role?: string }).role = String(token.role || "member");
+        const u = session.user as {
+          id?: string;
+          role?: string;
+          membershipStatus?: string;
+          memberNumber?: string;
+        };
+        u.id = String(token.id || "");
+        u.role = String(token.role || "member");
+        u.membershipStatus = "none";
+        u.memberNumber = "";
+
+        if (isDatabaseConfigured() && session.user.email) {
+          try {
+            const mRows = await query<{ membership_status: string; member_number: string }>(
+              "SELECT membership_status, member_number FROM memberships WHERE LOWER(email) = $1 ORDER BY created_at DESC LIMIT 1",
+              [session.user.email.toLowerCase()]
+            );
+            if (mRows[0]) {
+              u.membershipStatus = mRows[0].membership_status || "pending";
+              u.memberNumber = mRows[0].member_number || "";
+            }
+          } catch {
+            // keep defaults
+          }
+        }
       }
       return session;
     },

@@ -60,11 +60,24 @@ export async function ensureSchema(): Promise<void> {
           has_medical_report TEXT DEFAULT 'nao_informado',
           show_in_directory BOOLEAN NOT NULL DEFAULT TRUE,
           accepted_code BOOLEAN NOT NULL DEFAULT TRUE,
+          membership_status TEXT NOT NULL DEFAULT 'pending',
+          member_number TEXT DEFAULT '',
+          terms_version TEXT DEFAULT 'estatuto-v1-2026',
+          accepted_at TIMESTAMPTZ,
+          approved_at TIMESTAMPTZ,
+          approved_by TEXT DEFAULT '',
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
 
         ALTER TABLE memberships ADD COLUMN IF NOT EXISTS has_medical_report TEXT DEFAULT 'nao_informado';
         ALTER TABLE memberships ADD COLUMN IF NOT EXISTS show_in_directory BOOLEAN NOT NULL DEFAULT TRUE;
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS membership_status TEXT NOT NULL DEFAULT 'active';
+        ALTER TABLE memberships ALTER COLUMN membership_status SET DEFAULT 'pending';
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS member_number TEXT DEFAULT '';
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS terms_version TEXT DEFAULT 'estatuto-v1-2026';
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMPTZ;
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ;
+        ALTER TABLE memberships ADD COLUMN IF NOT EXISTS approved_by TEXT DEFAULT '';
 
         CREATE TABLE IF NOT EXISTS partner_professionals (
           id TEXT PRIMARY KEY,

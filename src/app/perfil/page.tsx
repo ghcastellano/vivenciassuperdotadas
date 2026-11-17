@@ -18,18 +18,39 @@ export default async function PerfilPage() {
     neurodivergences: [],
     manifesto: "",
     has_medical_report: "nao_informado",
+    membership_status: (session.user as { membershipStatus?: string }).membershipStatus || "none",
+    member_number: (session.user as { memberNumber?: string }).memberNumber || "",
   };
 
   if (isDatabaseConfigured()) {
     try {
-      const rows = await query<MeUser>(
-        `SELECT name, email, role, avatar_config, neurodivergences, manifesto, has_medical_report
-         FROM users
-         WHERE LOWER(email) = $1
-         LIMIT 1`,
-        [session.user.email.toLowerCase()]
-      );
-      if (rows[0]) me = rows[0];
+      const [uRows, mRows] = await Promise.all([
+        query<Omit<MeUser, "membership_status" | "member_number">>(
+          `SELECT name, email, role, avatar_config, neurodivergences, manifesto, has_medical_report
+           FROM users
+           WHERE LOWER(email) = $1
+           LIMIT 1`,
+          [session.user.email.toLowerCase()]
+        ),
+        query<{ membership_status: string; member_number: string }>(
+          `SELECT membership_status, member_number
+           FROM memberships
+           WHERE LOWER(email) = $1
+           ORDER BY created_at DESC
+           LIMIT 1`,
+          [session.user.email.toLowerCase()]
+        ),
+      ]);
+      if (uRows[0]) {
+        me = {
+          ...me,
+          ...uRows[0],
+        };
+      }
+      if (mRows[0]) {
+        me.membership_status = mRows[0].membership_status || "pending";
+        me.member_number = mRows[0].member_number || "";
+      }
     } catch {
       // keep session fallback
     }
