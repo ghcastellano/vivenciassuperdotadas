@@ -1,42 +1,116 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
 import { HeartHandshake, Receipt, Server, Landmark, TrendingUp, ExternalLink } from "lucide-react";
+import { isDatabaseConfigured, query } from "@/lib/db";
 import { formatBRL } from "@/lib/format";
 
-interface TransparencyData {
-  configured: boolean;
-  donationsCents: number;
-  salesCents: number;
-  stripeFeesCents: number;
-  expensesByCategory: Record<string, number>;
-  totalExpensesCents: number;
-  netBalanceCents: number;
-  recentExpenses: {
-    id: string;
-    category: string;
-    description: string;
-    amount_cents: number;
-    reference_date: string;
-  }[];
-  recentTransactions: {
-    id: string;
-    kind: string;
-    amount_cents: number;
-    description: string;
-    created_at: string;
-  }[];
+export const revalidate = 30;
+
+interface ExpenseRow {
+  id: string;
+  category: string;
+  description: string;
+  amount_cents: number;
+  reference_date: string;
 }
 
-export default function ApoiePage() {
-  const [data, setData] = useState<TransparencyData | null>(null);
+interface TransactionRow {
+  id: string;
+  kind: string;
+  amount_cents: number;
+  description: string;
+  created_at: string;
+}
 
-  useEffect(() => {
-    fetch("/api/transparency")
-      .then((r) => r.json())
-      .then((d) => setData(d))
-      .catch(() => {});
-  }, []);
+async function getTransparencyData() {
+  let donationsCents = 0;
+  let salesCents = 0;
+  let stripeFeesCents = 0;
+  const expensesByCategory: Record<string, number> = {
+    impostos: 0,
+    infraestrutura: 0,
+    eventos: 0,
+    outros: 0,
+  };
+  let totalExpensesCents = 0;
+  let recentExpenses: ExpenseRow[] = [];
+  let recentTransactions: TransactionRow[] = [];
+
+  if (!isDatabaseConfigured()) {
+    return {
+      donationsCents,
+      salesCents,
+      stripeFeesCents,
+      expensesByCategory,
+      totalExpensesCents,
+      netBalanceCents: 0,
+      recentExpenses,
+      recentTransactions,
+    };
+  }
+
+  try {
+    const [txRows, expRows, recExp, recTx] = await Promise.all([
+      query<{ kind: string; total_amount: string; total_fees: string }>(
+        `SELECT kind, COALESCE(SUM(amount_cents), 0) AS total_amount, COALESCE(SUM(fee_cents), 0) AS total_fees
+         FROM stripe_transactions
+         WHERE status = 'completed'
+         GROUP BY kind`
+      ),
+      query<{ category: string; total_amount: string }>(
+        `SELECT category, COALESCE(SUM(amount_cents), 0) AS total_amount
+         FROM financial_expenses
+         GROUP BY category`
+      ),
+      query<ExpenseRow>(
+        `SELECT id, category, description, amount_cents, reference_date::text
+         FROM financial_expenses
+         ORDER BY reference_date DESC, created_at DESC
+         LIMIT 15`
+      ),
+      query<TransactionRow>(
+        `SELECT id, kind, amount_cents, description, created_at::text
+         FROM stripe_transactions
+         WHERE status = 'completed'
+         ORDER BY created_at DESC
+         LIMIT 15`
+      ),
+    ]);
+
+    for (const row of txRows) {
+      const amt = Number(row.total_amount || 0);
+      const fee = Number(row.total_fees || 0);
+      stripeFeesCents += fee;
+      if (row.kind === "donation") donationsCents += amt;
+      if (row.kind === "store") salesCents += amt;
+    }
+
+    for (const row of expRows) {
+      const amt = Number(row.total_amount || 0);
+      expensesByCategory[row.category] = (expensesByCategory[row.category] || 0) + amt;
+      totalExpensesCents += amt;
+    }
+
+    recentExpenses = recExp;
+    recentTransactions = recTx;
+  } catch {
+    // fallback to zeros if DB unavailable
+  }
+
+  const netBalanceCents = donationsCents + salesCents - stripeFeesCents - totalExpensesCents;
+
+  return {
+    donationsCents,
+    salesCents,
+    stripeFeesCents,
+    expensesByCategory,
+    totalExpensesCents,
+    netBalanceCents,
+    recentExpenses,
+    recentTransactions,
+  };
+}
+
+export default async function ApoiePage() {
+  const data = await getTransparencyData();
 
   return (
     <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 lg:px-10">
@@ -105,7 +179,7 @@ export default function ApoiePage() {
                 <TrendingUp className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
               </div>
               <p className="font-mono-num mt-2 text-2xl font-bold" style={{ color: "var(--accent-emerald)" }}>
-                {formatBRL(data?.donationsCents || 0)}
+                {formatBRL(data.donationsCents)}
               </p>
             </div>
 
@@ -115,7 +189,7 @@ export default function ApoiePage() {
                 <Receipt className="h-4 w-4" style={{ color: "var(--accent-amber)" }} />
               </div>
               <p className="font-mono-num mt-2 text-2xl font-bold">
-                {formatBRL(data?.salesCents || 0)}
+                {formatBRL(data.salesCents)}
               </p>
             </div>
 
@@ -125,7 +199,7 @@ export default function ApoiePage() {
                 <Landmark className="h-4 w-4" style={{ color: "var(--accent-crimson)" }} />
               </div>
               <p className="font-mono-num mt-2 text-2xl font-bold" style={{ color: "var(--accent-crimson)" }}>
-                {formatBRL((data?.stripeFeesCents || 0) + (data?.expensesByCategory?.impostos || 0))}
+                {formatBRL(data.stripeFeesCents + (data.expensesByCategory.impostos || 0))}
               </p>
             </div>
 
@@ -136,9 +210,9 @@ export default function ApoiePage() {
               </div>
               <p className="font-mono-num mt-2 text-2xl font-bold">
                 {formatBRL(
-                  (data?.expensesByCategory?.infraestrutura || 0) +
-                    (data?.expensesByCategory?.eventos || 0) +
-                    (data?.expensesByCategory?.outros || 0)
+                  (data.expensesByCategory.infraestrutura || 0) +
+                    (data.expensesByCategory.eventos || 0) +
+                    (data.expensesByCategory.outros || 0)
                 )}
               </p>
             </div>
@@ -148,12 +222,12 @@ export default function ApoiePage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-sm font-semibold">Saldo Líquido Disponível para a Associação</span>
               <span className="font-mono-num text-2xl font-bold" style={{ color: "var(--accent-emerald)" }}>
-                {formatBRL(data?.netBalanceCents || 0)}
+                {formatBRL(data.netBalanceCents)}
               </span>
             </div>
           </div>
 
-          {data && (data.recentExpenses.length > 0 || data.recentTransactions.length > 0) && (
+          {(data.recentExpenses.length > 0 || data.recentTransactions.length > 0) && (
             <div className="rounded-2xl border p-5 space-y-3" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
               <h3 className="font-display text-lg font-semibold">Últimos registros</h3>
               <ul className="space-y-2 text-xs">
