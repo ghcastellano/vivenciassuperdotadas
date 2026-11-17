@@ -282,11 +282,16 @@ export function Navbar() {
                         />
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-2 font-medium">
-                          <Eye className="h-3.5 w-3.5" />
-                          Modo Foco
-                        </span>
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <span className="flex items-center gap-2 font-medium">
+                            <Eye className="h-3.5 w-3.5" />
+                            Modo Foco
+                          </span>
+                          <span className="block text-[10px]" style={{ color: "var(--text-muted)" }}>
+                            Atenua menus e oculta distrações visuais
+                          </span>
+                        </div>
                         <TactileSwitch
                           checked={focusMode}
                           onToggle={() => setFocusMode(!focusMode)}

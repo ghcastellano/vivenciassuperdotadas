@@ -102,9 +102,22 @@ h1, h2, h3, .font-display {
   font-variant-numeric: tabular-nums;
 }
 
-/* Focus mode hides decorative flourishes for calm reading */
+/* Focus mode hides decorative flourishes and softens header/footer chrome for calm reading */
 html[data-focus-mode="true"] .decorative-only {
   display: none !important;
+}
+
+html[data-focus-mode="true"] header,
+html[data-focus-mode="true"] footer {
+  opacity: 0.65;
+  transition: opacity 200ms ease;
+}
+
+html[data-focus-mode="true"] header:hover,
+html[data-focus-mode="true"] header:focus-within,
+html[data-focus-mode="true"] footer:hover,
+html[data-focus-mode="true"] footer:focus-within {
+  opacity: 1;
 }
 
 /* Standardized editorial surfaces & button hierarchy (4px crisp corners) */
