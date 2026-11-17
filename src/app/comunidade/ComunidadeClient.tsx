@@ -241,7 +241,7 @@ export function ComunidadeClient({ initialSubmissions }: { initialSubmissions: C
                 )}
                 <span>{s.title}</span>
               </h2>
-              <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              <p className="mt-2 text-sm leading-relaxed break-words" style={{ color: "var(--text-secondary)" }}>
                 {s.content}
               </p>
             </div>
