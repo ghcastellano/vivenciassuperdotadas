@@ -78,6 +78,10 @@ export interface AvatarConfig {
   eyes: string;
   eyebrows: string;
   mouth: string;
+  facialHair?: string;
+  facialHairColor?: string;
+  foreheadMark?: string;
+  neuroAccessory?: string;
   accessories: string;
   clothing: string;
   clothesColor: string;
@@ -163,6 +167,32 @@ export const AVATAR_OPTIONS = {
     { value: "f9e5e2", label: "Coral Suave" },
     { value: "fbf0dc", label: "Âmbar Suave" },
   ],
+  facialHair: [
+    { value: "none", label: "Sem barba / bigode" },
+    { value: "beardLight", label: "Barba Curta / Cavanhaque" },
+    { value: "beardMedium", label: "Barba Média" },
+    { value: "beardMajestic", label: "Barba Longa" },
+    { value: "moustacheFancy", label: "Bigode Estilizado" },
+    { value: "moustacheMagnum", label: "Bigode Cheio" },
+  ],
+  facialHairColor: [
+    { value: "2c1b18", label: "Castanho Escuro" },
+    { value: "4a312c", label: "Castanho" },
+    { value: "e8e1e1", label: "Grisalho / Prata" },
+    { value: "a55728", label: "Ruivo / Acobreado" },
+    { value: "d6b370", label: "Loiro" },
+  ],
+  foreheadMark: [
+    { value: "none", label: "Nenhuma" },
+    { value: "crescentMoon", label: "Meia-Lua na Testa" },
+  ],
+  neuroAccessory: [
+    { value: "none", label: "Nenhum" },
+    { value: "sunflowerLanyard", label: "Cordão de Girassol (Deficiências Ocultas / Neurodivergência)" },
+    { value: "infinityLanyard", label: "Cordão Infinito (Neurodiversidade)" },
+    { value: "puzzleLanyard", label: "Cordão Quebra-Cabeça (TEA)" },
+    { value: "noiseHeadphones", label: "Abafador / Fone Sensorial" },
+  ],
 };
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
@@ -173,14 +203,77 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   eyes: "default",
   eyebrows: "defaultNatural",
   mouth: "smile",
+  facialHair: "none",
+  facialHairColor: "2c1b18",
+  foreheadMark: "none",
+  neuroAccessory: "none",
   accessories: "round",
   clothing: "hoodie",
   clothesColor: "0f5c4d",
   backgroundColor: "f2ece1",
 };
 
+function renderCustomOverlays(c: AvatarConfig): string {
+  const overlays: string[] = [];
+
+  if (c.foreheadMark === "crescentMoon") {
+    // Crisp crescent moon centered on the forehead between hairline and eyebrows
+    overlays.push(
+      `<g transform="translate(131, 76) scale(1.12)" opacity="0.9">
+        <path d="M13 1C5.8 1.8 1 7.6 1 14.5C1 21.4 5.8 27.2 13 28C8.4 25.3 5.8 20.3 5.8 14.5C5.8 8.7 8.4 3.7 13 1Z" fill="#232629" />
+      </g>`
+    );
+  }
+
+  if (c.neuroAccessory === "sunflowerLanyard") {
+    overlays.push(
+      `<g>
+        <path d="M108 194 L140 248 L172 194" stroke="#18492D" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="118" cy="211" r="4" fill="#F2B705"/><circle cx="118" cy="211" r="1.6" fill="#5C3A21"/>
+        <circle cx="129" cy="230" r="4" fill="#F2B705"/><circle cx="129" cy="230" r="1.6" fill="#5C3A21"/>
+        <circle cx="162" cy="211" r="4" fill="#F2B705"/><circle cx="162" cy="211" r="1.6" fill="#5C3A21"/>
+        <circle cx="151" cy="230" r="4" fill="#F2B705"/><circle cx="151" cy="230" r="1.6" fill="#5C3A21"/>
+        <rect x="131" y="244" width="18" height="22" rx="3" fill="#FAF7F2" stroke="#18492D" stroke-width="2"/>
+        <circle cx="140" cy="255" r="4.5" fill="#F2B705"/><circle cx="140" cy="255" r="2" fill="#5C3A21"/>
+      </g>`
+    );
+  } else if (c.neuroAccessory === "infinityLanyard") {
+    overlays.push(
+      `<g>
+        <path d="M108 194 L140 248 L172 194" stroke="#3B9963" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M108 194 L140 248 L172 194" stroke="#F2B705" stroke-width="4" stroke-dasharray="6 8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <rect x="130" y="244" width="20" height="22" rx="3" fill="#FAF7F2" stroke="#18492D" stroke-width="2"/>
+        <text x="140" y="259" text-anchor="middle" fill="#BD4626" font-family="system-ui,sans-serif" font-size="13" font-weight="700">∞</text>
+      </g>`
+    );
+  } else if (c.neuroAccessory === "puzzleLanyard") {
+    overlays.push(
+      `<g>
+        <path d="M108 194 L140 248 L172 194" stroke="#2563EB" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="119" cy="213" r="3.5" fill="#FACC15"/>
+        <circle cx="130" cy="231" r="3.5" fill="#EF4444"/>
+        <circle cx="161" cy="213" r="3.5" fill="#22C55E"/>
+        <circle cx="150" cy="231" r="3.5" fill="#FACC15"/>
+        <rect x="131" y="244" width="18" height="22" rx="3" fill="#FAF7F2" stroke="#2563EB" stroke-width="2"/>
+        <rect x="136" y="250" width="8" height="8" rx="1.5" fill="#EF4444"/>
+      </g>`
+    );
+  } else if (c.neuroAccessory === "noiseHeadphones") {
+    overlays.push(
+      `<g>
+        <path d="M74 114 C74 48, 206 48, 206 114" stroke="#252827" stroke-width="9" stroke-linecap="round" fill="none"/>
+        <rect x="65" y="102" width="16" height="32" rx="8" fill="#18492D" stroke="#252827" stroke-width="2.5"/>
+        <rect x="199" y="102" width="16" height="32" rx="8" fill="#18492D" stroke="#252827" stroke-width="2.5"/>
+      </g>`
+    );
+  }
+
+  return overlays.join("");
+}
+
 export function renderAvatarSvg(config: Partial<AvatarConfig> = {}): string {
   const c = { ...DEFAULT_AVATAR_CONFIG, ...config };
+  const facialHair = c.facialHair && c.facialHair !== "none" ? [c.facialHair] : [];
   const avatar = createAvatar(avataaars, {
     seed: c.seed,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -194,6 +287,10 @@ export function renderAvatarSvg(config: Partial<AvatarConfig> = {}): string {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mouth: [c.mouth as any],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    facialHair: facialHair as any,
+    facialHairProbability: facialHair.length > 0 ? 100 : 0,
+    facialHairColor: [c.facialHairColor || c.hairColor || "2c1b18"],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     accessories: c.accessories === "none" ? [] : [c.accessories as any],
     accessoriesProbability: c.accessories === "none" ? 0 : 100,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -202,7 +299,10 @@ export function renderAvatarSvg(config: Partial<AvatarConfig> = {}): string {
     backgroundColor: [c.backgroundColor],
     radius: 50,
   });
-  return avatar.toString();
+  const baseSvg = avatar.toString();
+  const customOverlays = renderCustomOverlays(c);
+  if (!customOverlays) return baseSvg;
+  return baseSvg.replace(/<\/svg>\s*$/i, `${customOverlays}</svg>`);
 }
 
 function escapeXml(str: string): string {

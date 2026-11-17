@@ -253,6 +253,24 @@ export function AvatarStudio({
                 options={AVATAR_OPTIONS.mouth}
                 onChange={(v) => onChange({ ...config, mouth: v })}
               />
+              <SelectField
+                label="Barba / Bigode / Cavanhaque"
+                value={config.facialHair || "none"}
+                options={AVATAR_OPTIONS.facialHair}
+                onChange={(v) => onChange({ ...config, facialHair: v })}
+              />
+              <SelectField
+                label="Cor da Barba / Bigode"
+                value={config.facialHairColor || config.hairColor}
+                options={AVATAR_OPTIONS.facialHairColor}
+                onChange={(v) => onChange({ ...config, facialHairColor: v })}
+              />
+              <SelectField
+                label="Marca / Tatuagem na Testa"
+                value={config.foreheadMark || "none"}
+                options={AVATAR_OPTIONS.foreheadMark}
+                onChange={(v) => onChange({ ...config, foreheadMark: v })}
+              />
             </div>
           )}
 
@@ -275,6 +293,12 @@ export function AvatarStudio({
                 value={config.clothesColor}
                 options={AVATAR_OPTIONS.clothesColor}
                 onChange={(v) => onChange({ ...config, clothesColor: v })}
+              />
+              <SelectField
+                label="Cordão / Acessório Sensorial"
+                value={config.neuroAccessory || "none"}
+                options={AVATAR_OPTIONS.neuroAccessory}
+                onChange={(v) => onChange({ ...config, neuroAccessory: v })}
               />
             </div>
           )}
