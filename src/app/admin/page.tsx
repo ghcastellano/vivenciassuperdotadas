@@ -7,9 +7,30 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const session = await auth();
-  const role = (session?.user as { role?: string } | undefined)?.role;
+  const emailLower = session?.user?.email?.toLowerCase() || "";
+  let isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
 
-  if (!session?.user || role !== "admin") {
+  if (!isAdmin && emailLower) {
+    const envAdmins = (process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    if (emailLower === "ghcastellano@gmail.com" || envAdmins.includes(emailLower)) {
+      isAdmin = true;
+    } else if (isDatabaseConfigured()) {
+      try {
+        const rows = await query<{ role: string }>(
+          "SELECT role FROM users WHERE LOWER(email) = $1 LIMIT 1",
+          [emailLower]
+        );
+        if (rows[0]?.role === "admin") isAdmin = true;
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  if (!session?.user || !isAdmin) {
     return <AdminMillenniumGate />;
   }
 

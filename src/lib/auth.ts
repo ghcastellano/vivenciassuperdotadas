@@ -196,7 +196,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           memberNumber?: string;
         };
         u.id = String(token.id || "");
-        u.role = String(token.role || "member");
+        u.role = isAdminEmail(session.user.email) ? "admin" : String(token.role || "member");
         u.membershipStatus = String(token.membershipStatus || "none");
         u.memberNumber = String(token.memberNumber || "");
       }
