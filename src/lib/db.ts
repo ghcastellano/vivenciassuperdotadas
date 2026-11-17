@@ -46,6 +46,8 @@ export async function ensureSchema(): Promise<void> {
         );
 
         ALTER TABLE users ADD COLUMN IF NOT EXISTS has_medical_report TEXT DEFAULT 'nao_informado';
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email_likes BOOLEAN NOT NULL DEFAULT TRUE;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email_comments BOOLEAN NOT NULL DEFAULT TRUE;
 
         CREATE TABLE IF NOT EXISTS memberships (
           id TEXT PRIMARY KEY,

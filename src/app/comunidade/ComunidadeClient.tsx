@@ -370,54 +370,59 @@ export function ComunidadeClient({
               </p>
             </div>
 
-            <div className="mt-4 pt-3 border-t space-y-2.5" style={{ borderColor: "var(--border-subtle)" }}>
-              <div className="flex items-center justify-between text-xs">
-                <span style={{ color: "var(--text-muted)" }}>{s.credits || "Autoria da comunidade"}</span>
+            <div className="mt-4 pt-3 border-t space-y-2" style={{ borderColor: "var(--border-subtle)" }}>
+              {s.credits && (
+                <p className="text-[11px] truncate" style={{ color: "var(--text-muted)" }}>
+                  {s.credits}
+                </p>
+              )}
+
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="inline-flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleLike(s)}
+                      aria-label={isLiked ? "Descurtir" : "Curtir"}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full transition-transform active:scale-125 hover:bg-black/5"
+                      style={{ color: isLiked ? "#BD4626" : "var(--text-secondary)" }}
+                    >
+                      <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setModalState({ submission: s, tab: "likes" })}
+                      aria-label="Ver quem curtiu"
+                      className="min-w-[16px] text-xs font-semibold hover:underline"
+                      style={{ color: postCounts.likes > 0 ? "var(--text-primary)" : "var(--text-muted)" }}
+                    >
+                      {postCounts.likes}
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setModalState({ submission: s, tab: "comments" })}
+                    aria-label="Abrir comentários"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-full px-2 text-xs font-semibold transition-colors hover:bg-black/5"
+                    style={{ color: postCounts.comments > 0 ? "var(--text-primary)" : "var(--text-muted)" }}
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    <span>{postCounts.comments}</span>
+                  </button>
+                </div>
+
                 {s.external_url && (
                   <a
                     href={s.external_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-semibold underline"
+                    className="inline-flex items-center gap-1 text-xs font-semibold underline"
                     style={{ color: "var(--accent-emerald)" }}
                   >
                     Abrir <ExternalLink className="h-3 w-3" />
                   </a>
                 )}
-              </div>
-
-              <div className="flex items-center gap-4 pt-1">
-                <div className="inline-flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => toggleLike(s)}
-                    aria-label={isLiked ? "Descurtir" : "Curtir"}
-                    className="inline-flex items-center justify-center rounded-full p-1 transition-transform active:scale-125 hover:bg-black/5"
-                    style={{ color: isLiked ? "#BD4626" : "var(--text-secondary)" }}
-                  >
-                    <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalState({ submission: s, tab: "likes" })}
-                    className="text-xs font-semibold hover:underline"
-                    style={{ color: postCounts.likes > 0 ? "var(--text-primary)" : "var(--text-muted)" }}
-                  >
-                    {postCounts.likes} {postCounts.likes === 1 ? "curtida" : "curtidas"}
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setModalState({ submission: s, tab: "comments" })}
-                  className="inline-flex items-center gap-1.5 rounded-full px-1.5 py-1 text-xs font-semibold transition-colors hover:bg-black/5"
-                  style={{ color: postCounts.comments > 0 ? "var(--text-primary)" : "var(--text-muted)" }}
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  <span>
-                    {postCounts.comments} {postCounts.comments === 1 ? "comentário" : "comentários"}
-                  </span>
-                </button>
               </div>
             </div>
           </article>

@@ -129,7 +129,7 @@ export function NotificationBell({ enabled }: { enabled: boolean }) {
 
       {open && (
         <div
-          className="absolute right-0 mt-2 w-[320px] sm:w-[360px] rounded-xl border shadow-xl z-50 overflow-hidden"
+          className="fixed inset-x-3 top-[68px] sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-[360px] rounded-xl border shadow-xl z-50 overflow-hidden"
           style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
         >
           <div

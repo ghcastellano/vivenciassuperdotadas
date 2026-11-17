@@ -29,9 +29,6 @@ export default async function ComunidadePage() {
            FROM memberships
            WHERE membership_status = 'active'`
         ),
-        query<{ count: string }>(
-          `SELECT COUNT(*) AS count FROM memberships WHERE membership_status = 'active'`
-        ),
       ]);
       submissions = subRows;
       members = memRows;

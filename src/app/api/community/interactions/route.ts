@@ -3,11 +3,91 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { isDatabaseConfigured, query } from "@/lib/db";
+import { sendVivenciasEmail, signEmailPrefToken } from "@/lib/email";
+import { escapeHtml } from "@/lib/security";
 
 interface ActorProfile {
   id: string;
   name: string;
   avatar_config: Record<string, unknown> | null;
+}
+
+async function notifyRecipientByEmail(params: {
+  recipientUserId: string;
+  actorName: string;
+  type: "like" | "comment";
+  submissionId: string;
+  submissionTitle: string;
+  commentPreview?: string;
+}) {
+  try {
+    const rows = await query<{
+      email: string;
+      name: string;
+      notify_email_likes: boolean;
+      notify_email_comments: boolean;
+    }>(
+      "SELECT email, name, notify_email_likes, notify_email_comments FROM users WHERE id = $1 LIMIT 1",
+      [params.recipientUserId]
+    );
+    const recipient = rows[0];
+    if (!recipient?.email) return;
+
+    if (params.type === "like" && recipient.notify_email_likes === false) return;
+    if (params.type === "comment" && recipient.notify_email_comments === false) return;
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vivenciassuperdotadas.vercel.app";
+    const postUrl = `${siteUrl}/comunidade?post=${encodeURIComponent(params.submissionId)}`;
+    const token = signEmailPrefToken(params.recipientUserId, params.type);
+    const unsubscribeUrl = `${siteUrl}/api/notifications/preferences?token=${encodeURIComponent(token)}`;
+    const firstName = (recipient.name || "").split(" ")[0] || "Pessoa associada";
+
+    const footerExtraHtml = `
+      <p style="margin:12px 0 0;padding-top:10px;border-top:1px solid #CDD8D5;font-size:11px;color:#595F61;">
+        Prefere acompanhar apenas pelo sininho no portal?
+        <a href="${unsubscribeUrl}" style="color:#BD4626;text-decoration:underline;font-weight:600;">
+          Desabilitar avisos por e-mail sobre ${params.type === "like" ? "curtidas" : "comentários"}
+        </a>.
+      </p>`;
+
+    if (params.type === "like") {
+      await sendVivenciasEmail({
+        to: recipient.email,
+        subject: `Ressonância na comunidade: ${params.actorName} curtiu sua publicação`,
+        heading: `Sua ideia encontrou eco, ${firstName}`,
+        intro: `Mentes atípicas costumam reconhecer quando algo é dito com profundidade e verdade. ${params.actorName} acabou de curtir sua publicação na Comunidade.`,
+        bodyHtml: `
+          <div style="border-left:3px solid #BD4626;background:#EDEFF0;padding:14px 18px;border-radius:0 10px 10px 0;margin:16px 0;">
+            <p style="margin:0;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#595F61;font-weight:700;">Publicação curtida</p>
+            <p style="margin:4px 0 0;font-size:16px;font-weight:700;color:#191B1C;">“${escapeHtml(params.submissionTitle)}”</p>
+          </div>
+          <p style="margin:0;">Pequenos sinais de reconhecimento sustentam diálogos que raramente cabem em espaços superficiais.</p>
+        `,
+        ctaLabel: "Ver curtida na Comunidade",
+        ctaUrl: postUrl,
+        footerExtraHtml,
+      });
+    } else {
+      await sendVivenciasEmail({
+        to: recipient.email,
+        subject: `Novo diálogo aberto: ${params.actorName} comentou na sua publicação`,
+        heading: `Alguém puxou conversa com você, ${firstName}`,
+        intro: `${params.actorName} deixou um comentário reflexivo na sua publicação “${params.submissionTitle}”.`,
+        bodyHtml: `
+          <div style="border-left:3px solid #18492D;background:#EDEFF0;padding:14px 18px;border-radius:0 10px 10px 0;margin:16px 0;">
+            <p style="margin:0;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#18492D;font-weight:700;">${escapeHtml(params.actorName)} escreveu:</p>
+            <p style="margin:6px 0 0;font-size:15px;font-style:italic;color:#191B1C;">“${escapeHtml(params.commentPreview || "")}”</p>
+          </div>
+          <p style="margin:0;">Quando quiser, responda diretamente no cartão da comunidade — sem recarregar a página.</p>
+        `,
+        ctaLabel: "Responder na Comunidade",
+        ctaUrl: postUrl,
+        footerExtraHtml,
+      });
+    }
+  } catch (err) {
+    console.error("[notifyRecipientByEmail]", err);
+  }
 }
 
 async function resolveActor(): Promise<{ userId: string; name: string; avatar: Record<string, unknown> | null; role: string } | null> {
@@ -196,6 +276,13 @@ export async function POST(req: Request) {
               subRows[0].title.slice(0, 120),
             ]
           );
+          void notifyRecipientByEmail({
+            recipientUserId: recipientId,
+            actorName: actor.name,
+            type: "like",
+            submissionId,
+            submissionTitle: subRows[0].title,
+          });
         }
       }
 
@@ -264,6 +351,14 @@ export async function POST(req: Request) {
             content.slice(0, 140),
           ]
         );
+        void notifyRecipientByEmail({
+          recipientUserId: recipientId,
+          actorName: actor.name,
+          type: "comment",
+          submissionId,
+          submissionTitle: subRows[0].title,
+          commentPreview: content.slice(0, 220),
+        });
       }
 
       revalidatePath("/comunidade");

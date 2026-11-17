@@ -46,18 +46,11 @@ export async function POST(req: Request) {
     const serviceType = String(body.serviceType || "ambos").trim();
     const bio = String(body.bio || otherQualifications || "").trim().slice(0, 1000);
     const contactUrl = socialUrl || sanitizeHttpUrl(body.contactUrl);
-    const acceptedPrivacy = Boolean(body.acceptedPrivacy);
+    const acceptedPrivacy = Boolean(body.acceptedPrivacy || body.acceptedDataPolicy);
 
     if (!name || !specialty || !region || !state || !acceptedPrivacy || (email && !isValidEmail(email))) {
       return NextResponse.json(
         { error: "Preencha os campos obrigatórios com e-mail válido e concorde com a Política de Tratamento de Dados." },
-        { status: 400 }
-      );
-    }
-
-    if (!acceptedDataPolicy) {
-      return NextResponse.json(
-        { error: "É necessário concordar com a Política de Tratamento de Dados para enviar o cadastro." },
         { status: 400 }
       );
     }
