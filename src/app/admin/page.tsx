@@ -193,6 +193,27 @@ export default function AdminPage() {
 
       {/* Events Management */}
       <section className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-3">
+          <h2 className="font-display text-xl font-semibold">Eventos Publicados</h2>
+          {data.events.length === 0 ? (
+            <p className="text-sm rounded-xl border p-4" style={{ color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
+              Nenhum evento publicado no banco ainda.
+            </p>
+          ) : (
+            data.events.map((ev) => (
+              <div key={ev.id} className="rounded-xl border p-3.5 flex items-center justify-between" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
+                <div>
+                  <p className="font-semibold text-sm">{ev.title}</p>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>{ev.format}</p>
+                </div>
+                <button type="button" onClick={() => act({ action: "delete_event", id: ev.id })} className="p-2" style={{ color: "var(--accent-crimson)" }}>
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -213,25 +234,33 @@ export default function AdminPage() {
             <Plus className="h-4 w-4" /> Publicar Evento
           </button>
         </form>
-
-        <div className="space-y-3">
-          <h2 className="font-display text-xl font-semibold">Eventos Publicados</h2>
-          {data.events.map((ev) => (
-            <div key={ev.id} className="rounded-xl border p-3.5 flex items-center justify-between" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
-              <div>
-                <p className="font-semibold text-sm">{ev.title}</p>
-                <p className="text-xs" style={{ color: "var(--text-muted)" }}>{ev.format}</p>
-              </div>
-              <button type="button" onClick={() => act({ action: "delete_event", id: ev.id })} className="p-2" style={{ color: "var(--accent-crimson)" }}>
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* Financial Expenses for Transparency */}
       <section className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-3">
+          <h2 className="font-display text-xl font-semibold">Custos Registrados</h2>
+          {data.expenses.length === 0 ? (
+            <p className="text-sm rounded-xl border p-4" style={{ color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
+              Nenhum custo lançado ainda.
+            </p>
+          ) : (
+            data.expenses.map((ex) => (
+              <div key={ex.id} className="rounded-xl border p-3.5 flex items-center justify-between" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
+                <div>
+                  <p className="font-semibold text-sm">[{ex.category}] {ex.description}</p>
+                  <p className="font-mono-num text-xs" style={{ color: "var(--accent-crimson)" }}>
+                    R$ {(ex.amount_cents / 100).toFixed(2)}
+                  </p>
+                </div>
+                <button type="button" onClick={() => act({ action: "delete_expense", id: ex.id })} className="p-2" style={{ color: "var(--accent-crimson)" }}>
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -255,23 +284,6 @@ export default function AdminPage() {
             <Plus className="h-4 w-4" /> Registrar na Transparência
           </button>
         </form>
-
-        <div className="space-y-3">
-          <h2 className="font-display text-xl font-semibold">Custos Registrados</h2>
-          {data.expenses.map((ex) => (
-            <div key={ex.id} className="rounded-xl border p-3.5 flex items-center justify-between" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
-              <div>
-                <p className="font-semibold text-sm">[{ex.category}] {ex.description}</p>
-                <p className="font-mono-num text-xs" style={{ color: "var(--accent-crimson)" }}>
-                  R$ {(ex.amount_cents / 100).toFixed(2)}
-                </p>
-              </div>
-              <button type="button" onClick={() => act({ action: "delete_expense", id: ex.id })} className="p-2" style={{ color: "var(--accent-crimson)" }}>
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
-        </div>
       </section>
     </div>
   );
