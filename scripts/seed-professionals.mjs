@@ -17,7 +17,8 @@ const REAL_PROFESSIONALS = [
   {
     id: "prof-mariana-valenca",
     name: "Mariana Valença",
-    specialty: "Psicólogo(a)",
+    specialty: "Psicólogo(a) · Neuropsicólogo(a)",
+    approach: "Atendimento presencial e virtual",
     region: "Sul",
     state: "Santa Catarina",
     city: "Florianópolis",
@@ -26,114 +27,122 @@ const REAL_PROFESSIONALS = [
     whatsapp: "48 99624-8160",
     email: "",
     social_url: "https://www.instagram.com/marianavalenca_psi/",
-    other_qualifications: "Atendimento presencial em Florianópolis (SC) e atendimento virtual.",
-  },
-  {
-    id: "prof-lucia-lamb",
-    name: "Lúcia Lamb",
-    specialty: "Avaliação pedagógica",
-    region: "Sul",
-    state: "Rio Grande do Sul",
-    city: "Porto Alegre",
-    city_state: "Porto Alegre - RS",
-    online_available: true,
-    whatsapp: "51 99378-1998",
-    email: "",
-    social_url: "",
-    other_qualifications: "Avaliação pedagógica em Porto Alegre (RS) e atendimento virtual.",
+    other_qualifications: "Atendimento presencial em Florianópolis (SC) e atendimento online.",
   },
   {
     id: "prof-adriana-mendonca",
     name: "Adriana Mendonça",
-    specialty: "Psicólogo(a)",
-    region: "Não atendo presencialmente.",
-    state: "Todo o Brasil",
-    city: "Online",
-    city_state: "Online · Todo o Brasil",
+    specialty: "Psicóloga especialista em AH/SD",
+    approach: "Parceria com psicólogo(a) local",
+    region: "Online · Todo o Brasil",
+    state: "Qualquer geografia (Online)",
+    city: "Parceria com psicólogo(a) local",
+    city_state: "Online · Todo o Brasil (parceria local)",
     online_available: true,
     whatsapp: "19 99175-9893",
     email: "",
     social_url: "",
-    other_qualifications: "Atendimento psicológico online em todo o Brasil.",
+    other_qualifications: "Atendimento online para qualquer geografia; parceria com psicólogo(a) local.",
+  },
+  {
+    id: "prof-lucia-lamb",
+    name: "Lúcia Lamb",
+    specialty: "Avaliação Pedagógica · Mestre em Educação Especialista em AH/SD",
+    approach: "Educação Especial / Avaliação Pedagógica",
+    region: "Sul",
+    state: "RS presencial e restante online",
+    city: "Porto Alegre",
+    city_state: "Porto Alegre - RS (e Online)",
+    online_available: true,
+    whatsapp: "51 99378-1998",
+    email: "",
+    social_url: "",
+    other_qualifications: "Mestre em Educação especialista em AH/SD. Atendimento presencial no RS e online para o restante do país.",
   },
   {
     id: "prof-carolina-drummond",
     name: "Carolina Drummond",
-    specialty: "Neuropsicólogo(a)",
-    region: "Sudeste",
-    state: "São Paulo / Distrito Federal",
+    specialty: "Neuropsicóloga · Especialista em Superdotação, Psicologia da Saúde e Escolar",
+    approach: "Neuropsicologia / Psicologia Escolar e da Saúde",
+    region: "Sudeste e Online",
+    state: "São Paulo (e DF*)",
     city: "São Paulo",
-    city_state: "São Paulo - SP / DF",
+    city_state: "São Paulo - SP (e DF* / Online)",
     online_available: true,
     whatsapp: "11 98493-6660",
     email: "cacadrummond@gmail.com",
     social_url: "https://www.instagram.com/carolcdrummond/",
-    other_qualifications: "Também no Instagram @eu.divergente.",
+    other_qualifications: "Especialista em superdotação, psicologia da saúde e psicologia escolar e da educação. Instagram: @carolcdrummond e @eu.divergente.",
   },
   {
     id: "prof-tatiane-oliveira",
     name: "Tatiane Oliveira",
-    specialty: "Psicopedagogo(a)",
+    specialty: "Psicopedagogia, Neuropsicopedagogia, Educação Especial e Musicoterapia",
+    approach: "Educação Especial e Inclusiva / Musicoterapia",
     region: "Sudeste",
-    state: "Minas Gerais",
+    state: "MG presencial · Brasil e exterior online",
     city: "Poço Fundo",
-    city_state: "Poço Fundo - MG",
+    city_state: "Poço Fundo - MG (Brasil e exterior online)",
     online_available: true,
     whatsapp: "35 99805-5807",
     email: "psicopedagogatatianeoliveira@gmail.com",
     social_url: "https://www.instagram.com/psicopedagogatatianeoliveira/",
-    other_qualifications: "Psicopedagogia especializada em AH/SD.",
+    other_qualifications: "Psicopedagogia e Neuropsicopedagogia. Especialista em Altas Habilidades/Superdotação, Educação Especial e Inclusiva e Musicoterapia.",
   },
   {
     id: "prof-juliana-andreatta-faber",
     name: "Juliana Andreatta Faber",
-    specialty: "Avaliação pedagógica",
+    specialty: "Avaliação Pedagógica · Mestre em Educação Especialista em AH/SD",
+    approach: "Equipe multidisciplinar (psicóloga e neuropsicopedagoga)",
     region: "Sul",
     state: "Santa Catarina",
     city: "Balneário Camboriú",
-    city_state: "Balneário Camboriú - SC",
+    city_state: "Balneário Camboriú - SC (e Online)",
     online_available: true,
     whatsapp: "47 99842-6209",
     email: "",
-    social_url: "https://www.instagram.com/juliana_faber.ahsd/",
-    other_qualifications: "Avaliação pedagógica especializada em AH/SD.",
+    social_url: "https://www.instagram.com/juli.anaandreattafaber/",
+    other_qualifications: "Equipe multidisciplinar com psicóloga e neuropsicopedagoga. Avaliação online, atendimento, enriquecimento, PEI, palestras em escolas, etc. (@juli.anaandreattafaber / @juliana_faber.ahsd).",
   },
   {
     id: "prof-aurea-spricigo",
     name: "Áurea Spricigo",
-    specialty: "Psicólogo(a)",
+    specialty: "Psicóloga especialista em TEA e AH/SD · Mestra em Educação",
+    approach: "Abordagem TCC",
     region: "Sul",
     state: "Paraná",
     city: "Curitiba",
-    city_state: "Curitiba - PR",
+    city_state: "Curitiba - PR (e Online)",
     online_available: true,
     whatsapp: "",
     email: "",
     social_url: "https://www.instagram.com/psicologa.aureaspricigo/",
-    other_qualifications: "Site profissional: https://psicoaurea.wixsite.com/psicologia",
+    other_qualifications: "Psicóloga especialista em TEA e AH/SD, Mestra em Educação, abordagem TCC. Site: https://psicoaurea.wixsite.com/psicologia",
   },
   {
     id: "prof-flavio-nunes",
     name: "Flávio Nunes",
-    specialty: "Neuropsicólogo(a)",
+    specialty: "Neuropsicólogo · Neuropsicopedagogia, Arteterapia e Neurociências",
+    approach: "Neuroaprendizagem, Arteterapia e Comportamento Humano",
     region: "Sudeste",
     state: "Rio de Janeiro",
     city: "Rio de Janeiro",
-    city_state: "Rio de Janeiro - RJ",
+    city_state: "Rio de Janeiro - RJ (e Online)",
     online_available: true,
     whatsapp: "(21) 98582-2097",
     email: "",
     social_url: "https://www.instagram.com/flavionunes.oficiall/",
-    other_qualifications: "Neuropsicologia clínica e avaliação em AH/SD.",
+    other_qualifications: "Neuropsicopedagogia, Neuroaprendizagem, Arteterapia, Comportamento Humano, AH/SD e Neurociências.",
   },
   {
     id: "prof-denise-rodrigues",
     name: "Denise Rodrigues",
-    specialty: "Avaliação pedagógica, Psicopedagogo(a)",
+    specialty: "Avaliação Pedagógica · Psicopedagoga e Neuropsicopedagoga",
+    approach: "Equipe multidisciplinar / Educação Parental",
     region: "Sudeste",
     state: "São Paulo / Rio de Janeiro",
     city: "Paulínia",
-    city_state: "Paulínia - SP / RJ",
+    city_state: "Paulínia - SP / RJ (e Online)",
     online_available: true,
     whatsapp: "19 99991-2112",
     email: "",
@@ -144,28 +153,16 @@ const REAL_PROFESSIONALS = [
 
 async function main() {
   const pool = new Pool({ connectionString: loadDatabaseUrl() });
-  await pool.query(`
-    ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS region TEXT DEFAULT '';
-    ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS state TEXT DEFAULT '';
-    ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS city TEXT DEFAULT '';
-    ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS whatsapp TEXT DEFAULT '';
-    ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS social_url TEXT DEFAULT '';
-    ALTER TABLE partner_professionals ADD COLUMN IF NOT EXISTS other_qualifications TEXT DEFAULT '';
-    ALTER TABLE partner_professionals ALTER COLUMN email DROP NOT NULL;
-    ALTER TABLE partner_professionals ALTER COLUMN registry_code DROP NOT NULL;
-    ALTER TABLE partner_professionals ALTER COLUMN approach DROP NOT NULL;
-    ALTER TABLE partner_professionals ALTER COLUMN bio DROP NOT NULL;
-  `);
-
   for (const p of REAL_PROFESSIONALS) {
     await pool.query(
       `INSERT INTO partner_professionals
        (id, name, email, registry_code, specialty, approach, region, state, city, city_state, online_available, whatsapp, social_url, other_qualifications, bio, contact_url, status)
-       VALUES ($1, $2, $3, '', $4, '', $5, $6, $7, $8, $9, $10, $11, $12, $12, $11, 'approved')
+       VALUES ($1, $2, $3, '', $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13, $12, 'approved')
        ON CONFLICT (id) DO UPDATE SET
          name = EXCLUDED.name,
          email = EXCLUDED.email,
          specialty = EXCLUDED.specialty,
+         approach = EXCLUDED.approach,
          region = EXCLUDED.region,
          state = EXCLUDED.state,
          city = EXCLUDED.city,
@@ -182,6 +179,7 @@ async function main() {
         p.name,
         p.email,
         p.specialty,
+        p.approach,
         p.region,
         p.state,
         p.city,
@@ -193,9 +191,8 @@ async function main() {
       ]
     );
   }
-
-  const count = await pool.query("SELECT COUNT(*) FROM partner_professionals WHERE status = 'approved'");
-  console.log("Approved professionals in Neon Postgres:", count.rows[0].count);
+  const res = await pool.query("SELECT COUNT(*) FROM partner_professionals WHERE status = 'approved'");
+  console.log("Updated approved professionals:", res.rows[0].count);
   await pool.end();
 }
 

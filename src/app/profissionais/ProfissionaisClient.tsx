@@ -29,13 +29,35 @@ const REGIONS = [
   "Centro-oeste",
   "Sudeste",
   "Sul",
-  "Não atendo presencialmente.",
+  "Online",
+] as const;
+
+const SPECIALTY_FILTERS = [
+  { key: "todas", label: "Todas Especialidades", terms: [] as string[] },
+  { key: "psicologia", label: "Psicologia", terms: ["psicólog", "psicolog", "tcc"] },
+  { key: "neuropsicologia", label: "Neuropsicologia", terms: ["neuropsic"] },
+  {
+    key: "psicopedagogia",
+    label: "Psicopedagogia / Neuropsicopedagogia",
+    terms: ["psicopedagog", "neuropsicopedagog", "neuroaprendizagem"],
+  },
+  {
+    key: "educacao",
+    label: "Avaliação Pedagógica / Educação",
+    terms: ["pedagóg", "pedagog", "educação", "educacao", "pei", "enriquecimento"],
+  },
+  {
+    key: "terapias",
+    label: "Musicoterapia / Arteterapia",
+    terms: ["musicoterapia", "arteterapia"],
+  },
 ] as const;
 
 export function ProfissionaisClient({ initialPartners }: { initialPartners: PartnerItem[] }) {
   const [partners] = useState<PartnerItem[]>(initialPartners);
   const [filter, setFilter] = useState("");
   const [regionFilter, setRegionFilter] = useState("Todas");
+  const [specialtyFilter, setSpecialtyFilter] = useState("todas");
   const [onlineOnly, setOnlineOnly] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -57,17 +79,34 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
 
   const filtered = partners.filter((p) => {
     const q = filter.toLowerCase();
-    const matchesText =
-      !q ||
-      p.name.toLowerCase().includes(q) ||
-      p.specialty.toLowerCase().includes(q) ||
-      (p.city_state || "").toLowerCase().includes(q) ||
-      (p.state || "").toLowerCase().includes(q) ||
-      (p.city || "").toLowerCase().includes(q) ||
-      (p.other_qualifications || "").toLowerCase().includes(q);
-    const matchesRegion = regionFilter === "Todas" || (p.region || "").toLowerCase() === regionFilter.toLowerCase();
+    const haystack = [
+      p.name,
+      p.specialty,
+      p.approach,
+      p.city_state,
+      p.state,
+      p.city,
+      p.other_qualifications,
+      p.bio,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    const matchesText = !q || haystack.includes(q);
+    const matchesRegion =
+      regionFilter === "Todas" ||
+      (p.region || "").toLowerCase().includes(regionFilter.toLowerCase()) ||
+      (regionFilter === "Online" && p.online_available);
+
+    const specObj = SPECIALTY_FILTERS.find((s) => s.key === specialtyFilter);
+    const matchesSpecialty =
+      !specObj ||
+      specObj.terms.length === 0 ||
+      specObj.terms.some((term) => haystack.includes(term));
+
     const matchesOnline = !onlineOnly || p.online_available;
-    return matchesText && matchesRegion && matchesOnline;
+    return matchesText && matchesRegion && matchesSpecialty && matchesOnline;
   });
 
   const submitForm = async (e: React.FormEvent) => {
@@ -287,32 +326,52 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
       )}
 
       {/* Search & Filters */}
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-        <input
-          type="search"
-          placeholder="Buscar por nome, especialidade, estado ou cidade..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="w-full max-w-sm min-h-[44px] rounded-xl border px-4 text-sm"
-          style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
-        />
-        <select
-          aria-label="Filtrar por região"
-          value={regionFilter}
-          onChange={(e) => setRegionFilter(e.target.value)}
-          className="min-h-[44px] rounded-xl border px-3.5 text-sm"
-          style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
-        >
-          {REGIONS.map((r) => (
-            <option key={r} value={r}>
-              Região: {r}
-            </option>
+      <div className="mt-8 space-y-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            type="search"
+            placeholder="Buscar por nome, especialidade, abordagem, estado ou cidade..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="w-full max-w-md min-h-[44px] rounded-xl border px-4 text-sm"
+            style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+          />
+          <select
+            aria-label="Filtrar por região"
+            value={regionFilter}
+            onChange={(e) => setRegionFilter(e.target.value)}
+            className="min-h-[44px] rounded-xl border px-3.5 text-sm"
+            style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+          >
+            {REGIONS.map((r) => (
+              <option key={r} value={r}>
+                Região: {r}
+              </option>
+            ))}
+          </select>
+          <label className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border px-3.5 text-sm" style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}>
+            <input type="checkbox" checked={onlineOnly} onChange={(e) => setOnlineOnly(e.target.checked)} />
+            <span>Atendimento Online</span>
+          </label>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {SPECIALTY_FILTERS.map((spec) => (
+            <button
+              key={spec.key}
+              type="button"
+              onClick={() => setSpecialtyFilter(spec.key)}
+              className="min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold transition-colors"
+              style={{
+                backgroundColor: specialtyFilter === spec.key ? "var(--accent-emerald)" : "var(--bg-card)",
+                color: specialtyFilter === spec.key ? "#FAF7F2" : "var(--text-primary)",
+                borderColor: specialtyFilter === spec.key ? "var(--accent-emerald)" : "var(--border-subtle)",
+              }}
+            >
+              {spec.label}
+            </button>
           ))}
-        </select>
-        <label className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border px-3.5 text-sm" style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}>
-          <input type="checkbox" checked={onlineOnly} onChange={(e) => setOnlineOnly(e.target.checked)} />
-          <span>Atendimento Online</span>
-        </label>
+        </div>
       </div>
 
       {/* Professionals Grid */}
@@ -335,6 +394,11 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
               </div>
 
               <h2 className="mt-3 font-display text-xl font-semibold">{p.name}</h2>
+              {p.approach && (
+                <p className="text-xs font-medium mt-0.5" style={{ color: "var(--accent-crimson)" }}>
+                  {p.approach}
+                </p>
+              )}
               {p.registry_code && (
                 <p className="font-mono-num text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
                   {p.registry_code}
