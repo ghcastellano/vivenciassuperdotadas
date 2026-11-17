@@ -15,6 +15,7 @@ import {
   User,
 } from "lucide-react";
 import { useSensory } from "@/components/SensoryProvider";
+import { useSession } from "next-auth/react";
 import { motion } from "motion/react";
 import { ReadingProgressBar } from "@/components/EditorialEffects";
 import { BrandMark } from "@/components/BrandMark";
@@ -31,6 +32,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sensoryOpen, setSensoryOpen] = useState(false);
   const {
@@ -278,12 +280,19 @@ export function Navbar() {
           </Link>
 
           <Link
-            href="/entrar"
-            aria-label="Entrar na conta"
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border"
-            style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+            href={session?.user ? "/perfil" : "/entrar"}
+            aria-label={session?.user ? "Abrir meu perfil" : "Entrar na conta"}
+            title={session?.user ? `Logado como ${session.user.name || session.user.email}` : "Entrar ou criar conta"}
+            className="flex min-h-[44px] items-center gap-2 rounded-xl border px-3"
+            style={{
+              borderColor: session?.user ? "var(--accent-emerald)" : "var(--border-subtle)",
+              backgroundColor: "var(--bg-card)",
+            }}
           >
-            <User className="h-4 w-4" />
+            <User className="h-4 w-4" style={{ color: session?.user ? "var(--accent-emerald)" : "var(--text-primary)" }} />
+            <span className="hidden sm:inline text-xs font-semibold max-w-[110px] truncate">
+              {session?.user ? session.user.name?.split(" ")[0] || "Perfil" : "Entrar"}
+            </span>
           </Link>
 
           <button

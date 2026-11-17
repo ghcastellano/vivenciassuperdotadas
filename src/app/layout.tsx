@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { SensoryProvider } from "@/components/SensoryProvider";
+import { AuthSessionProvider } from "@/components/AuthSessionProvider";
 import { CustomCursor } from "@/components/CustomCursor";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -56,12 +57,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen flex flex-col">
-        <SensoryProvider>
-          <CustomCursor />
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </SensoryProvider>
+        <AuthSessionProvider>
+          <SensoryProvider>
+            <CustomCursor />
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </SensoryProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

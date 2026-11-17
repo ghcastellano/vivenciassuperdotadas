@@ -19,34 +19,43 @@ export default function EntrarPage() {
     setError("");
     setLoading(true);
 
-    if (mode === "register") {
-      const reg = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+    try {
+      if (mode === "register") {
+        const reg = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data = await reg.json();
+        if (!reg.ok) {
+          setError(data.error || "Erro ao criar conta.");
+          setLoading(false);
+          return;
+        }
+      }
+
+      const res = await signIn("credentials", {
+        email: email.trim().toLowerCase(),
+        password,
+        redirect: false,
       });
-      const data = await reg.json();
-      if (!reg.ok) {
-        setError(data.error || "Erro ao criar conta.");
-        setLoading(false);
+
+      setLoading(false);
+      if (!res || res.error || res.ok === false) {
+        setError(
+          mode === "login"
+            ? "E-mail ou senha não encontrados. Se for seu primeiro acesso por senha, clique em 'Criar conta' acima."
+            : "Conta criada, mas não foi possível iniciar a sessão automaticamente. Tente entrar na aba 'Já tenho conta'."
+        );
         return;
       }
+
+      router.push("/perfil");
+      router.refresh();
+    } catch {
+      setLoading(false);
+      setError("Erro de conexão ao autenticar. Tente novamente.");
     }
-
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    setLoading(false);
-    if (res?.error) {
-      setError("E-mail ou senha incorretos.");
-      return;
-    }
-
-    router.push("/comunidade");
-    router.refresh();
   };
 
   return (
@@ -58,13 +67,13 @@ export default function EntrarPage() {
         <div className="space-y-1.5 text-center">
           <h1 className="font-display text-2xl font-semibold">Entrar no Vivências</h1>
           <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-            Login opcional — necessário apenas para publicar na comunidade ou acessar o painel administrativo.
+            Login opcional — para ver seu Avatar Único, publicar na comunidade ou acessar o painel admin.
           </p>
         </div>
 
         <button
           type="button"
-          onClick={() => signIn("google", { callbackUrl: "/comunidade" })}
+          onClick={() => signIn("google", { callbackUrl: "/perfil" })}
           className="flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-colors"
           style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-surface)" }}
         >
@@ -80,7 +89,10 @@ export default function EntrarPage() {
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => setMode("login")}
+            onClick={() => {
+              setMode("login");
+              setError("");
+            }}
             className="min-h-[40px] rounded-xl text-xs font-semibold"
             style={{
               backgroundColor: mode === "login" ? "var(--accent-emerald)" : "var(--bg-surface)",
@@ -91,7 +103,10 @@ export default function EntrarPage() {
           </button>
           <button
             type="button"
-            onClick={() => setMode("register")}
+            onClick={() => {
+              setMode("register");
+              setError("");
+            }}
             className="min-h-[40px] rounded-xl text-xs font-semibold"
             style={{
               backgroundColor: mode === "register" ? "var(--accent-emerald)" : "var(--bg-surface)",
@@ -103,7 +118,11 @@ export default function EntrarPage() {
         </div>
 
         {error && (
-          <p className="text-center text-sm font-medium" style={{ color: "var(--accent-crimson)" }}>
+          <p
+            role="alert"
+            className="rounded-xl border p-3 text-center text-xs font-medium"
+            style={{ borderColor: "var(--accent-crimson)", color: "var(--accent-crimson)", backgroundColor: "var(--bg-surface)" }}
+          >
             {error}
           </p>
         )}
