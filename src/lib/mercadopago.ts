@@ -30,6 +30,14 @@ export function verifyMercadoPagoSignature(
   const v1 = parts.v1;
   if (!ts || !v1) return false;
 
+  // Enforce 5-minute replay window (Mercado Pago `ts` may be seconds or milliseconds)
+  const tsNum = Number(ts);
+  if (!Number.isFinite(tsNum)) return false;
+  const tsMs = tsNum > 1e12 ? tsNum : tsNum * 1000;
+  if (Math.abs(Date.now() - tsMs) > 5 * 60 * 1000) {
+    return false;
+  }
+
   const manifest = `id:${String(dataId).toLowerCase()};request-id:${requestId};ts:${ts};`;
   const computed = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
   try {

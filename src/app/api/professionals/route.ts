@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
+import { escapeHtml, isValidEmail, sanitizeHttpUrl } from "@/lib/security";
 
 export async function GET() {
   if (!isDatabaseConfigured()) {
@@ -39,17 +40,17 @@ export async function POST(req: Request) {
     const city = String(body.city || "").trim();
     const cityState = [city, state].filter(Boolean).join(" - ") || String(body.cityState || "").trim();
     const onlineAvailable = Boolean(body.onlineAvailable ?? true);
-    const whatsapp = String(body.whatsapp || "").trim();
-    const socialUrl = String(body.socialUrl || "").trim();
-    const otherQualifications = String(body.otherQualifications || "").trim();
+    const whatsapp = String(body.whatsapp || "").trim().slice(0, 40);
+    const socialUrl = sanitizeHttpUrl(body.socialUrl);
+    const otherQualifications = String(body.otherQualifications || "").trim().slice(0, 1000);
     const serviceType = String(body.serviceType || "ambos").trim();
-    const bio = String(body.bio || otherQualifications || "").trim();
-    const contactUrl = socialUrl || String(body.contactUrl || "").trim();
+    const bio = String(body.bio || otherQualifications || "").trim().slice(0, 1000);
+    const contactUrl = socialUrl || sanitizeHttpUrl(body.contactUrl);
     const acceptedPrivacy = Boolean(body.acceptedPrivacy);
 
-    if (!name || !specialty || !region || !state || !acceptedPrivacy) {
+    if (!name || !specialty || !region || !state || !acceptedPrivacy || (email && !isValidEmail(email))) {
       return NextResponse.json(
-        { error: "Preencha os campos obrigatórios e concorde com a Política de Tratamento de Dados." },
+        { error: "Preencha os campos obrigatórios com e-mail válido e concorde com a Política de Tratamento de Dados." },
         { status: 400 }
       );
     }
@@ -87,7 +88,7 @@ export async function POST(req: Request) {
         heading: "Cadastro em análise",
         intro: `Olá, ${name}. Recebemos sua submissão para integrar o diretório de Profissionais Parceiros do Vivências Superdotadas.`,
         bodyHtml: `
-          <p>Nossa equipe administrativa verificará suas informações (<strong>${specialty}</strong>) para publicação no portal.</p>
+          <p>Nossa equipe administrativa verificará suas informações (<strong>${escapeHtml(specialty)}</strong>) para publicação no portal.</p>
           <p>Assim que aprovado, seu perfil ficará visível para quem busca atendimento e você receberá um novo e-mail de confirmação.</p>
         `,
       });

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
+import { escapeHtml, isValidEmail } from "@/lib/security";
 
 export async function POST(req: Request) {
   try {
@@ -14,20 +16,23 @@ export async function POST(req: Request) {
 
     const session = await auth();
     const body = await req.json();
-    const name = String(body.name || "").trim();
-    const email = String(body.email || "").trim().toLowerCase();
-    const profile = String(body.profile || "Pessoa com AH/SD").trim();
-    const cityState = String(body.cityState || "").trim();
+    const name = String(body.name || "").trim().slice(0, 120);
+    const sessionEmail = session?.user?.email?.trim().toLowerCase() || "";
+    const email = sessionEmail || String(body.email || "").trim().toLowerCase();
+    const profile = String(body.profile || "Pessoa com AH/SD").trim().slice(0, 100);
+    const cityState = String(body.cityState || "").trim().slice(0, 100);
     const manifesto = String(body.manifesto || "").trim().slice(0, 240);
     const hasMedicalReport = String(body.hasMedicalReport || "nao_informado").trim();
-    const showInDirectory = body.showInDirectory !== false;
-    const neurodivergences = Array.isArray(body.neurodivergences) ? body.neurodivergences : ["ahsd"];
+    const showInDirectory = Boolean(body.showInDirectory);
+    const neurodivergences = Array.isArray(body.neurodivergences)
+      ? body.neurodivergences.map((x: unknown) => String(x).slice(0, 40)).slice(0, 8)
+      : ["ahsd"];
     const avatarConfig = body.avatarConfig || {};
     const acceptedCode = Boolean(body.acceptedCode);
 
-    if (!name || !email || !acceptedCode) {
+    if (!name || !email || !isValidEmail(email) || !acceptedCode) {
       return NextResponse.json(
-        { error: "Nome, e-mail e aceite do Código de Boa Convivência são obrigatórios." },
+        { error: "Nome, e-mail válido e aceite do Código de Boa Convivência são obrigatórios." },
         { status: 400 }
       );
     }
@@ -51,6 +56,14 @@ export async function POST(req: Request) {
 
     let id = existingMembership[0]?.id;
     const isUpdate = Boolean(id);
+
+    // Prevent unauthenticated IDOR / profile overwrite of existing memberships or user accounts
+    if ((isUpdate || matchedUsers[0]?.id) && !sessionEmail) {
+      return NextResponse.json(
+        { error: "Já existe um cadastro para este e-mail. Entre na sua conta para editar sua associação." },
+        { status: 401 }
+      );
+    }
     const membershipStatus = existingMembership[0]?.membership_status || "pending";
     const memberNumber = existingMembership[0]?.member_number || "";
 
@@ -120,7 +133,7 @@ export async function POST(req: Request) {
         intro: "Seu cadastro e seu Avatar Único foram registrados e estão em análise pela diretoria.",
         bodyHtml: `
           <p>Separamos a criação de conta do processo formal de associação: sua ficha (Estatuto + Código de Boa Convivência) já está na fila de aprovação da equipe.</p>
-          <p><strong>Perfil selecionado:</strong> ${profile}</p>
+          <p><strong>Perfil selecionado:</strong> ${escapeHtml(profile)}</p>
           <p>Assim que a diretoria confirmar sua associação, você receberá sua matrícula e o acesso completo às áreas exclusivas.</p>
         `,
         ctaLabel: "Acompanhar no Meu Perfil",

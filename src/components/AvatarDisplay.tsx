@@ -46,10 +46,13 @@ export function AvatarDisplay({
               : primaryColor,
         }}
       >
-        <div
-          className="h-full w-full overflow-hidden rounded-full bg-white"
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
+        <div className="h-full w-full overflow-hidden rounded-full bg-white">
+          <img
+            src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        </div>
       </div>
 
       {showBadges && activeBadges.length > 0 && (

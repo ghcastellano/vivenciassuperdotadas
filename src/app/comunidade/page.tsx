@@ -1,7 +1,7 @@
 import { isDatabaseConfigured, query } from "@/lib/db";
 import { ComunidadeClient, type CommunitySubmissionItem, type MemberAvatarCard } from "./ComunidadeClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function ComunidadePage() {
   let submissions: CommunitySubmissionItem[] = [];

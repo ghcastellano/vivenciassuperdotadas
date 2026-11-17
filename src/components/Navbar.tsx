@@ -64,10 +64,38 @@ function TactileSwitch({
 
 export function Navbar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sensoryOpen, setSensoryOpen] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [hintName, setHintName] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem("vivencias-auth-hint");
+      if (saved) setHintName(saved);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (status === "authenticated" && session?.user) {
+        const first = session.user.name?.split(" ")[0] || "Perfil";
+        sessionStorage.setItem("vivencias-auth-hint", first);
+        setHintName(first);
+      } else if (status === "unauthenticated") {
+        sessionStorage.removeItem("vivencias-auth-hint");
+        setHintName(null);
+      }
+    } catch {
+      // ignore
+    }
+  }, [status, session]);
+
+  const isLoggedIn = Boolean(session?.user) || (status === "loading" && Boolean(hintName));
+  const displayFirstName = session?.user?.name?.split(" ")[0] || hintName || "Perfil";
 
   useEffect(() => {
     setPendingHref(null);
@@ -315,25 +343,25 @@ export function Navbar() {
 
             <Link
               href="/associe-se"
-              className="btn-primary hidden sm:inline-flex min-h-[40px] shrink-0 items-center whitespace-nowrap rounded-lg px-4 py-1.5 text-xs sm:text-sm font-semibold"
+              className="btn-primary hidden sm:inline-flex min-h-[40px] shrink-0 items-center whitespace-nowrap rounded px-4 py-1.5 text-xs sm:text-sm font-semibold"
             >
-              {session?.user ? "Meu Avatar" : "Associe-se"}
+              {isLoggedIn ? "Meu Avatar" : "Associe-se"}
             </Link>
 
             <Link
-              href={session?.user ? "/perfil" : "/entrar"}
-              aria-label={session?.user ? "Abrir meu perfil" : "Entrar na conta"}
-              title={session?.user ? `Logado como ${session.user.name || session.user.email}` : "Entrar ou criar conta"}
-              className="flex min-h-[38px] sm:min-h-[40px] items-center gap-1.5 rounded-lg border px-2.5 text-xs font-medium transition-colors hover:bg-black/5"
+              href={isLoggedIn ? "/perfil" : "/entrar"}
+              aria-label={isLoggedIn ? "Abrir meu perfil" : "Entrar na conta"}
+              title={session?.user ? `Logado como ${session.user.name || session.user.email}` : isLoggedIn ? "Abrir meu perfil" : "Entrar ou criar conta"}
+              className="flex min-h-[38px] sm:min-h-[40px] items-center gap-1.5 rounded border px-2.5 text-xs font-medium transition-colors hover:bg-black/5"
               style={{
-                borderColor: session?.user ? "var(--accent-emerald)" : "var(--border-subtle)",
+                borderColor: isLoggedIn ? "var(--accent-emerald)" : "var(--border-subtle)",
                 backgroundColor: "transparent",
                 color: "var(--text-primary)",
               }}
             >
-              <User className="h-3.5 w-3.5" style={{ color: session?.user ? "var(--accent-emerald)" : "var(--text-secondary)" }} />
+              <User className="h-3.5 w-3.5" style={{ color: isLoggedIn ? "var(--accent-emerald)" : "var(--text-secondary)" }} />
               <span className="hidden sm:inline max-w-[96px] truncate">
-                {session?.user ? session.user.name?.split(" ")[0] || "Perfil" : "Entrar"}
+                {status === "loading" && !hintName ? "..." : isLoggedIn ? displayFirstName : "Entrar"}
               </span>
             </Link>
 

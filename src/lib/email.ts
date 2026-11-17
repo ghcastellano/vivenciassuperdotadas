@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { escapeHtml, sanitizeHttpUrl } from "@/lib/security";
 
 interface EmailPayload {
   to: string;
@@ -18,12 +19,16 @@ function buildVivenciasTemplate({
   ctaUrl,
 }: Omit<EmailPayload, "to" | "subject">): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://vivenciassuperdotadas.vercel.app";
+  const safeHeading = escapeHtml(heading);
+  const safeIntro = escapeHtml(intro);
+  const safeCtaLabel = ctaLabel ? escapeHtml(ctaLabel) : "";
+  const safeCtaUrl = ctaUrl ? sanitizeHttpUrl(ctaUrl) : "";
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${heading}</title>
+  <title>${safeHeading}</title>
 </head>
 <body style="margin:0;padding:0;background-color:#FAF7F2;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1E2422;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#FAF7F2;padding:32px 16px;">
@@ -36,7 +41,7 @@ function buildVivenciasTemplate({
                 <tr>
                   <td>
                     <span style="display:inline-block;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E5A93C;font-weight:700;">Associação Vivências Superdotadas</span>
-                    <h1 style="margin:6px 0 0;font-size:22px;line-height:1.3;color:#FAF7F2;font-weight:700;">${heading}</h1>
+                    <h1 style="margin:6px 0 0;font-size:22px;line-height:1.3;color:#FAF7F2;font-weight:700;">${safeHeading}</h1>
                   </td>
                 </tr>
               </table>
@@ -47,14 +52,14 @@ function buildVivenciasTemplate({
           </tr>
           <tr>
             <td style="padding:32px;">
-              <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#1E2422;">${intro}</p>
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#1E2422;">${safeIntro}</p>
               <div style="font-size:15px;line-height:1.7;color:#2E3633;">
                 ${bodyHtml}
               </div>
               ${
-                ctaLabel && ctaUrl
+                safeCtaLabel && safeCtaUrl
                   ? `<div style="margin:28px 0 8px;">
-                      <a href="${ctaUrl}" style="display:inline-block;background-color:#0F5C4D;color:#FAF7F2;text-decoration:none;font-weight:600;font-size:15px;padding:13px 24px;border-radius:10px;">${ctaLabel}</a>
+                      <a href="${safeCtaUrl}" style="display:inline-block;background-color:#0F5C4D;color:#FAF7F2;text-decoration:none;font-weight:600;font-size:15px;padding:13px 24px;border-radius:10px;">${safeCtaLabel}</a>
                     </div>`
                   : ""
               }

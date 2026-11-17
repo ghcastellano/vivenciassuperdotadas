@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
+import { isValidEmail } from "@/lib/security";
 
 export async function POST(req: Request) {
   try {
@@ -13,13 +14,13 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const name = String(body.name || "").trim();
+    const name = String(body.name || "").trim().slice(0, 120);
     const email = String(body.email || "").trim().toLowerCase();
     const password = String(body.password || "");
 
-    if (!name || !email || password.length < 6) {
+    if (!name || !email || !isValidEmail(email) || password.length < 6 || password.length > 72) {
       return NextResponse.json(
-        { error: "Informe nome, e-mail válido e senha com pelo menos 6 caracteres." },
+        { error: "Informe nome, e-mail válido e senha entre 6 e 72 caracteres." },
         { status: 400 }
       );
     }

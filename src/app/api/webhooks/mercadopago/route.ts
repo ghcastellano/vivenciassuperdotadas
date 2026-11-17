@@ -26,16 +26,17 @@ export async function POST(req: Request) {
     (dataObj.id ? String(dataObj.id) : null);
 
   const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
-  if (webhookSecret) {
-    const ok = verifyMercadoPagoSignature(
-      req.headers.get("x-signature"),
-      req.headers.get("x-request-id"),
-      dataId,
-      webhookSecret
-    );
-    if (!ok) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    }
+  if (!webhookSecret) {
+    return NextResponse.json({ error: "Mercado Pago webhook secret not configured" }, { status: 503 });
+  }
+  const ok = verifyMercadoPagoSignature(
+    req.headers.get("x-signature"),
+    req.headers.get("x-request-id"),
+    dataId,
+    webhookSecret
+  );
+  if (!ok) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
   const topic = String(body.type || url.searchParams.get("type") || url.searchParams.get("topic") || "");

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
+import { escapeHtml, sanitizeHttpUrl } from "@/lib/security";
 
 export async function GET() {
   if (!isDatabaseConfigured()) {
@@ -35,33 +37,39 @@ export async function POST(req: Request) {
       );
     }
 
-    const userRole = (session.user as { role?: string; membershipStatus?: string }).role;
-    const membershipStatus = (session.user as { membershipStatus?: string }).membershipStatus;
-    if (userRole !== "admin" && membershipStatus !== "active") {
-      return NextResponse.json(
-        {
-          error:
-            membershipStatus === "pending"
-              ? "Sua solicitação de associação está em análise pela diretoria. Assim que for aprovada, você poderá publicar na comunidade."
-              : "Apenas associados ativos podem publicar na comunidade. Conclua o processo formal de associação em /associe-se.",
-        },
-        { status: 403 }
+    const userEmail = session.user.email.toLowerCase();
+    const userRole = (session.user as { role?: string }).role;
+    if (userRole !== "admin") {
+      const mRows = await query<{ membership_status: string }>(
+        "SELECT membership_status FROM memberships WHERE LOWER(email) = $1 ORDER BY created_at DESC LIMIT 1",
+        [userEmail]
       );
+      const liveStatus = mRows[0]?.membership_status || "none";
+      if (liveStatus !== "active") {
+        return NextResponse.json(
+          {
+            error:
+              liveStatus === "pending"
+                ? "Sua solicitação de associação está em análise pela diretoria. Assim que for aprovada, você poderá publicar na comunidade."
+                : "Apenas associados ativos podem publicar na comunidade. Conclua o processo formal de associação em /associe-se.",
+          },
+          { status: 403 }
+        );
+      }
     }
 
     const body = await req.json();
-    const kind = String(body.kind || "relato").trim();
-    const title = String(body.title || "").trim();
-    const content = String(body.content || "").trim();
-    const externalUrl = String(body.externalUrl || "").trim();
-    const imageUrl = String(body.imageUrl || "").trim();
-    const credits = String(body.credits || "").trim();
+    const rawKind = String(body.kind || "relato").trim();
+    const kind = rawKind === "arte" || rawKind === "link" ? rawKind : "relato";
+    const title = String(body.title || "").trim().slice(0, 160);
+    const content = String(body.content || "").trim().slice(0, 4000);
+    const externalUrl = sanitizeHttpUrl(body.externalUrl);
+    const imageUrl = sanitizeHttpUrl(body.imageUrl, true);
+    const credits = String(body.credits || "").trim().slice(0, 160);
 
     if (!title || !content) {
       return NextResponse.json({ error: "Título e descrição/texto são obrigatórios." }, { status: 400 });
     }
-
-    const userEmail = session.user.email.toLowerCase();
     const userRows = await query<{
       id: string;
       name: string;

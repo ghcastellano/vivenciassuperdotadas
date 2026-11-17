@@ -1,16 +1,37 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
+import { escapeHtml, isValidEmail, sanitizeHttpUrl } from "@/lib/security";
+
+const MASTER_ADMIN_EMAIL = "ghcastellano@gmail.com";
 
 async function requireAdmin() {
   const session = await auth();
-  const role = (session?.user as { role?: string } | undefined)?.role;
-  if (!session?.user || role !== "admin") {
-    return null;
+  if (!session?.user?.email) return null;
+  const emailLower = session.user.email.toLowerCase();
+  const envAdmins = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (emailLower === MASTER_ADMIN_EMAIL || envAdmins.includes(emailLower)) {
+    return session;
   }
-  return session;
+
+  // Revalidate admin role against PostgreSQL so revocations take effect immediately
+  if (isDatabaseConfigured()) {
+    const rows = await query<{ role: string }>(
+      "SELECT role FROM users WHERE LOWER(email) = $1 LIMIT 1",
+      [emailLower]
+    );
+    if (rows[0]?.role === "admin") {
+      return session;
+    }
+  }
+  return null;
 }
 
 export async function GET() {
@@ -100,15 +121,15 @@ export async function POST(req: Request) {
   }
 
   if (action === "create_event") {
-    const title = String(body.title || "").trim();
-    const description = String(body.description || "").trim();
+    const title = String(body.title || "").trim().slice(0, 160);
+    const description = String(body.description || "").trim().slice(0, 2000);
     const eventDate = String(body.eventDate || "");
-    const format = String(body.format || "Online");
-    const imageUrl = String(body.imageUrl || "").trim();
-    const eventLink = String(body.eventLink || "").trim();
+    const format = String(body.format || "Online").slice(0, 80);
+    const imageUrl = sanitizeHttpUrl(body.imageUrl, true);
+    const eventLink = sanitizeHttpUrl(body.eventLink);
 
     if (!title || !description || !eventDate || !eventLink) {
-      return NextResponse.json({ error: "Preencha título, descrição, data e link do evento." }, { status: 400 });
+      return NextResponse.json({ error: "Preencha título, descrição, data e link válido (https://) do evento." }, { status: 400 });
     }
 
     await query(
@@ -127,13 +148,14 @@ export async function POST(req: Request) {
   }
 
   if (action === "create_expense") {
-    const category = String(body.category || "infraestrutura");
-    const description = String(body.description || "").trim();
-    const amountCents = Math.round(Number(body.amountReais || 0) * 100);
-    const referenceDate = String(body.referenceDate || new Date().toISOString().slice(0, 10));
+    const category = String(body.category || "infraestrutura").slice(0, 60);
+    const description = String(body.description || "").trim().slice(0, 300);
+    const amountReais = Number(body.amountReais);
+    const amountCents = Number.isFinite(amountReais) ? Math.round(amountReais * 100) : 0;
+    const referenceDate = String(body.referenceDate || new Date().toISOString().slice(0, 10)).slice(0, 20);
 
-    if (!description || amountCents <= 0) {
-      return NextResponse.json({ error: "Descrição e valor positivo são obrigatórios." }, { status: 400 });
+    if (!description || !Number.isFinite(amountCents) || amountCents <= 0) {
+      return NextResponse.json({ error: "Descrição e valor positivo válido são obrigatórios." }, { status: 400 });
     }
 
     await query(
@@ -154,10 +176,10 @@ export async function POST(req: Request) {
   if (action === "set_user_role") {
     const email = String(body.email || "").trim().toLowerCase();
     const role = body.role === "admin" ? "admin" : "member";
-    if (!email) {
+    if (!email || !isValidEmail(email)) {
       return NextResponse.json({ error: "Informe um e-mail válido." }, { status: 400 });
     }
-    if (email === "ghcastellano@gmail.com" && role !== "admin") {
+    if (email === MASTER_ADMIN_EMAIL && role !== "admin") {
       return NextResponse.json({ error: "O Admin Master não pode ser removido." }, { status: 400 });
     }
 
@@ -194,7 +216,7 @@ export async function POST(req: Request) {
     const memberNumber =
       status === "active"
         ? existing[0].member_number ||
-          `VS-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
+          `VS-${new Date().getFullYear()}-${crypto.randomInt(1000, 10000)}`
         : existing[0].member_number || "";
 
     await query(
