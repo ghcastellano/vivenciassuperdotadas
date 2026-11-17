@@ -60,13 +60,32 @@ export function AvatarStudio({
     }
   };
 
-  const downloadSvg = () => {
+  const renderPngBlob = async (): Promise<Blob> => {
     const svg = renderShareableAvatarSvg(config, neurodivergences, personName);
-    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    const img = new Image();
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("Erro ao renderizar imagem do avatar."));
+      img.src = dataUrl;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = 1260;
+    canvas.height = 1410;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas não disponível.");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Falha ao gerar PNG."))), "image/png", 1);
+    });
+  };
+
+  const downloadPng = async () => {
+    const blob = await renderPngBlob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `avatar-vivencias-${personName.toLowerCase().replace(/\s+/g, "-") || "unico"}.svg`;
+    a.download = `avatar-vivencias-${personName.toLowerCase().replace(/\s+/g, "-") || "unico"}.png`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -84,6 +103,16 @@ export function AvatarStudio({
   const shareAvatar = async () => {
     const shareUrl = buildShareUrl();
     try {
+      const pngBlob = await renderPngBlob();
+      const file = new File([pngBlob], "meu-avatar-vivencias.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+        await navigator.share({
+          title: `Avatar Único — ${personName} | Vivências Superdotadas`,
+          text: manifesto || "Cada pessoa é única. Conheça meu avatar na Associação Vivências Superdotadas!",
+          files: [file],
+        });
+        return;
+      }
       if (navigator.share) {
         await navigator.share({
           title: `Avatar Único — ${personName} | Vivências Superdotadas`,
@@ -149,21 +178,21 @@ export function AvatarStudio({
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={downloadSvg}
-                className="flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-xs font-medium"
+                onClick={downloadPng}
+                className="flex min-h-[40px] items-center justify-center gap-1.5 rounded border px-2 py-1.5 text-xs font-medium"
                 style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
               >
                 <Download className="h-3.5 w-3.5" />
-                Baixar SVG
+                Baixar PNG
               </button>
               <button
                 type="button"
                 onClick={shareAvatar}
-                className="flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-xs font-medium"
+                className="flex min-h-[40px] items-center justify-center gap-1.5 rounded border px-2 py-1.5 text-xs font-medium"
                 style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
-                {copied ? "Copiado!" : "Copiar Link"}
+                {copied ? "Copiado!" : "Compartilhar"}
               </button>
             </div>
             <button
