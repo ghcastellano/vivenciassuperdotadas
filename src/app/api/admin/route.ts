@@ -22,15 +22,17 @@ export async function GET() {
       submissions: [],
       events: [],
       expenses: [],
+      users: [],
       membersCount: 0,
     });
   }
 
-  const [professionals, submissions, events, expenses, members] = await Promise.all([
+  const [professionals, submissions, events, expenses, users, members] = await Promise.all([
     query("SELECT * FROM partner_professionals ORDER BY created_at DESC"),
     query("SELECT * FROM community_submissions ORDER BY created_at DESC"),
     query("SELECT * FROM events ORDER BY event_date ASC"),
     query("SELECT * FROM financial_expenses ORDER BY reference_date DESC, created_at DESC"),
+    query("SELECT id, name, email, role, created_at FROM users ORDER BY CASE WHEN role = 'admin' THEN 0 ELSE 1 END, created_at DESC"),
     query<{ count: string }>("SELECT COUNT(*) AS count FROM memberships"),
   ]);
 
@@ -40,6 +42,7 @@ export async function GET() {
     submissions,
     events,
     expenses,
+    users,
     membersCount: Number(members[0]?.count || 0),
   });
 }
@@ -129,6 +132,28 @@ export async function POST(req: Request) {
 
   if (action === "delete_expense") {
     await query("DELETE FROM financial_expenses WHERE id = $1", [String(body.id || "")]);
+    return NextResponse.json({ ok: true });
+  }
+
+  if (action === "set_user_role") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const role = body.role === "admin" ? "admin" : "member";
+    if (!email) {
+      return NextResponse.json({ error: "Informe um e-mail válido." }, { status: 400 });
+    }
+    if (email === "ghcastellano@gmail.com" && role !== "admin") {
+      return NextResponse.json({ error: "O Admin Master não pode ser removido." }, { status: 400 });
+    }
+
+    const existing = await query<{ id: string }>("SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1", [email]);
+    if (existing.length > 0) {
+      await query("UPDATE users SET role = $1 WHERE id = $2", [role, existing[0].id]);
+    } else {
+      await query(
+        "INSERT INTO users (id, name, email, role) VALUES ($1, $2, $3, $4)",
+        [crypto.randomUUID(), email.split("@")[0], email, role]
+      );
+    }
     return NextResponse.json({ ok: true });
   }
 

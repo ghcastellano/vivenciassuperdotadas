@@ -15,12 +15,13 @@ export default async function AdminPage() {
     submissions: [],
     events: [],
     expenses: [],
+    users: [],
     membersCount: 0,
   };
 
   if (isDatabaseConfigured()) {
     try {
-      const [professionals, submissions, events, expenses, members] = await Promise.all([
+      const [professionals, submissions, events, expenses, users, members] = await Promise.all([
         query<AdminData["professionals"][number]>(
           "SELECT id, name, email, registry_code, specialty, city_state, status FROM partner_professionals ORDER BY created_at DESC"
         ),
@@ -33,6 +34,9 @@ export default async function AdminPage() {
         query<AdminData["expenses"][number]>(
           "SELECT id, category, description, amount_cents, reference_date::text FROM financial_expenses ORDER BY reference_date DESC, created_at DESC"
         ),
+        query<AdminData["users"][number]>(
+          "SELECT id, name, email, role, created_at::text FROM users ORDER BY CASE WHEN role = 'admin' THEN 0 ELSE 1 END, created_at DESC"
+        ),
         query<{ count: string }>("SELECT COUNT(*) AS count FROM memberships"),
       ]);
 
@@ -42,6 +46,7 @@ export default async function AdminPage() {
         submissions,
         events,
         expenses,
+        users,
         membersCount: Number(members[0]?.count || 0),
       };
     } catch {

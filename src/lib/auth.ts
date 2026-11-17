@@ -55,12 +55,16 @@ async function syncAvatarFromMembership(userId: string, email: string): Promise<
   }
 }
 
+const MASTER_ADMIN_EMAIL = "ghcastellano@gmail.com";
+
 function isAdminEmail(email: string): boolean {
+  const normalized = email.trim().toLowerCase();
+  if (normalized === MASTER_ADMIN_EMAIL) return true;
   const list = (process.env.ADMIN_EMAILS || "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
-  return list.includes(email.toLowerCase());
+  return list.includes(normalized);
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -127,13 +131,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           [email]
         );
         let userId = existing[0]?.id;
+        const role = isAdminEmail(email) ? "admin" : existing[0]?.role || "member";
         if (!userId) {
           userId = crypto.randomUUID();
-          const role = isAdminEmail(email) ? "admin" : "member";
           await query(
             "INSERT INTO users (id, name, email, role) VALUES ($1, $2, $3, $4)",
             [userId, user.name || "Membro Vivências", email, role]
           );
+        } else if (role === "admin" && existing[0]?.role !== "admin") {
+          await query("UPDATE users SET role = 'admin' WHERE id = $1", [userId]);
         }
         await syncAvatarFromMembership(userId, email);
       }
@@ -142,7 +148,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as { role?: string }).role || (user.email && isAdminEmail(user.email) ? "admin" : "member");
+        let role = (user as { role?: string }).role || "member";
+        if (user.email) {
+          if (isAdminEmail(user.email)) {
+            role = "admin";
+          } else if (isDatabaseConfigured()) {
+            const rows = await query<{ id: string; role: string }>(
+              "SELECT id, role FROM users WHERE LOWER(email) = $1 LIMIT 1",
+              [user.email.toLowerCase()]
+            );
+            if (rows[0]) {
+              token.id = rows[0].id;
+              role = rows[0].role;
+            }
+          }
+        }
+        token.role = role;
       }
       return token;
     },

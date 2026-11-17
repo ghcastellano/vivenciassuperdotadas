@@ -36,15 +36,23 @@ export interface AdminData {
     amount_cents: number;
     reference_date: string;
   }[];
+  users: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    created_at: string;
+  }[];
   membersCount: number;
 }
 
-type AdminTab = "profissionais" | "comunidade" | "eventos" | "custos";
+type AdminTab = "profissionais" | "comunidade" | "eventos" | "custos" | "admins";
 
 export function AdminClient({ initialData }: { initialData: AdminData }) {
   const [data, setData] = useState<AdminData>(initialData);
   const [tab, setTab] = useState<AdminTab>("profissionais");
   const [actionNotice, setActionNotice] = useState("");
+  const [newAdminEmail, setNewAdminEmail] = useState("");
 
   const [evForm, setEvForm] = useState({
     title: "",
@@ -183,6 +191,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
             ["comunidade", `Comunidade (${data.submissions.length})`],
             ["eventos", `Eventos (${data.events.length})`],
             ["custos", `Transparência & Custos (${data.expenses.length})`],
+            ["admins", `Admins & Membros (${data.users?.length || 0})`],
           ] as const
         ).map(([key, label]) => (
           <button
@@ -410,6 +419,98 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
             <input type="date" value={expForm.referenceDate} onChange={(e) => setExpForm({ ...expForm, referenceDate: e.target.value })} className="w-full min-h-[42px] rounded-xl border px-3 text-sm" style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }} />
             <button type="submit" className="btn-primary inline-flex min-h-[42px] items-center gap-2 rounded-xl px-4 text-sm font-semibold">
               <Plus className="h-4 w-4" /> Registrar na Transparência
+            </button>
+          </form>
+        </section>
+      )}
+
+      {/* TAB 5: Administradores & Membros */}
+      {tab === "admins" && (
+        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
+          <div className="space-y-3">
+            <h2 className="font-display text-xl font-semibold">Contas Cadastradas & Permissões</h2>
+            {(data.users || []).length === 0 ? (
+              <p className="text-sm rounded-2xl border p-6" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
+                Nenhuma conta registrada ainda. Quando os membros entrarem ou você pré-autorizar um e-mail ao lado, eles aparecerão aqui.
+              </p>
+            ) : (
+              data.users.map((u) => {
+                const isMaster = u.email.toLowerCase() === "ghcastellano@gmail.com";
+                const isAdmin = u.role === "admin" || isMaster;
+                return (
+                  <div
+                    key={u.id}
+                    className="rounded-xl border p-4 flex flex-wrap items-center justify-between gap-3"
+                    style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-sm truncate">{u.name}</p>
+                        <span
+                          className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                          style={{
+                            backgroundColor: "var(--bg-surface)",
+                            color: isAdmin ? "var(--accent-emerald)" : "var(--text-muted)",
+                          }}
+                        >
+                          {isMaster ? "Admin Master" : isAdmin ? "Admin" : "Membro"}
+                        </span>
+                      </div>
+                      <p className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
+                        {u.email}
+                      </p>
+                    </div>
+
+                    {!isMaster && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          act({
+                            action: "set_user_role",
+                            email: u.email,
+                            role: isAdmin ? "member" : "admin",
+                          })
+                        }
+                        className="rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors"
+                        style={{
+                          borderColor: isAdmin ? "var(--accent-crimson)" : "var(--accent-emerald)",
+                          color: isAdmin ? "var(--accent-crimson)" : "var(--accent-emerald)",
+                        }}
+                      >
+                        {isAdmin ? "Remover Admin" : "Tornar Admin"}
+                      </button>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              act({ action: "set_user_role", email: newAdminEmail, role: "admin" });
+              setNewAdminEmail("");
+            }}
+            className="rounded-2xl border p-5 space-y-3"
+            style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+          >
+            <h2 className="font-display text-xl font-semibold">Conceder Acesso Admin</h2>
+            <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              Informe o e-mail (Gmail ou cadastrado) para liberar acesso administrativo. Se a pessoa ainda não entrou no
+              portal, ela já entrará como Admin no primeiro login.
+            </p>
+            <input
+              required
+              type="email"
+              placeholder="email.da.pessoa@gmail.com"
+              value={newAdminEmail}
+              onChange={(e) => setNewAdminEmail(e.target.value)}
+              className="w-full min-h-[42px] rounded-xl border px-3 text-sm"
+              style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+            />
+            <button type="submit" className="btn-primary inline-flex min-h-[42px] items-center gap-2 rounded-xl px-4 text-sm font-semibold">
+              <Shield className="h-4 w-4" /> Liberar Acesso Admin
             </button>
           </form>
         </section>
