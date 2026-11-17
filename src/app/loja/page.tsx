@@ -174,6 +174,31 @@ export default function LojaPage() {
         </div>
       )}
 
+      {/* Highlighted Book: Vivi Goods (UICLAP) */}
+      <div
+        className="mt-8 flex flex-col justify-between gap-4 rounded-2xl border p-5 sm:flex-row sm:items-center sm:p-6"
+        style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--accent-crimson)" }}
+      >
+        <div className="space-y-1">
+          <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-crimson)" }}>
+            Publicação Oficial · UICLAP
+          </span>
+          <h2 className="font-display text-xl font-semibold">Vivi Goods — Livro de Pintura & Colorir</h2>
+          <p className="text-sm max-w-2xl" style={{ color: "var(--text-secondary)" }}>
+            Nosso livro de pintura com personagens inspirados na comunidade AH/SD — cada exemplar ajuda a manter o
+            Vivências Superdotadas.
+          </p>
+        </div>
+        <a
+          href="https://bio.uiclap.com/Vivenciassuperdotadas"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold"
+        >
+          Adquirir Vivi Goods na UICLAP
+        </a>
+      </div>
+
       {/* Category Filter */}
       <div className="mt-8 flex flex-wrap gap-2">
         {CATEGORIES.map((cat) => (

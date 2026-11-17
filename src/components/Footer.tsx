@@ -93,6 +93,15 @@ export function Footer() {
                 Apoiar no APOIA.se
               </a>
               <a
+                href="https://bio.uiclap.com/Vivenciassuperdotadas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+                style={{ color: "var(--accent-amber)" }}
+              >
+                Livro de Pintura Vivi Goods (UICLAP)
+              </a>
+              <a
                 href="https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b"
                 target="_blank"
                 rel="noopener noreferrer"

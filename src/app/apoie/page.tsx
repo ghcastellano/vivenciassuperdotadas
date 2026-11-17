@@ -70,6 +70,17 @@ export default function ApoiePage() {
             <span>Apoiar no APOIA.se/vivenciassuperdotadas</span>
             <ExternalLink className="h-4 w-4" />
           </a>
+
+          <a
+            href="https://bio.uiclap.com/Vivenciassuperdotadas"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold"
+            style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-surface)" }}
+          >
+            <span>Ou apoie comprando o livro Vivi Goods (UICLAP)</span>
+            <ExternalLink className="h-4 w-4" />
+          </a>
         </section>
 
         {/* Financial Transparency Panel */}
