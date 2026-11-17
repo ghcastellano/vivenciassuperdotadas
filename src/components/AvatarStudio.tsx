@@ -5,7 +5,7 @@ import { Shuffle, Download, Share2, Check } from "lucide-react";
 import {
   AVATAR_OPTIONS,
   NEURODIVERGENCE_BADGES,
-  renderAvatarSvg,
+  renderShareableAvatarSvg,
   type AvatarConfig,
   type NeurodivergenceId,
 } from "@/lib/avatar";
@@ -61,7 +61,7 @@ export function AvatarStudio({
   };
 
   const downloadSvg = () => {
-    const svg = renderAvatarSvg(config);
+    const svg = renderShareableAvatarSvg(config, neurodivergences, personName);
     const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

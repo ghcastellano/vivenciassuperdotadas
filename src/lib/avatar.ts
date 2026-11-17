@@ -204,3 +204,70 @@ export function renderAvatarSvg(config: Partial<AvatarConfig> = {}): string {
   });
   return avatar.toString();
 }
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Generates a complete standalone SVG card including the DiceBear avatar,
+ * neurodiversity infinity ring, selected neurodivergence badges, and name.
+ */
+export function renderShareableAvatarSvg(
+  config: Partial<AvatarConfig> = {},
+  neurodivergences: string[] = ["ahsd"],
+  personName = "Vivências Superdotadas"
+): string {
+  const innerSvg = renderAvatarSvg(config)
+    .replace(/^<\?xml[^>]*\?>\s*/i, "")
+    .replace(/<svg[^>]*>/i, "")
+    .replace(/<\/svg>\s*$/i, "");
+
+  const activeBadges = NEURODIVERGENCE_BADGES.filter((b) =>
+    neurodivergences.includes(b.id)
+  );
+  const primary = activeBadges[0]?.color || "#0F5C4D";
+  const secondary = activeBadges[1]?.color || "#D98A2B";
+
+  const badgePills = activeBadges
+    .slice(0, 4)
+    .map((b, idx) => {
+      const col = idx % 2;
+      const row = Math.floor(idx / 2);
+      const x = 42 + col * 172;
+      const y = 342 + row * 38;
+      return `<g transform="translate(${x},${y})">
+        <rect width="160" height="28" rx="14" fill="${b.color}" />
+        <text x="80" y="18" text-anchor="middle" fill="#FAF7F2" font-family="system-ui,Segoe UI,sans-serif" font-size="11.5" font-weight="700">∞ ${escapeXml(b.short)}</text>
+      </g>`;
+    })
+    .join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 470" width="420" height="470">
+  <defs>
+    <linearGradient id="neuroRing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${primary}" />
+      <stop offset="100%" stop-color="${secondary}" />
+    </linearGradient>
+    <clipPath id="avatarClip">
+      <circle cx="210" cy="170" r="102" />
+    </clipPath>
+  </defs>
+  <rect width="420" height="470" rx="28" fill="#FAF7F2" stroke="#E4DCCE" stroke-width="2" />
+  <text x="210" y="42" text-anchor="middle" fill="#0F5C4D" font-family="system-ui,Segoe UI,sans-serif" font-size="11" font-weight="700" letter-spacing="2">CADA PESSOA É ÚNICA</text>
+  <circle cx="210" cy="170" r="110" fill="url(#neuroRing)" />
+  <circle cx="210" cy="170" r="102" fill="#FFFFFF" />
+  <g clip-path="url(#avatarClip)">
+    <svg x="108" y="68" width="204" height="204" viewBox="0 0 280 280">${innerSvg}</svg>
+  </g>
+  <circle cx="286" cy="246" r="20" fill="${primary}" stroke="#FAF7F2" stroke-width="4" />
+  <text x="286" y="252" text-anchor="middle" fill="#FFFFFF" font-family="system-ui,sans-serif" font-size="16" font-weight="700">∞</text>
+  <text x="210" y="315" text-anchor="middle" fill="#1E2422" font-family="Georgia,serif" font-size="22" font-weight="700">${escapeXml(personName || "Você")}</text>
+  ${badgePills}
+  <text x="210" y="446" text-anchor="middle" fill="#66736E" font-family="system-ui,Segoe UI,sans-serif" font-size="11">Associação Vivências Superdotadas</text>
+</svg>`;
+}
