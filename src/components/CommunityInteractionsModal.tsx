@@ -43,6 +43,7 @@ export function CommunityInteractionsModal({
   initialTab,
   isLoggedIn,
   currentUserId,
+  currentUserName,
   isAdmin,
   likedByMe,
   onToggleLike,
@@ -55,6 +56,7 @@ export function CommunityInteractionsModal({
   initialTab: "comments" | "likes";
   isLoggedIn: boolean;
   currentUserId: string | null;
+  currentUserName: string;
   isAdmin: boolean;
   likedByMe: boolean;
   onToggleLike: () => void;
@@ -93,7 +95,25 @@ export function CommunityInteractionsModal({
     return () => {
       active = false;
     };
-  }, [submissionId, likedByMe, onCountsChange]);
+  }, [submissionId, onCountsChange]);
+
+  const handleModalLikeToggle = () => {
+    if (isLoggedIn && currentUserId) {
+      const nextLikes = likedByMe
+        ? likes.filter((l) => l.user_id !== currentUserId)
+        : [
+            {
+              user_id: currentUserId,
+              user_name: currentUserName,
+              user_avatar: null,
+              created_at: new Date().toISOString(),
+            },
+            ...likes.filter((l) => l.user_id !== currentUserId),
+          ];
+      setLikes(nextLikes);
+    }
+    onToggleLike();
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -107,8 +127,24 @@ export function CommunityInteractionsModal({
     e.preventDefault();
     const content = draft.trim();
     if (!content || submitting) return;
-    setSubmitting(true);
     setError("");
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: CommentItem = {
+      id: tempId,
+      submission_id: submissionId,
+      user_id: currentUserId || "me",
+      user_name: currentUserName,
+      user_avatar: null,
+      content,
+      created_at: new Date().toISOString(),
+      updated_at: null,
+    };
+    const optimisticList = [...comments, optimistic];
+    setComments(optimisticList);
+    setDraft("");
+    onCountsChange(submissionId, likes.length, optimisticList.length);
+    setSubmitting(true);
+
     try {
       const res = await fetch("/api/community/interactions", {
         method: "POST",
@@ -118,11 +154,14 @@ export function CommunityInteractionsModal({
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Não foi possível comentar.");
+        setComments((prev) => {
+          const rolledBack = prev.filter((c) => c.id !== tempId);
+          onCountsChange(submissionId, likes.length, rolledBack.length);
+          return rolledBack;
+        });
       } else if (data.comment) {
-        const next = [...comments, data.comment];
-        setComments(next);
-        setDraft("");
-        onCountsChange(submissionId, likes.length, next.length);
+        setComments((prev) => prev.map((c) => (c.id === tempId ? data.comment : c)));
+        window.dispatchEvent(new Event("vs:notifications-updated"));
       }
     } finally {
       setSubmitting(false);
@@ -133,6 +172,13 @@ export function CommunityInteractionsModal({
     const content = editDraft.trim();
     if (!content) return;
     setError("");
+    const prevComments = comments;
+    setComments((prev) =>
+      prev.map((c) => (c.id === commentId ? { ...c, content, updated_at: new Date().toISOString() } : c))
+    );
+    setEditingId(null);
+    setEditDraft("");
+
     const res = await fetch("/api/community/interactions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -141,26 +187,29 @@ export function CommunityInteractionsModal({
     const data = await res.json();
     if (!res.ok) {
       setError(data.error || "Não foi possível editar.");
+      setComments(prevComments);
       return;
     }
     if (data.comment) {
       setComments((prev) => prev.map((c) => (c.id === commentId ? data.comment : c)));
-      setEditingId(null);
-      setEditDraft("");
     }
   };
 
   const deleteComment = async (commentId: string) => {
     setError("");
+    const prevComments = comments;
+    const next = comments.filter((c) => c.id !== commentId);
+    setComments(next);
+    onCountsChange(submissionId, likes.length, next.length);
+
     const res = await fetch("/api/community/interactions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "delete_comment", commentId }),
     });
-    if (res.ok) {
-      const next = comments.filter((c) => c.id !== commentId);
-      setComments(next);
-      onCountsChange(submissionId, likes.length, next.length);
+    if (!res.ok) {
+      setComments(prevComments);
+      onCountsChange(submissionId, likes.length, prevComments.length);
     }
   };
 
@@ -230,7 +279,7 @@ export function CommunityInteractionsModal({
 
           <button
             type="button"
-            onClick={onToggleLike}
+            onClick={handleModalLikeToggle}
             className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold transition-transform active:scale-95"
             style={{ color: likedByMe ? "#BD4626" : "var(--text-secondary)" }}
           >

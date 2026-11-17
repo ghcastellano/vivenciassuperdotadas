@@ -228,12 +228,21 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Publicação inválida." }, { status: 400 });
       }
 
-      const subRows = await query<{ id: string; user_id: string | null; title: string }>(
-        "SELECT id, user_id, title FROM community_submissions WHERE id = $1 AND status = 'approved' LIMIT 1",
+      const subRows = await query<{ id: string; user_id: string | null; title: string; author_name: string }>(
+        "SELECT id, user_id, title, author_name FROM community_submissions WHERE id = $1 AND status = 'approved' LIMIT 1",
         [submissionId]
       );
       if (!subRows[0]) {
         return NextResponse.json({ error: "Publicação não encontrada." }, { status: 404 });
+      }
+
+      let recipientId = subRows[0].user_id;
+      if (!recipientId && subRows[0].author_name) {
+        const uFallback = await query<{ id: string }>(
+          "SELECT id FROM users WHERE LOWER(name) = LOWER($1) LIMIT 1",
+          [subRows[0].author_name]
+        );
+        recipientId = uFallback[0]?.id || null;
       }
 
       const existing = await query<{ submission_id: string }>(
@@ -261,8 +270,7 @@ export async function POST(req: Request) {
         );
         likedByMe = true;
 
-        const recipientId = subRows[0].user_id;
-        if (recipientId && recipientId !== actor.userId) {
+        if (recipientId) {
           await query(
             `INSERT INTO notifications (id, recipient_user_id, actor_user_id, actor_name, actor_avatar, type, submission_id, submission_title)
              VALUES ($1, $2, $3, $4, $5::jsonb, 'like', $6, $7)`,
@@ -276,7 +284,7 @@ export async function POST(req: Request) {
               subRows[0].title.slice(0, 120),
             ]
           );
-          void notifyRecipientByEmail({
+          await notifyRecipientByEmail({
             recipientUserId: recipientId,
             actorName: actor.name,
             type: "like",
@@ -310,12 +318,21 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Escreva um comentário antes de enviar." }, { status: 400 });
       }
 
-      const subRows = await query<{ id: string; user_id: string | null; title: string }>(
-        "SELECT id, user_id, title FROM community_submissions WHERE id = $1 AND status = 'approved' LIMIT 1",
+      const subRows = await query<{ id: string; user_id: string | null; title: string; author_name: string }>(
+        "SELECT id, user_id, title, author_name FROM community_submissions WHERE id = $1 AND status = 'approved' LIMIT 1",
         [submissionId]
       );
       if (!subRows[0]) {
         return NextResponse.json({ error: "Publicação não encontrada." }, { status: 404 });
+      }
+
+      let recipientId = subRows[0].user_id;
+      if (!recipientId && subRows[0].author_name) {
+        const uFallback = await query<{ id: string }>(
+          "SELECT id FROM users WHERE LOWER(name) = LOWER($1) LIMIT 1",
+          [subRows[0].author_name]
+        );
+        recipientId = uFallback[0]?.id || null;
       }
 
       const id = crypto.randomUUID();
@@ -335,8 +352,7 @@ export async function POST(req: Request) {
         [id, submissionId, actor.userId, actor.name, JSON.stringify(actor.avatar), content]
       );
 
-      const recipientId = subRows[0].user_id;
-      if (recipientId && recipientId !== actor.userId) {
+      if (recipientId) {
         await query(
           `INSERT INTO notifications (id, recipient_user_id, actor_user_id, actor_name, actor_avatar, type, submission_id, submission_title, comment_preview)
            VALUES ($1, $2, $3, $4, $5::jsonb, 'comment', $6, $7, $8)`,
@@ -351,7 +367,7 @@ export async function POST(req: Request) {
             content.slice(0, 140),
           ]
         );
-        void notifyRecipientByEmail({
+        await notifyRecipientByEmail({
           recipientUserId: recipientId,
           actorName: actor.name,
           type: "comment",

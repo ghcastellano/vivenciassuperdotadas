@@ -55,10 +55,13 @@ export function NotificationBell({ enabled }: { enabled: boolean }) {
     fetchNotifications();
     const interval = window.setInterval(fetchNotifications, 45000);
     const onFocus = () => fetchNotifications();
+    const onUpdated = () => fetchNotifications();
     window.addEventListener("focus", onFocus);
+    window.addEventListener("vs:notifications-updated", onUpdated);
     return () => {
       window.clearInterval(interval);
       window.removeEventListener("focus", onFocus);
+      window.removeEventListener("vs:notifications-updated", onUpdated);
     };
   }, [enabled, fetchNotifications]);
 

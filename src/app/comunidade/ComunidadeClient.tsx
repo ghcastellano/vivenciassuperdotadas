@@ -136,6 +136,7 @@ export function ComunidadeClient({
           comments: prev[submission.id]?.comments ?? 0,
         },
       }));
+      window.dispatchEvent(new Event("vs:notifications-updated"));
     }
   };
 
@@ -487,6 +488,7 @@ export function ComunidadeClient({
           initialTab={modalState.tab}
           isLoggedIn={Boolean(session?.user)}
           currentUserId={currentUserId || ((session?.user as { id?: string } | undefined)?.id ?? null)}
+          currentUserName={session?.user?.name || "Você"}
           isAdmin={(session?.user as { role?: string } | undefined)?.role === "admin"}
           likedByMe={likedIds.has(modalState.submission.id)}
           onToggleLike={() => toggleLike(modalState.submission)}
