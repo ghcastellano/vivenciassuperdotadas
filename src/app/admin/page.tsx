@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { isDatabaseConfigured, query } from "@/lib/db";
+import { AdminMillenniumGate } from "@/components/editorial/AdminMillenniumGate";
 import { AdminClient, type AdminData } from "./AdminClient";
 
 export const dynamic = "force-dynamic";
@@ -7,10 +8,13 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   const session = await auth();
   const role = (session?.user as { role?: string } | undefined)?.role;
-  const readOnly = !session?.user || role !== "admin";
+
+  if (!session?.user || role !== "admin") {
+    return <AdminMillenniumGate />;
+  }
 
   let initialData: AdminData = {
-    readOnly,
+    readOnly: false,
     professionals: [],
     submissions: [],
     events: [],
@@ -29,7 +33,7 @@ export default async function AdminPage() {
           "SELECT id, author_name, kind, title, content, status FROM community_submissions ORDER BY created_at DESC"
         ),
         query<AdminData["events"][number]>(
-          "SELECT id, title, event_date::text, format FROM events ORDER BY event_date ASC"
+          "SELECT id, title, description, event_date::text, format, event_link FROM events ORDER BY event_date ASC"
         ),
         query<AdminData["expenses"][number]>(
           "SELECT id, category, description, amount_cents, reference_date::text FROM financial_expenses ORDER BY reference_date DESC, created_at DESC"
@@ -41,7 +45,7 @@ export default async function AdminPage() {
       ]);
 
       initialData = {
-        readOnly,
+        readOnly: false,
         professionals,
         submissions,
         events,

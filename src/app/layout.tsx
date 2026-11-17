@@ -38,12 +38,27 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://vivenciassuperdotadas.vercel.app"),
   title: {
     default: "Vivências Superdotadas — Acolhimento, Ciência e Voz em Primeira Pessoa",
     template: "%s · Vivências Superdotadas",
   },
   description:
     "Associação dedicada a reconhecer e acolher pessoas com Altas Habilidades/Superdotação (AH/SD) e neurodivergências sem romantização, sem patologização e sem exclusivismo.",
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "Vivências Superdotadas",
+    title: "Vivências Superdotadas — Acolhimento, Ciência e Voz em Primeira Pessoa",
+    description:
+      "Associação dedicada a reconhecer e acolher pessoas com Altas Habilidades/Superdotação (AH/SD) e neurodivergências sem romantização, sem patologização e sem exclusivismo.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vivências Superdotadas — Acolhimento, Ciência e Voz em Primeira Pessoa",
+    description:
+      "Compreender a superdotação sem mitos, em primeira pessoa. Rede de profissionais, ciência e comunidade.",
+  },
 };
 
 export default function RootLayout({

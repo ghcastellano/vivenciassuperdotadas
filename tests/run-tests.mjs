@@ -43,9 +43,9 @@ test("Neon Postgres wired APIs: /api/professionals, /api/events, /api/community 
   assert.ok(Array.isArray(c.submissions));
 });
 
-test("Admin showcase GET returns 200 and POST rejects unauthenticated mutations with 403", async () => {
+test("Admin endpoints reject unauthenticated requests with 403", async () => {
   const getRes = await fetch(`${BASE_URL}/api/admin`);
-  assert.equal(getRes.status, 200);
+  assert.equal(getRes.status, 403);
   const postRes = await fetch(`${BASE_URL}/api/admin`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

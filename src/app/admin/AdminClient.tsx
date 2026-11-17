@@ -102,30 +102,12 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-4 border-b pb-6" style={{ borderColor: "var(--border-subtle)" }}>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
+          <p className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
             Gestão da Associação
           </p>
           <h1 className="font-display text-3xl font-semibold">Painel Administrativo</h1>
         </div>
-        {data.readOnly && (
-          <Link href="/entrar" className="btn-primary rounded-xl px-4 py-2 text-xs font-semibold">
-            Entrar como Admin para editar
-          </Link>
-        )}
       </div>
-
-      {data.readOnly && (
-        <div
-          className="flex items-center gap-2.5 rounded-2xl border p-4 text-xs sm:text-sm"
-          style={{ borderColor: "var(--accent-amber)", backgroundColor: "var(--bg-surface)" }}
-        >
-          <Shield className="h-4 w-4 shrink-0" style={{ color: "var(--accent-amber)" }} />
-          <span>
-            <strong>Visualização Aberta (Demonstração):</strong> você pode navegar por todas as abas e dados reais do
-            Neon Postgres. Alterações (aprovar, criar, excluir) exigem login de administrador.
-          </span>
-        </div>
-      )}
 
       {actionNotice && (
         <p

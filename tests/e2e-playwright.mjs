@@ -139,9 +139,11 @@ async function main() {
     console.log("✔ /loja cart add + drawer verified");
 
     await page.goto(`${BASE_URL}/admin`, { waitUntil: "networkidle" });
-    await page.locator('button:has-text("Admins & Membros")').click();
-    await page.locator('text=Conceder Acesso Admin').waitFor({ state: "visible" });
-    console.log("✔ /admin tabs & Admins & Membros tab verified");
+    await page.locator('text=Portão do Milênio').waitFor({ state: "visible" });
+    await page.locator('textarea').fill("Seja s = 1/2 + it, QED");
+    await page.locator('button:has-text("Verificar Demonstração")').click();
+    await page.locator('[role="status"]').waitFor({ state: "visible" });
+    console.log("✔ /admin Millennium Gate & mathematical proof check verified");
 
     await page.goto(`${BASE_URL}/entrar`, { waitUntil: "networkidle" });
     const googleBtn = page.locator('button:has-text("Continuar com Google (Gmail)")');

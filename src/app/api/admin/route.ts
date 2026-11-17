@@ -15,7 +15,10 @@ async function requireAdmin() {
 
 export async function GET() {
   const session = await requireAdmin();
-  const readOnly = !session;
+  if (!session) {
+    return NextResponse.json({ error: "Acesso restrito a administradores." }, { status: 403 });
+  }
+  const readOnly = false;
   if (!isDatabaseConfigured()) {
     return NextResponse.json({
       readOnly,
