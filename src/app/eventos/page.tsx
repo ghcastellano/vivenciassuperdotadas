@@ -2,7 +2,7 @@ import { ExternalLink, MapPin } from "lucide-react";
 import { isDatabaseConfigured, query } from "@/lib/db";
 import { ImageCurtainReveal } from "@/components/EditorialEffects";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 interface EventItem {
   id: string;

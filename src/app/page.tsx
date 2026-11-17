@@ -1,437 +1,254 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BookOpen,
-  Users,
-  HeartHandshake,
-  Sparkles,
-  Calendar,
-  MessageCircle,
-  Stethoscope,
-} from "lucide-react";
-import { SpotlightCard } from "@/components/ReactBitsText";
-import {
-  AuroraMesh,
-  InfiniteMarquee,
-  MagneticWrapper,
-  RotatingPhrase,
-  ScrollReveal,
-  SplitHeadline,
-  TiltedArtworkCard,
-} from "@/components/EditorialEffects";
-import { AvatarDisplay } from "@/components/AvatarDisplay";
-import { DEFAULT_AVATAR_CONFIG, type AvatarConfig } from "@/lib/avatar";
+import { ArrowRight, ExternalLink } from "lucide-react";
+import { ScrollReveal } from "@/components/EditorialEffects";
+import { BotanicalSpecimenFrame } from "@/components/editorial/BotanicalSpecimenFrame";
+import { EditorialIndexRail, type IndexJourneyItem } from "@/components/editorial/EditorialIndexRail";
+import { AssynchronyDiagram } from "@/components/editorial/AssynchronyDiagram";
 
-const AVATAR_PREVIEWS: { id: string; config: AvatarConfig; nd: string[] }[] = [
-  { id: "p1", config: { ...DEFAULT_AVATAR_CONFIG, seed: "Vivencias-1", top: "curly", backgroundColor: "e3ece8" }, nd: ["ahsd"] },
-  { id: "p2", config: { ...DEFAULT_AVATAR_CONFIG, seed: "Vivencias-2", top: "bob", accessories: "prescription02", backgroundColor: "f2eadf" }, nd: ["ahsd", "tea"] },
-  { id: "p3", config: { ...DEFAULT_AVATAR_CONFIG, seed: "Vivencias-3", top: "fro", hairColor: "0f5c4d", backgroundColor: "eee7f5" }, nd: ["ahsd", "tdah"] },
-];
-
-type JourneyKey = "entender" | "identificado" | "aliado" | "apoiar";
-
-const PATHFINDER: Record<
-  JourneyKey,
-  { title: string; summary: string; ctaLabel: string; ctaHref: string; secondaryLabel: string; secondaryHref: string }
-> = {
-  entender: {
-    title: "Informação científica sem mitos — e encaminhamento ético para profissionais",
+const JOURNEYS: IndexJourneyItem[] = [
+  {
+    key: "entender",
+    num: "01",
+    shortLabel: "Estou buscando entender o tema",
+    eyebrow: "Leitura & Encaminhamento",
+    title: "Informação científica sem mitos — e encaminhamento ético",
     summary:
-      "Não oferecemos testes ou diagnósticos online. Reunimos literatura confiável sobre AH/SD e uma rede verificada de psicólogos e neuropsicólogos parceiros (CRP) para avaliação oficial.",
-    ctaLabel: "Encontrar Profissionais Parceiros",
-    ctaHref: "/profissionais",
-    secondaryLabel: "Acessar Área de Conhecimento",
-    secondaryHref: "/conhecimento",
+      "A superdotação não é sinônimo de genialidade solitária nem de nota 10 em tudo. Conheça nosso guia para leigos, leia sobre dupla excepcionalidade e encontre especialistas.",
+    ctaLabel: "Explorar Conhecimento",
+    ctaHref: "/conhecimento",
+    secondaryLabel: "Buscar Profissionais",
+    secondaryHref: "/profissionais",
   },
-  identificado: {
-    title: "Expressão em primeira pessoa, comunidade e Avatar Único sem mascaramento",
+  {
+    key: "identificado",
+    num: "02",
+    shortLabel: "Sou ou me identifico como AH/SD",
+    eyebrow: "Comunidade & Pertencimento",
+    title: "Um lugar para existir em primeira pessoa, sem precisar performar",
     summary:
-      "Crie seu Avatar Único marcando suas neurodivergências (∞), compartilhe artes, links de conhecimento e relatos reais em um ambiente acolhedor e moderado.",
-    ctaLabel: "Associe-se e crie seu Avatar",
+      "Associe-se gratuitamente, crie seu avatar único com traços de neurodivergência e compartilhe vivências, artes e referências na comunidade.",
+    ctaLabel: "Criar Meu Avatar",
     ctaHref: "/associe-se",
-    secondaryLabel: "Explorar Comunidade",
+    secondaryLabel: "Ver Comunidade",
     secondaryHref: "/comunidade",
   },
-  aliado: {
-    title: "Diálogo aberto com familiares, educadores e pessoas neurotípicas",
+  {
+    key: "aliado",
+    num: "03",
+    shortLabel: "Sou neurodivergente, familiar ou educador",
+    eyebrow: "Convivência & Direitos",
+    title: "Pontes entre neurotipos para convivência e educação inclusiva",
     summary:
-      "Não buscamos isolamento: acesse guias sem estereótipos, direitos educacionais (LDB/AEE), o Atlas de Vieses Cognitivos e nossos próximos encontros abertos.",
-    ctaLabel: "Ler Missão, Visão e Valores",
+      "Acesse guias práticos sem estereótipos, direitos educacionais (LDB/AEE), o Atlas de Vieses Cognitivos e nossos próximos encontros abertos.",
+    ctaLabel: "Ler Missão e Princípios",
     ctaHref: "/sobre",
-    secondaryLabel: "Ver Próximos Eventos",
+    secondaryLabel: "Próximos Eventos",
     secondaryHref: "/eventos",
   },
-  apoiar: {
-    title: "Transparência total em cada doação, compra e custo de infraestrutura",
+  {
+    key: "apoiar",
+    num: "04",
+    shortLabel: "Quero apoiar ou ver transparência",
+    eyebrow: "Sustentabilidade Aberta",
+    title: "Transparência total em cada doação, compra e custo operacional",
     summary:
-      "Acompanhe tudo o que entra via Mercado Pago (doações e lojinha) e tudo o que sai em impostos, domínio e infraestrutura.",
-    ctaLabel: "Apoiar & Ver Transparência",
+      "Acompanhe tudo o que entra via Mercado Pago (Pix, Cartão e Boleto) e tudo o que sai em impostos, domínio e infraestrutura.",
+    ctaLabel: "Portal de Transparência",
     ctaHref: "/apoie",
     secondaryLabel: "Conhecer a Lojinha",
     secondaryHref: "/loja",
   },
-};
+];
 
 export default function HomePage() {
-  const [journey, setJourney] = useState<JourneyKey>("entender");
-  const current = PATHFINDER[journey];
-
   return (
     <div>
-      {/* Hero Editorial com AuroraMesh, SplitHeadline, RotatingPhrase e TiltedArtworkCard */}
-      <section className="relative overflow-hidden">
-        <AuroraMesh />
-        <div className="relative z-10 mx-auto max-w-[1400px] px-5 pb-16 pt-10 sm:px-8 sm:pt-14 lg:px-10 lg:pb-24">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
+      {/* ATO 1: Abertura Editorial + Prancha Botânica da Obra Fundadora */}
+      <section className="border-b" style={{ borderColor: "var(--border-subtle)" }}>
+        <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
             <div className="space-y-6">
-              <div
-                className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider"
-                style={{
-                  borderColor: "var(--border-subtle)",
-                  backgroundColor: "var(--bg-card)",
-                  color: "var(--accent-emerald)",
-                }}
+              <p
+                className="font-mono-num text-[11px] font-semibold uppercase tracking-[0.14em]"
+                style={{ color: "var(--accent-emerald)" }}
               >
-                <span>∞</span>
-                <span>Vivências Superdotadas</span>
-              </div>
-
-              <div className="space-y-2">
-                <SplitHeadline
-                  text="Vivências Superdotadas"
-                  className="font-display text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-[3.5rem]"
-                />
-                <p className="font-display text-lg sm:text-xl font-medium" style={{ color: "var(--accent-emerald)" }}>
-                  Associação de Apoio às Altas Habilidades/Superdotação e Dupla Excepcionalidade
-                </p>
-              </div>
-
-              <div className="text-lg sm:text-xl font-display font-medium" style={{ color: "var(--accent-crimson)" }}>
-                <span>Construindo compreensão </span>
-                <RotatingPhrase
-                  phrases={[
-                    "sem romantização.",
-                    "sem patologização.",
-                    "sem exclusivismo.",
-                    "em primeira pessoa.",
-                  ]}
-                  className="underline decoration-2 underline-offset-4"
-                />
-              </div>
-
-              <p className="max-w-2xl text-base leading-relaxed sm:text-lg" style={{ color: "var(--text-secondary)" }}>
-                Um espaço aberto para compreender a superdotação como fenômeno neurofisiológico plural, combater
-                estereótipos e construir convivência saudável entre pessoas AH/SD, familiares, educadores e
-                neurotípicos.
+                Associação · Altas Habilidades / Superdotação &amp; 2e
               </p>
 
-              <div className="flex flex-wrap gap-3 pt-2">
-                <MagneticWrapper>
-                  <Link
-                    href="/associe-se"
-                    data-cursor-label="Criar Avatar"
-                    className="btn-primary inline-flex min-h-[48px] items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold shadow-sm"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    <span>Associe-se e crie seu Avatar</span>
-                  </Link>
-                </MagneticWrapper>
+              <h1 className="font-display text-4xl font-semibold leading-[1.08] sm:text-5xl lg:text-[3.45rem]">
+                Compreender a superdotação{" "}
+                <em className="italic font-normal" style={{ color: "var(--accent-emerald)" }}>
+                  sem mitos
+                </em>
+                , em primeira pessoa.
+              </h1>
 
-                <MagneticWrapper>
-                  <Link
-                    href="/profissionais"
-                    data-cursor-label="Ver Rede"
-                    className="inline-flex min-h-[48px] items-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold transition-colors"
-                    style={{
-                      borderColor: "var(--border-subtle)",
-                      backgroundColor: "var(--bg-card)",
-                      color: "var(--text-primary)",
-                    }}
-                  >
-                    <Stethoscope className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
-                    <span>Profissionais Parceiros (CRP)</span>
-                  </Link>
-                </MagneticWrapper>
-              </div>
-            </div>
-
-            {/* 3D Tilted Artwork Frame */}
-            <div className="flex justify-center lg:justify-end">
-              <TiltedArtworkCard
-                src="/images/logo-vivencias.jpg"
-                alt="Obra original pintada à mão — símbolo da Associação Vivências Superdotadas com flor carmesim, espiral esmeralda, borboleta e infinito nas folhas"
-                captionLeft="Arte original pintada à mão"
-                captionRight="∞ Cada pessoa é única"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Infinite Marquee */}
-      <InfiniteMarquee
-        items={[
-          "Respeito à diferença",
-          "Protagonismo em 1ª pessoa",
-          "Divulgação científica ética",
-          "Acolhimento sem diagnóstico",
-          "Diálogo não exclusivista",
-          "Boa convivência e segurança",
-        ]}
-      />
-
-      {/* Pathfinder Interactive Strip */}
-      <section
-        className="border-b py-14"
-        style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
-      >
-        <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-10">
-          <ScrollReveal>
-            <div className="mb-6 max-w-2xl">
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-crimson)" }}>
-                Por onde começar
+              <p className="max-w-xl text-base leading-relaxed sm:text-lg" style={{ color: "var(--text-secondary)" }}>
+                Espaço aberto e baseado em evidências para reconhecer a superdotação como fenômeno neurofisiológico
+                plural — sem romantização, sem patologização e sem exclusivismo.
               </p>
-              <h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl">
-                Qual caminho faz mais sentido para você hoje?
-              </h2>
-            </div>
 
-            <div className="flex flex-wrap gap-2.5">
-              {(
-                [
-                  ["entender", "Quero entender AH/SD com rigor"],
-                  ["identificado", "Já sou identificado(a)"],
-                  ["aliado", "Familiar, educador(a) ou neurotípico(a)"],
-                  ["apoiar", "Quero apoiar e ver transparência"],
-                ] as const
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setJourney(key)}
-                  className="min-h-[44px] rounded-xl border px-4 py-2 text-sm font-semibold transition-all"
-                  style={{
-                    backgroundColor: journey === key ? "var(--accent-emerald)" : "var(--bg-card)",
-                    color: journey === key ? "#FAF7F2" : "var(--text-primary)",
-                    borderColor: journey === key ? "var(--accent-emerald)" : "var(--border-subtle)",
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div
-              className="mt-6 rounded-2xl border p-6 sm:p-8"
-              style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
-            >
-              <h3 className="font-display text-xl font-semibold sm:text-2xl">{current.title}</h3>
-              <p className="mt-2 max-w-3xl text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                {current.summary}
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="flex flex-wrap items-center gap-5 pt-2">
                 <Link
-                  href={current.ctaHref}
-                  className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                  href="/associe-se"
+                  className="btn-primary inline-flex min-h-[46px] items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold"
                 >
-                  <span>{current.ctaLabel}</span>
+                  <span>Associe-se e crie seu Avatar</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
+
                 <Link
-                  href={current.secondaryHref}
-                  className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
-                  style={{ borderColor: "var(--border-subtle)" }}
+                  href="/profissionais"
+                  className="link-editorial inline-flex items-center gap-1.5 py-2 text-sm font-semibold"
                 >
-                  <span>{current.secondaryLabel}</span>
+                  <span>Rede de Profissionais</span>
+                  <span>→</span>
                 </Link>
               </div>
             </div>
-          </ScrollReveal>
+
+            <div className="lg:justify-self-end w-full">
+              <BotanicalSpecimenFrame />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Asymmetric Editorial Bento Grid */}
-      <section className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:px-10">
+      {/* ATO 2: Navegação por Intenção (Índice Editorial) */}
+      <section className="mx-auto max-w-[1400px] px-5 pt-16 sm:px-8 lg:px-10">
         <ScrollReveal>
-          <div className="mb-10 max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
-              Ecossistema Vivências
+          <div className="mb-8 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+            <div>
+              <p className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
+                Índice de Entrada
+              </p>
+              <h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl">
+                Por onde você quer começar?
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm max-w-sm" style={{ color: "var(--text-muted)" }}>
+              Escolha seu momento atual para ir direto ao conteúdo ou serviço adequado.
             </p>
-            <h2 className="mt-1 font-display text-2xl font-semibold sm:text-3xl">
-              Mosaico da associação — cada peça com seu propósito
-            </h2>
           </div>
         </ScrollReveal>
 
-        <div className="grid gap-5 md:grid-cols-6">
-          {/* Wide Feature Card: Avatar Único & Comunidade */}
-          <ScrollReveal className="md:col-span-4" delay={0.05}>
-            <SpotlightCard className="h-full p-6 sm:p-8 flex flex-col justify-between">
-              <div className="grid gap-6 sm:grid-cols-[1.2fr_0.8fr] items-center">
-                <div>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--accent-emerald)" }}>
-                    <Sparkles className="h-4 w-4" /> Identidade Única
-                  </span>
-                  <h3 className="mt-2 font-display text-2xl font-semibold">
-                    Seu Avatar Único com selos de neurodivergência (∞)
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                    Ao se associar, você customiza cabeça, rosto, roupas e acessórios — e marca visualmente suas
-                    neurodivergências. Ele acompanha suas artes, links e relatos em primeira pessoa na comunidade.
-                  </p>
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <Link href="/associe-se" className="btn-primary inline-flex min-h-[42px] items-center gap-1.5 rounded-xl px-4 text-xs sm:text-sm font-semibold">
-                      Personalizar meu Avatar <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                    <Link href="/comunidade" className="inline-flex min-h-[42px] items-center rounded-xl border px-4 text-xs sm:text-sm font-semibold" style={{ borderColor: "var(--border-subtle)" }}>
-                      Ver publicações
-                    </Link>
-                  </div>
-                </div>
+        <EditorialIndexRail items={JOURNEYS} />
+      </section>
 
-                {/* Live Mini Gallery of Member Avatars */}
-                <div className="flex items-center justify-center gap-3 rounded-2xl border p-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}>
-                  {AVATAR_PREVIEWS.map((m) => (
-                    <AvatarDisplay
-                      key={m.id}
-                      config={m.config}
-                      neurodivergences={m.nd}
-                      size={64}
-                      showBadges={false}
-                    />
-                  ))}
-                </div>
-              </div>
-            </SpotlightCard>
-          </ScrollReveal>
-
-          {/* Tall Side Card: Profissionais Parceiros */}
-          <ScrollReveal className="md:col-span-2" delay={0.1}>
-            <SpotlightCard className="h-full p-6 flex flex-col justify-between">
-              <div>
-                <Users className="h-6 w-6" style={{ color: "var(--accent-amber)" }} />
-                <h3 className="mt-4 font-display text-xl font-semibold">Profissionais Parceiros</h3>
-                <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  Avaliação e acompanhamento clínico exigem profissionais habilitados (CRP). Busque especialistas
-                  aprovados pela nossa curadoria.
-                </p>
-              </div>
-              <Link href="/profissionais" data-cursor-label="Abrir" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold underline" style={{ color: "var(--accent-emerald)" }}>
-                Explorar diretório <ArrowRight className="h-3.5 w-3.5" />
+      {/* ATO 3: Os 3 Pilares em Grid Aberto com Hairlines + Diagrama de Assincronia */}
+      <section className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:px-10">
+        <div
+          className="grid gap-10 border-y py-12 lg:grid-cols-3 lg:gap-0 lg:divide-x"
+          style={{ borderColor: "var(--border-subtle)" }}
+        >
+          <div className="space-y-3 lg:pr-8">
+            <span className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
+              01 · Divulgação Científica
+            </span>
+            <h3 className="font-display text-2xl font-semibold">Conhecimento &amp; Vieses</h3>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              Artigos em primeira pessoa, guia para educadores, direitos na LDB/AEE e o Atlas de Vieses Cognitivos para
+              questionar mitos comuns.
+            </p>
+            <div className="pt-2">
+              <Link href="/conhecimento" className="link-editorial inline-flex items-center gap-1.5 text-sm font-semibold">
+                <span>Abrir biblioteca</span>
+                <span>→</span>
               </Link>
-            </SpotlightCard>
-          </ScrollReveal>
+            </div>
+          </div>
 
-          {/* Knowledge Card */}
-          <ScrollReveal className="md:col-span-2" delay={0.12}>
-            <SpotlightCard className="h-full p-6 flex flex-col justify-between">
-              <div>
-                <BookOpen className="h-6 w-6" style={{ color: "var(--accent-crimson)" }} />
-                <h3 className="mt-4 font-display text-xl font-semibold">Área de Conhecimento</h3>
-                <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  Mitos vs. fatos, direitos (LDB/AEE), glossário desmistificador e o{" "}
-                  <strong>Atlas de Vieses Cognitivos (Entrelinhas)</strong>.
-                </p>
-              </div>
-              <Link href="/conhecimento" data-cursor-label="Ler" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold underline" style={{ color: "var(--accent-emerald)" }}>
-                Acessar biblioteca <ArrowRight className="h-3.5 w-3.5" />
+          <div className="space-y-3 lg:px-8" style={{ borderColor: "var(--border-subtle)" }}>
+            <span className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
+              02 · Encaminhamento Ético
+            </span>
+            <h3 className="font-display text-2xl font-semibold">Profissionais Parceiros</h3>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              Avaliação e acompanhamento terapêutico ou pedagógico exigem especialistas habilitados. Filtre por estado,
+              atendimento online e fale direto via WhatsApp.
+            </p>
+            <div className="pt-2">
+              <Link href="/profissionais" className="link-editorial inline-flex items-center gap-1.5 text-sm font-semibold">
+                <span>Consultar diretório</span>
+                <span>→</span>
               </Link>
-            </SpotlightCard>
-          </ScrollReveal>
+            </div>
+          </div>
 
-          {/* Events Card */}
-          <ScrollReveal className="md:col-span-2" delay={0.16}>
-            <SpotlightCard className="h-full p-6 flex flex-col justify-between">
-              <div>
-                <Calendar className="h-6 w-6" style={{ color: "var(--accent-emerald)" }} />
-                <h3 className="mt-4 font-display text-xl font-semibold">Eventos & Encontros</h3>
-                <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  Rodas de conversa e lives abertas para troca em primeira pessoa e diálogo com toda a sociedade.
-                </p>
-              </div>
-              <Link href="/eventos" data-cursor-label="Agenda" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold underline" style={{ color: "var(--accent-emerald)" }}>
-                Ver próximos eventos <ArrowRight className="h-3.5 w-3.5" />
+          <div className="space-y-3 lg:pl-8" style={{ borderColor: "var(--border-subtle)" }}>
+            <span className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
+              03 · Voz em Primeira Pessoa
+            </span>
+            <h3 className="font-display text-2xl font-semibold">Comunidade &amp; Singularidade</h3>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              Relatos reais, artes, links comentados e o Mural da Singularidade — onde cada associado cria seu avatar
+              único com seus traços de neurodivergência.
+            </p>
+            <div className="pt-2 flex flex-wrap gap-5">
+              <Link href="/comunidade" className="link-editorial inline-flex items-center gap-1.5 text-sm font-semibold">
+                <span>Ver comunidade</span>
+                <span>→</span>
               </Link>
-            </SpotlightCard>
-          </ScrollReveal>
-
-          {/* Transparency & Store Card */}
-          <ScrollReveal className="md:col-span-2" delay={0.2}>
-            <SpotlightCard className="h-full p-6 flex flex-col justify-between">
-              <div>
-                <HeartHandshake className="h-6 w-6" style={{ color: "var(--accent-amber)" }} />
-                <h3 className="mt-4 font-display text-xl font-semibold">Apoio & Transparência</h3>
-                <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  Doações via Mercado Pago e APOIA.se, lojinha oficial e prestação de contas aberta com impostos, domínio e custos.
-                </p>
-              </div>
-              <div className="mt-5 flex gap-4">
-                <Link href="/apoie" className="inline-flex items-center gap-1 text-sm font-semibold underline" style={{ color: "var(--accent-emerald)" }}>
-                  Transparência <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-                <Link href="/loja" className="inline-flex items-center gap-1 text-sm font-semibold underline" style={{ color: "var(--accent-crimson)" }}>
-                  Lojinha
-                </Link>
-              </div>
-            </SpotlightCard>
-          </ScrollReveal>
+              <Link href="/associe-se" className="link-editorial inline-flex items-center gap-1.5 text-sm font-semibold">
+                <span>Criar avatar</span>
+                <span>→</span>
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* WhatsApp & Instagram Community Callout */}
-        <ScrollReveal delay={0.1}>
-          <div
-            className="mt-12 flex flex-col items-start justify-between gap-6 rounded-2xl border p-6 sm:flex-row sm:items-center sm:p-8"
-            style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
-          >
-            <div className="space-y-1.5">
-              <h3 className="font-display text-xl font-semibold">Participe da nossa convivência diária</h3>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                Grupo aberto no WhatsApp (com Código de Boa Convivência e moderação ativa) e conteúdos no Instagram.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <a
-                href="https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
-              >
-                <MessageCircle className="h-4 w-4" />
-                <span>WhatsApp</span>
-              </a>
-              <a
-                href="https://www.instagram.com/vivenciassuperdotadas/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
-                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
-              >
-                <span>Instagram</span>
-              </a>
-              <a
-                href="https://www.youtube.com/@Viv%C3%AAnciasSuperdotadas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
-                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
-              >
-                <span>YouTube</span>
-              </a>
-              <a
-                href="https://www.tiktok.com/@vivenciassuperdotadas"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
-                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
-              >
-                <span>TikTok</span>
-              </a>
-            </div>
+        <div className="mt-14">
+          <AssynchronyDiagram />
+        </div>
+      </section>
+
+      {/* ATO 4: Faixa Editorial de Transparência, Apoio & Convivência */}
+      <section
+        className="border-y py-14"
+        style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
+      >
+        <div className="mx-auto flex max-w-[1400px] flex-col justify-between gap-8 px-5 sm:px-8 lg:flex-row lg:items-center lg:px-10">
+          <div className="max-w-2xl space-y-2">
+            <p className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
+              Sustentabilidade &amp; Contas Abertas
+            </p>
+            <h2 className="font-display text-2xl font-semibold sm:text-3xl">
+              Cada real investido em acolhimento e ciência é público.
+            </h2>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              Apoie a associação via Mercado Pago (Pix, Cartão e Boleto), APOIA.se ou na nossa Lojinha oficial — com
+              prestação de contas aberta no Portal de Transparência.
+            </p>
           </div>
-        </ScrollReveal>
+
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              href="/apoie"
+              className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
+            >
+              <span>Apoiar &amp; Ver Transparência</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/loja"
+              className="btn-secondary inline-flex min-h-[44px] items-center rounded-lg px-4 py-2.5 text-sm font-semibold"
+            >
+              Lojinha Oficial
+            </Link>
+            <a
+              href="https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link-editorial inline-flex items-center gap-1 py-2 text-sm font-semibold"
+            >
+              <span>Grupo WhatsApp</span>
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        </div>
       </section>
     </div>
   );

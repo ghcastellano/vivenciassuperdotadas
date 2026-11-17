@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
@@ -77,6 +78,7 @@ export async function POST(req: Request) {
         ctaUrl: `${process.env.NEXT_PUBLIC_SITE_URL || "https://vivenciassuperdotadas.vercel.app"}/profissionais`,
       });
     }
+    revalidatePath("/profissionais");
     return NextResponse.json({ ok: true });
   }
 
@@ -84,6 +86,7 @@ export async function POST(req: Request) {
     const id = String(body.id || "");
     const status = body.status === "approved" ? "approved" : "rejected";
     await query("UPDATE community_submissions SET status = $1 WHERE id = $2", [status, id]);
+    revalidatePath("/comunidade");
     return NextResponse.json({ ok: true });
   }
 
@@ -104,11 +107,13 @@ export async function POST(req: Request) {
        VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)`,
       [crypto.randomUUID(), title, description, eventDate, format, imageUrl, eventLink]
     );
+    revalidatePath("/eventos");
     return NextResponse.json({ ok: true }, { status: 201 });
   }
 
   if (action === "delete_event") {
     await query("DELETE FROM events WHERE id = $1", [String(body.id || "")]);
+    revalidatePath("/eventos");
     return NextResponse.json({ ok: true });
   }
 
@@ -127,11 +132,13 @@ export async function POST(req: Request) {
        VALUES ($1, $2, $3, $4, $5)`,
       [crypto.randomUUID(), category, description, amountCents, referenceDate]
     );
+    revalidatePath("/apoie");
     return NextResponse.json({ ok: true }, { status: 201 });
   }
 
   if (action === "delete_expense") {
     await query("DELETE FROM financial_expenses WHERE id = $1", [String(body.id || "")]);
+    revalidatePath("/apoie");
     return NextResponse.json({ ok: true });
   }
 

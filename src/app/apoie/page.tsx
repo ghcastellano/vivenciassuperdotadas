@@ -2,7 +2,7 @@ import { HeartHandshake, Receipt, Server, Landmark, TrendingUp, ExternalLink } f
 import { isDatabaseConfigured, query } from "@/lib/db";
 import { formatBRL } from "@/lib/format";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 interface ExpenseRow {
   id: string;

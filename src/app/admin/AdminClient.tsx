@@ -26,8 +26,10 @@ export interface AdminData {
   events: {
     id: string;
     title: string;
+    description?: string;
     event_date: string;
     format: string;
+    event_link?: string;
   }[];
   expenses: {
     id: string;
@@ -397,12 +399,47 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               </p>
             ) : (
               data.events.map((ev) => (
-                <div key={ev.id} className="rounded-xl border p-4 flex items-center justify-between" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
-                  <div>
-                    <p className="font-semibold text-sm">{ev.title}</p>
-                    <p className="text-xs" style={{ color: "var(--text-muted)" }}>{ev.format}</p>
+                <div key={ev.id} className="rounded-xl border p-4 flex items-start justify-between gap-4" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="font-mono-num font-semibold" style={{ color: "var(--accent-emerald)" }}>
+                        {ev.event_date
+                          ? new Date(ev.event_date).toLocaleDateString("pt-BR", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "Data a definir"}
+                      </span>
+                      <span style={{ color: "var(--text-muted)" }}>· {ev.format}</span>
+                    </div>
+                    <p className="font-display font-semibold text-base">{ev.title}</p>
+                    {ev.description && (
+                      <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "var(--text-secondary)" }}>
+                        {ev.description}
+                      </p>
+                    )}
+                    {ev.event_link && (
+                      <a
+                        href={ev.event_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-xs underline truncate max-w-full"
+                        style={{ color: "var(--accent-emerald)" }}
+                      >
+                        {ev.event_link}
+                      </a>
+                    )}
                   </div>
-                  <button type="button" onClick={() => act({ action: "delete_event", id: ev.id })} className="p-2" style={{ color: "var(--accent-crimson)" }}>
+                  <button
+                    type="button"
+                    onClick={() => act({ action: "delete_event", id: ev.id })}
+                    aria-label={`Remover evento ${ev.title}`}
+                    className="p-2 shrink-0 rounded-lg hover:bg-black/5"
+                    style={{ color: "var(--accent-crimson)" }}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>

@@ -424,35 +424,31 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
       </div>
 
       {/* Professionals Grid */}
-      <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((p) => (
-          <div key={p.id} className="editorial-card rounded-2xl p-6 flex flex-col justify-between">
+          <div key={p.id} className="editorial-card rounded-xl p-6 flex flex-col justify-between">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span
-                  className="rounded-lg px-2.5 py-1 text-xs font-semibold"
-                  style={{ backgroundColor: "var(--bg-surface)", color: "var(--accent-emerald)" }}
+                  className="rounded-md border px-2.5 py-0.5 text-[11px] font-semibold"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-surface)", color: "var(--text-primary)" }}
                 >
                   {p.specialty}
                 </span>
                 {p.online_available && (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium" style={{ color: "var(--accent-emerald)" }}>
-                    <Globe className="h-3.5 w-3.5" /> Online
+                  <span className="inline-flex items-center gap-1 font-mono-num text-[11px] font-medium" style={{ color: "var(--accent-emerald)" }}>
+                    <Globe className="h-3 w-3" /> Online
                   </span>
                 )}
               </div>
 
-              <h2 className="mt-3 font-display text-xl font-semibold">{p.name}</h2>
-              <p className="text-xs font-semibold mt-0.5" style={{ color: "var(--accent-amber)" }}>
+              <h2 className="mt-3.5 font-display text-xl font-semibold">{p.name}</h2>
+              <p className="mt-1 text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
                 {SERVICE_TYPE_LABELS[p.service_type || "ambos"] || "Avaliação e Acompanhamento"}
+                {p.approach ? ` · ${p.approach}` : ""}
               </p>
-              {p.approach && (
-                <p className="text-xs font-medium mt-0.5" style={{ color: "var(--accent-crimson)" }}>
-                  {p.approach}
-                </p>
-              )}
               {p.registry_code && (
-                <p className="font-mono-num text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                <p className="font-mono-num text-[11px] mt-1" style={{ color: "var(--text-muted)" }}>
                   {p.registry_code}
                 </p>
               )}
@@ -463,24 +459,22 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
                 </p>
               )}
 
-              <div className="mt-4 space-y-1.5 text-xs" style={{ color: "var(--text-secondary)" }}>
+              <div className="mt-4 space-y-2 text-xs" style={{ color: "var(--text-secondary)" }}>
                 {p.whatsapp && (
                   <a
                     href={toWhatsAppHref(p.whatsapp, p.name)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-lg px-2 py-1 -ml-2 transition-colors hover:opacity-80"
-                    style={{ color: "var(--accent-emerald)" }}
+                    className="btn-primary inline-flex min-h-[38px] items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-semibold"
                     title="Abrir conversa no WhatsApp"
                   >
-                    <MessageCircle className="h-4 w-4 shrink-0" />
-                    <Phone className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                    <span className="font-mono-num font-semibold underline">{p.whatsapp}</span>
+                    <MessageCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span className="font-mono-num">WhatsApp · {p.whatsapp}</span>
                   </a>
                 )}
                 {p.email && (
-                  <p className="flex items-center gap-2 break-all">
-                    <Mail className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--accent-crimson)" }} />
+                  <p className="flex items-center gap-2 break-all" style={{ color: "var(--text-muted)" }}>
+                    <Mail className="h-3.5 w-3.5 shrink-0" />
                     <span>{p.email}</span>
                   </p>
                 )}
@@ -488,7 +482,7 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
             </div>
 
             <div
-              className="mt-4 border-t pt-3 flex items-center justify-between gap-2 text-xs"
+              className="mt-5 border-t pt-3 flex items-center justify-between gap-2 text-xs"
               style={{ borderColor: "var(--border-subtle)" }}
             >
               <span className="inline-flex items-center gap-1" style={{ color: "var(--text-muted)" }}>
