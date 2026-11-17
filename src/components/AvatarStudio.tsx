@@ -1,15 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import { Shuffle, Download, Share2, Check, MessageCircle } from "lucide-react";
+import { Shuffle, Download, Share2, Check, MessageCircle, Camera, Sparkles } from "lucide-react";
 import {
   AVATAR_OPTIONS,
   NEURODIVERGENCE_BADGES,
+  isSafeAvatarDataUrl,
   renderShareableAvatarSvg,
   type AvatarConfig,
   type NeurodivergenceId,
 } from "@/lib/avatar";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
+import { PhotoAvatarEditorModal } from "@/components/PhotoAvatarEditorModal";
 
 type TabKey = "cabeca" | "rosto" | "roupa" | "neuro";
 
@@ -34,9 +36,13 @@ export function AvatarStudio({
 }) {
   const [tab, setTab] = useState<TabKey>("cabeca");
   const [copied, setCopied] = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const isPhotoMode = config.mode === "photo" && isSafeAvatarDataUrl(config.customPhoto);
 
   const randomize = () => {
     onChange({
+      ...config,
+      mode: "avatar",
       seed: Math.random().toString(36).slice(2, 10),
       top: pickRandom(AVATAR_OPTIONS.top),
       hairColor: pickRandom(AVATAR_OPTIONS.hairColor),
@@ -166,15 +172,64 @@ export function AvatarStudio({
           )}
 
           <div className="flex w-full flex-col gap-2">
-            <button
-              type="button"
-              onClick={randomize}
-              className="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors"
+            {/* Mode switch: Avatar Ilustrado vs Minha Foto */}
+            <div
+              className="grid grid-cols-2 gap-1 rounded-xl border p-1"
               style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
             >
-              <Shuffle className="h-3.5 w-3.5" />
-              Gerar combinação aleatória
-            </button>
+              <button
+                type="button"
+                onClick={() => onChange({ ...config, mode: "avatar" })}
+                className="flex min-h-[34px] items-center justify-center gap-1.5 rounded-lg px-2 text-[11px] font-semibold transition-colors"
+                style={{
+                  backgroundColor: !isPhotoMode ? "var(--accent-emerald)" : "transparent",
+                  color: !isPhotoMode ? "#FFFFFF" : "var(--text-secondary)",
+                }}
+              >
+                <Sparkles className="h-3 w-3" />
+                <span>Avatar</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isSafeAvatarDataUrl(config.customPhoto)) {
+                    onChange({ ...config, mode: "photo" });
+                  } else {
+                    setPhotoModalOpen(true);
+                  }
+                }}
+                className="flex min-h-[34px] items-center justify-center gap-1.5 rounded-lg px-2 text-[11px] font-semibold transition-colors"
+                style={{
+                  backgroundColor: isPhotoMode ? "var(--accent-emerald)" : "transparent",
+                  color: isPhotoMode ? "#FFFFFF" : "var(--text-secondary)",
+                }}
+              >
+                <Camera className="h-3 w-3" />
+                <span>Minha Foto</span>
+              </button>
+            </div>
+
+            {isPhotoMode ? (
+              <button
+                type="button"
+                onClick={() => setPhotoModalOpen(true)}
+                className="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+              >
+                <Camera className="h-3.5 w-3.5" />
+                Editar ou trocar foto
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={randomize}
+                className="flex min-h-[42px] items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+              >
+                <Shuffle className="h-3.5 w-3.5" />
+                Gerar combinação aleatória
+              </button>
+            )}
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -372,6 +427,17 @@ export function AvatarStudio({
           )}
         </div>
       </div>
+
+      {photoModalOpen && (
+        <PhotoAvatarEditorModal
+          initialPhoto={isSafeAvatarDataUrl(config.customPhoto) ? config.customPhoto : undefined}
+          onSave={(dataUrl) => {
+            onChange({ ...config, mode: "photo", customPhoto: dataUrl });
+            setPhotoModalOpen(false);
+          }}
+          onClose={() => setPhotoModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

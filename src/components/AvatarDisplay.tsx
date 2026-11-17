@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import {
   DEFAULT_AVATAR_CONFIG,
   NEURODIVERGENCE_BADGES,
+  isSafeAvatarDataUrl,
   renderAvatarSvg,
   type AvatarConfig,
   type NeurodivergenceId,
@@ -23,7 +24,8 @@ export function AvatarDisplay({
   className?: string;
 }) {
   const merged = useMemo(() => ({ ...DEFAULT_AVATAR_CONFIG, ...(config || {}) }), [config]);
-  const svg = useMemo(() => renderAvatarSvg(merged), [merged]);
+  const useCustomPhoto = merged.mode === "photo" && isSafeAvatarDataUrl(merged.customPhoto);
+  const svg = useMemo(() => (useCustomPhoto ? "" : renderAvatarSvg(merged)), [merged, useCustomPhoto]);
 
   const activeBadges = useMemo(() => {
     const set = new Set(neurodivergences);
@@ -48,7 +50,7 @@ export function AvatarDisplay({
       >
         <div className="h-full w-full overflow-hidden rounded-full bg-white">
           <img
-            src={`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`}
+            src={useCustomPhoto ? merged.customPhoto! : `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`}
             alt=""
             className="h-full w-full object-cover"
           />

@@ -71,6 +71,8 @@ export const NEURODIVERGENCE_BADGES: NeurodivergenceBadge[] = [
 ];
 
 export interface AvatarConfig {
+  mode?: "avatar" | "photo";
+  customPhoto?: string;
   seed: string;
   top: string;
   hairColor: string;
@@ -314,6 +316,11 @@ function escapeXml(str: string): string {
     .replace(/'/g, "&#39;");
 }
 
+export function isSafeAvatarDataUrl(url?: string | null): boolean {
+  if (typeof url !== "string" || url.length > 350_000) return false;
+  return /^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(url);
+}
+
 /**
  * Generates a complete standalone SVG card including the DiceBear avatar,
  * neurodiversity infinity ring, selected neurodivergence badges, and name.
@@ -323,10 +330,13 @@ export function renderShareableAvatarSvg(
   neurodivergences: string[] = ["ahsd"],
   personName = "Vivências Superdotadas"
 ): string {
-  const innerSvg = renderAvatarSvg(config)
-    .replace(/^<\?xml[^>]*\?>\s*/i, "")
-    .replace(/<svg[^>]*>/i, "")
-    .replace(/<\/svg>\s*$/i, "");
+  const useCustomPhoto = config.mode === "photo" && isSafeAvatarDataUrl(config.customPhoto);
+  const innerSvg = useCustomPhoto
+    ? ""
+    : renderAvatarSvg(config)
+        .replace(/^<\?xml[^>]*\?>\s*/i, "")
+        .replace(/<svg[^>]*>/i, "")
+        .replace(/<\/svg>\s*$/i, "");
 
   const activeBadges = NEURODIVERGENCE_BADGES.filter((b) =>
     neurodivergences.includes(b.id)
@@ -367,7 +377,11 @@ export function renderShareableAvatarSvg(
   <circle cx="210" cy="170" r="110" fill="url(#neuroRing)" />
   <circle cx="210" cy="170" r="102" fill="#FFFFFF" />
   <g clip-path="url(#avatarClip)">
-    <svg x="108" y="68" width="204" height="204" viewBox="0 0 280 280">${innerSvg}</svg>
+    ${
+      useCustomPhoto
+        ? `<image href="${config.customPhoto}" x="108" y="68" width="204" height="204" preserveAspectRatio="xMidYMid slice" />`
+        : `<svg x="108" y="68" width="204" height="204" viewBox="0 0 280 280">${innerSvg}</svg>`
+    }
   </g>
   <text x="210" y="315" text-anchor="middle" fill="#090A0A" font-family="Georgia,serif" font-size="22" font-weight="700">${escapeXml(personName || "Você")}</text>
   ${badgePills}
