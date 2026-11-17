@@ -39,7 +39,7 @@ export function PerfilClient({ initialMe }: { initialMe: MeUser | null }) {
             Entre com Google ou e-mail e senha para visualizar seu Avatar Único, suas neurodivergências e publicar na
             comunidade.
           </p>
-          <Link href="/entrar" className="btn-primary inline-flex min-h-[44px] items-center rounded-xl px-5 py-2.5 text-sm font-semibold">
+          <Link href="/entrar" className="btn-primary inline-flex min-h-[44px] items-center rounded-md px-5 py-2.5 text-sm font-semibold">
             Entrar ou Criar Conta
           </Link>
         </div>
@@ -119,7 +119,7 @@ export function PerfilClient({ initialMe }: { initialMe: MeUser | null }) {
           {initialMe.membership_status !== "active" && (
             <Link
               href="/associe-se"
-              className="btn-secondary shrink-0 inline-flex min-h-[38px] items-center rounded-lg px-3.5 text-xs font-semibold"
+              className="btn-secondary shrink-0 inline-flex min-h-[38px] items-center rounded-md px-3.5 text-xs font-semibold"
             >
               {initialMe.membership_status === "pending" ? "Ver ficha enviada" : "Completar associação →"}
             </Link>
@@ -127,7 +127,7 @@ export function PerfilClient({ initialMe }: { initialMe: MeUser | null }) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <Link href="/associe-se" className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold">
+          <Link href="/associe-se" className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold">
             <Sparkles className="h-4 w-4" />
             <span>{initialMe.avatar_config ? "Personalizar meu Avatar" : "Criar meu Avatar Único"}</span>
           </Link>

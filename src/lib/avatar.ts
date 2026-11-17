@@ -23,14 +23,14 @@ export const NEURODIVERGENCE_BADGES: NeurodivergenceBadge[] = [
     id: "ahsd",
     label: "Altas Habilidades / Superdotação",
     short: "AH/SD",
-    color: "#0F5C4D",
+    color: "#18492D",
     description: "Potencial elevado em uma ou mais áreas combinadas ou isoladas.",
   },
   {
     id: "dupla-excepcionalidade",
     label: "Dupla Excepcionalidade (2e)",
     short: "2e",
-    color: "#C83E37",
+    color: "#BD4626",
     description: "AH/SD coexistindo com outra neurodivergência ou condição.",
   },
   {

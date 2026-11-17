@@ -90,7 +90,7 @@ export default function ConhecimentoPage() {
                   <button
                     type="button"
                     onClick={() => setActiveArticle(item)}
-                    className="btn-primary inline-flex min-h-[40px] items-center gap-2 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold"
+                    className="btn-primary inline-flex min-h-[40px] items-center gap-2 rounded-md px-4 py-2 text-xs sm:text-sm font-semibold"
                   >
                     <BookOpen className="h-3.5 w-3.5" />
                     <span>Ler guia</span>
@@ -194,7 +194,7 @@ export default function ConhecimentoPage() {
                   href={activeArticle.officialRefUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary inline-flex min-h-[42px] items-center gap-2 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold"
+                  className="btn-primary inline-flex min-h-[42px] items-center gap-2 rounded-md px-4 py-2 text-xs sm:text-sm font-semibold"
                 >
                   <span>{activeArticle.officialRefLabel || "Ver fonte oficial"}</span>
                   <ExternalLink className="h-3.5 w-3.5" />

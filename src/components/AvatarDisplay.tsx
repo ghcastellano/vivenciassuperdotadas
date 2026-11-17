@@ -30,8 +30,8 @@ export function AvatarDisplay({
     return NEURODIVERGENCE_BADGES.filter((b) => set.has(b.id as NeurodivergenceId));
   }, [neurodivergences]);
 
-  const primaryColor = activeBadges[0]?.color || "#0F5C4D";
-  const secondaryColor = activeBadges[1]?.color || "#D98A2B";
+  const primaryColor = activeBadges[0]?.color || "#18492D";
+  const secondaryColor = activeBadges[1]?.color || "#BD4626";
 
   return (
     <div className={`inline-flex flex-col items-center gap-2 ${className}`}>

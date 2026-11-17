@@ -240,7 +240,7 @@ export function AdminMillenniumGate() {
             <button
               type="submit"
               disabled={checking}
-              className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
+              className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
             >
               <Sparkles className="h-4 w-4" />
               <span>{checking ? "Verificando axiomas..." : "Verificar Demonstração & Desbloquear"}</span>

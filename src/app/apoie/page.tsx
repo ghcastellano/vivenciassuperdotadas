@@ -139,7 +139,7 @@ export default async function ApoiePage() {
             href="https://apoia.se/vivenciassuperdotadas"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
+            className="btn-primary inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-md px-5 py-3 text-sm font-semibold"
           >
             <span>Apoiar no APOIA.se/vivenciassuperdotadas</span>
             <ExternalLink className="h-4 w-4" />

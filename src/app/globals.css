@@ -139,6 +139,10 @@ html[data-focus-mode="true"] footer:focus-within {
   transition: background-color 160ms ease, transform 120ms ease;
 }
 
+html.dark .btn-primary {
+  color: #082414;
+}
+
 .btn-primary:hover {
   background-color: var(--accent-emerald-hover);
 }

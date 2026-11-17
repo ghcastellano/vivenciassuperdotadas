@@ -22,7 +22,12 @@ export default async function ComunidadePage() {
            FROM memberships
            WHERE show_in_directory = TRUE AND membership_status = 'active'
            ORDER BY created_at DESC
-           LIMIT 24`
+           LIMIT 60`
+        ),
+        query<{ count: number }>(
+          `SELECT COUNT(*)::int AS count
+           FROM memberships
+           WHERE membership_status = 'active'`
         ),
         query<{ count: string }>(
           `SELECT COUNT(*) AS count FROM memberships WHERE membership_status = 'active'`

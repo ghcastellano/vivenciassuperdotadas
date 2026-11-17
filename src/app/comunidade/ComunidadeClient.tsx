@@ -2,11 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2 } from "lucide-react";
+import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2, Users } from "lucide-react";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
 import { ImageCurtainReveal } from "@/components/EditorialEffects";
-import { SpotlightCard } from "@/components/ReactBitsText";
 
 export interface MemberAvatarCard {
   id: string;
@@ -40,6 +39,7 @@ export function ComunidadeClient({
 }) {
   const [submissions] = useState<CommunitySubmissionItem[]>(initialSubmissions);
   const [kindFilter, setKindFilter] = useState("todos");
+  const [showAllAvatars, setShowAllAvatars] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -96,7 +96,7 @@ export function ComunidadeClient({
             href="https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-md border px-4 py-2.5 text-sm font-semibold"
             style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
           >
             <MessageCircle className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
@@ -105,7 +105,7 @@ export function ComunidadeClient({
           <button
             type="button"
             onClick={() => setFormOpen((v) => !v)}
-            className="btn-primary min-h-[44px] rounded-xl px-5 py-2.5 text-sm font-semibold"
+            className="btn-primary min-h-[44px] rounded-md px-5 py-2.5 text-sm font-semibold"
           >
             {formOpen ? "Fechar envio" : "Enviar arte, link ou relato"}
           </button>
@@ -192,7 +192,7 @@ export function ComunidadeClient({
             className="w-full min-h-[44px] rounded-xl border px-3.5 text-sm"
             style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
           />
-          <button type="submit" className="btn-primary min-h-[44px] rounded-xl px-6 py-2.5 text-sm font-semibold">
+          <button type="submit" className="btn-primary min-h-[44px] rounded-md px-6 py-2.5 text-sm font-semibold">
             Enviar para moderação
           </button>
         </form>
@@ -211,10 +211,10 @@ export function ComunidadeClient({
             key={k}
             type="button"
             onClick={() => setKindFilter(k)}
-            className="min-h-[40px] rounded-xl border px-3.5 py-1.5 text-xs sm:text-sm font-semibold"
+            className="min-h-[40px] rounded-md border px-3.5 py-1.5 text-xs sm:text-sm font-semibold"
             style={{
               backgroundColor: kindFilter === k ? "var(--accent-emerald)" : "var(--bg-card)",
-              color: kindFilter === k ? "#FAF7F2" : "var(--text-primary)",
+              color: kindFilter === k ? "#FFFFFF" : "var(--text-primary)",
               borderColor: kindFilter === k ? "var(--accent-emerald)" : "var(--border-subtle)",
             }}
           >

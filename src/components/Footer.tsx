@@ -88,6 +88,7 @@ export function Footer() {
               Este portal não realiza diagnósticos clínicos. Avaliação e acompanhamento devem ser feitos por profissionais habilitados (CRP / CRM / Psicopedagogia).
             </p>
             <div className="mt-3 flex flex-wrap gap-4 text-xs" style={{ color: "var(--text-muted)" }}>
+              <Link href="/privacidade" className="underline">Privacidade (LGPD)</Link>
               <Link href="/entrar" className="underline">Entrar / Perfil</Link>
               <Link href="/admin" className="underline">Área Administrativa</Link>
             </div>

@@ -181,6 +181,24 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
             )}
           </div>
         </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
+          <span>
+            {filtered.length === 1
+              ? "1 profissional encontrado"
+              : `${filtered.length} profissionais encontrados`}
+          </span>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="rounded-md border px-3 py-1 font-semibold transition-colors hover:opacity-80"
+              style={{ borderColor: "var(--border-subtle)", color: "var(--text-primary)" }}
+            >
+              Limpar filtros
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Professionals Grid */}

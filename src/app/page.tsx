@@ -94,7 +94,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-5 pt-2">
                 <Link
                   href="/associe-se"
-                  className="btn-primary inline-flex min-h-[46px] items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold"
+                  className="btn-primary inline-flex min-h-[46px] items-center gap-2 rounded-md px-6 py-3 text-sm font-semibold"
                 >
                   <span>Associe-se e crie seu Avatar</span>
                   <ArrowRight className="h-4 w-4" />
@@ -165,14 +165,14 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center gap-4">
             <Link
               href="/apoie"
-              className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold"
+              className="btn-primary inline-flex min-h-[44px] items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold"
             >
               <span>Apoiar &amp; Ver Transparência</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/loja"
-              className="btn-secondary inline-flex min-h-[44px] items-center rounded-lg px-4 py-2.5 text-sm font-semibold"
+              className="btn-secondary inline-flex min-h-[44px] items-center rounded-md px-4 py-2.5 text-sm font-semibold"
             >
               Lojinha Oficial
             </Link>

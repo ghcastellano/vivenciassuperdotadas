@@ -13,6 +13,7 @@ export interface InitialMemberProfile {
   profile: string;
   cityState: string;
   hasMedicalReport: string;
+  showInDirectory: boolean;
   manifesto: string;
   showInDirectory?: boolean;
   avatarConfig: AvatarConfig;
@@ -172,7 +173,7 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
             href="https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary inline-flex min-h-[44px] items-center rounded-xl px-6 py-2.5 text-sm font-semibold"
+            className="btn-primary inline-flex min-h-[44px] items-center rounded-md px-6 py-2.5 text-sm font-semibold"
           >
             Entrar no Grupo do WhatsApp
           </a>
@@ -301,16 +302,20 @@ export function AssocieSeClient({ initial }: { initial: InitialMemberProfile }) 
                 className="mt-1 h-4 w-4"
               />
               <span style={{ color: "var(--text-secondary)" }}>
-                Li e concordo com o <strong>Estatuto Social</strong>, a <strong>Política de Privacidade (LGPD)</strong> e o{" "}
-                <strong>Código de Boa Convivência</strong> (respeito à diversidade, diálogo não exclusivista, tolerância
-                zero a assédio e ética na divulgação científica). Minha solicitação passará pela aprovação da diretoria.
+                Li e concordo com o <strong>Estatuto Social</strong>, a{" "}
+                <Link href="/privacidade" target="_blank" className="underline font-semibold" style={{ color: "var(--accent-emerald)" }}>
+                  Política de Privacidade (LGPD)
+                </Link>{" "}
+                e o <strong>Código de Boa Convivência</strong> (respeito à diversidade, diálogo não exclusivista,
+                tolerância zero a assédio e ética na divulgação científica). Minha solicitação passará pela aprovação da
+                diretoria.
               </span>
             </label>
 
             <button
               type="submit"
               disabled={status === "saving"}
-              className="btn-primary min-h-[46px] rounded-xl px-6 py-3 text-sm font-semibold disabled:opacity-60"
+              className="btn-primary min-h-[46px] rounded-md px-6 py-3 text-sm font-semibold disabled:opacity-60"
             >
               {status === "saving"
                 ? "Salvando..."

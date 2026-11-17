@@ -55,6 +55,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (!acceptedDataPolicy) {
+      return NextResponse.json(
+        { error: "É necessário concordar com a Política de Tratamento de Dados para enviar o cadastro." },
+        { status: 400 }
+      );
+    }
+
     const id = crypto.randomUUID();
     await query(
       `INSERT INTO partner_professionals
