@@ -74,16 +74,18 @@ export default function OpenGraphImage() {
               <div
                 style={{
                   display: "flex",
-                  flexWrap: "wrap",
-                  fontSize: 48,
+                  flexDirection: "column",
+                  fontSize: 44,
                   fontWeight: 700,
-                  lineHeight: 1.15,
+                  lineHeight: 1.16,
                   letterSpacing: "-0.025em",
                 }}
               >
-                <span>Compreender a superdotação&nbsp;</span>
-                <span style={{ color: "#0F5C4D", fontStyle: "italic", fontWeight: 500 }}>sem mitos</span>
-                <span>, em primeira pessoa.</span>
+                <span>Compreender a superdotação</span>
+                <div style={{ display: "flex" }}>
+                  <span style={{ color: "#0F5C4D", fontStyle: "italic", fontWeight: 500 }}>sem mitos,</span>
+                  <span>&nbsp;em primeira pessoa.</span>
+                </div>
               </div>
               <div style={{ fontSize: 21, color: "#48524E", lineHeight: 1.45 }}>
                 Acolhimento baseado em evidências, rede de profissionais habilitados, divulgação científica e voz da
@@ -159,14 +161,14 @@ export default function OpenGraphImage() {
               style={{
                 background: "#0F5C4D",
                 color: "#FAF7F2",
-                padding: "10px 20px",
+                padding: "10px 18px",
                 borderRadius: 8,
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: 700,
                 letterSpacing: "0.08em",
               }}
             >
-              SEM ROMANTIZAÇÃO · SEM PATOLOGIZAÇÃO
+              ACOLHIMENTO · CIÊNCIA · VOZ
             </div>
           </div>
         </div>

@@ -32,15 +32,17 @@ export async function POST(req: Request) {
       );
     }
 
-    let userId = (session?.user as { id?: string } | undefined)?.id || null;
-    if (!userId) {
-      const matchedUsers = await query<{ id: string }>(
-        "SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1",
-        [email]
-      );
-      if (matchedUsers[0]?.id) {
-        userId = matchedUsers[0].id;
-      }
+    let userId: string | null = null;
+    const matchedUsers = await query<{ id: string }>(
+      "SELECT id FROM users WHERE LOWER(email) = $1 LIMIT 1",
+      [email]
+    );
+    if (matchedUsers[0]?.id) {
+      userId = matchedUsers[0].id;
+    } else if ((session?.user as { id?: string } | undefined)?.id) {
+      const candidateId = String((session?.user as { id?: string }).id);
+      const byId = await query<{ id: string }>("SELECT id FROM users WHERE id = $1 LIMIT 1", [candidateId]);
+      if (byId[0]?.id) userId = byId[0].id;
     }
     const existingMembership = await query<{ id: string }>(
       "SELECT id FROM memberships WHERE LOWER(email) = $1 OR ($2::text IS NOT NULL AND user_id = $2) ORDER BY created_at DESC LIMIT 1",
