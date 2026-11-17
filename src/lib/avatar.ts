@@ -217,10 +217,10 @@ function renderCustomOverlays(c: AvatarConfig): string {
   const overlays: string[] = [];
 
   if (c.foreheadMark === "crescentMoon") {
-    // Crisp crescent moon centered on the forehead between hairline and eyebrows
+    // Bold, thick crescent moon positioned on the forehead above the eyebrows (matching member's tattoo)
     overlays.push(
-      `<g transform="translate(131, 76) scale(1.12)" opacity="0.9">
-        <path d="M13 1C5.8 1.8 1 7.6 1 14.5C1 21.4 5.8 27.2 13 28C8.4 25.3 5.8 20.3 5.8 14.5C5.8 8.7 8.4 3.7 13 1Z" fill="#232629" />
+      `<g transform="translate(131, 66) scale(0.92)" opacity="0.92">
+        <path d="M16 2C7.2 2.4 1.5 8.5 1.5 15.5C1.5 22.5 7.2 28.6 16 29C10.8 25.6 8.8 20.9 8.8 15.5C8.8 10.1 10.8 5.4 16 2Z" fill="#232629" />
       </g>`
     );
   }
