@@ -395,7 +395,7 @@ export default function LojaPage() {
                 onClick={checkoutCart}
                 className="btn-primary min-h-[48px] w-full rounded-xl px-5 py-3 text-sm font-semibold disabled:opacity-50"
               >
-                {loadingCheckout ? "Abrindo Stripe Checkout..." : "Finalizar Compra no Stripe"}
+                {loadingCheckout ? "Abrindo Mercado Pago..." : "Finalizar Compra (Mercado Pago)"}
               </button>
             </div>
           </aside>

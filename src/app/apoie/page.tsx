@@ -167,7 +167,7 @@ export default async function ApoiePage() {
               Portal de Transparência Financeira
             </h2>
             <p className="mt-1 text-sm" style={{ color: "var(--text-secondary)" }}>
-              Entradas da Lojinha (Stripe) e apoios registrados, junto às saídas lançadas pela administração (impostos,
+              Entradas da Lojinha (Mercado Pago) e apoios registrados, junto às saídas lançadas pela administração (impostos,
               domínio, infraestrutura e custos operacionais).
             </p>
           </div>
@@ -185,7 +185,7 @@ export default async function ApoiePage() {
 
             <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
               <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
-                <span>Entradas da Lojinha (Stripe)</span>
+                <span>Entradas da Lojinha (Mercado Pago)</span>
                 <Receipt className="h-4 w-4" style={{ color: "var(--accent-amber)" }} />
               </div>
               <p className="font-mono-num mt-2 text-2xl font-bold">

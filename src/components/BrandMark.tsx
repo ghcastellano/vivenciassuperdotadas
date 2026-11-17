@@ -1,9 +1,9 @@
 import React from "react";
 
 /**
- * Minimalist vector brand mark inspired by the hand-painted Vivências artwork:
- * emerald neurodiversity infinity loop + crimson petal accent.
- * Crisp at 32-36px in navbars and favicons.
+ * Geometric 6-petal botanical crest distilled from the founding painting
+ * (`public/images/logo-vivencias.jpg`): deep crimson petals, emerald spiral core,
+ * and centered infinity ribbon — crisp at 28–40px with zero corner notification dot.
  */
 export function BrandMark({ size = 34 }: { size?: number }) {
   return (
@@ -16,19 +16,29 @@ export function BrandMark({ size = 34 }: { size?: number }) {
       aria-hidden="true"
       className="shrink-0"
     >
-      <rect width="40" height="40" rx="11" fill="#0F5C4D" />
-      {/* Infinity / neurodiversity ribbon */}
+      {/* 6 symmetrical botanical petals */}
+      <g fill="#A8322D">
+        <ellipse cx="20" cy="8.2" rx="4.4" ry="7.2" />
+        <ellipse cx="20" cy="31.8" rx="4.4" ry="7.2" />
+        <ellipse cx="20" cy="8.2" rx="4.4" ry="7.2" transform="rotate(60 20 20)" />
+        <ellipse cx="20" cy="31.8" rx="4.4" ry="7.2" transform="rotate(60 20 20)" />
+        <ellipse cx="20" cy="8.2" rx="4.4" ry="7.2" transform="rotate(120 20 20)" />
+        <ellipse cx="20" cy="31.8" rx="4.4" ry="7.2" transform="rotate(120 20 20)" />
+      </g>
+      {/* Petal inner hairline contour */}
+      <circle cx="20" cy="20" r="10.2" fill="#FAF7F2" />
+      {/* Emerald core */}
+      <circle cx="20" cy="20" r="8.8" fill="#0F5C4D" />
+      {/* Centered organic infinity loop */}
       <path
-        d="M11.5 22.5C9.5 22.5 8 20.9 8 19C8 17.1 9.5 15.5 11.5 15.5C14.8 15.5 17.5 22.5 21.5 22.5C23.5 22.5 25 20.9 25 19C25 17.1 23.5 15.5 21.5 15.5C17.5 15.5 14.8 22.5 11.5 22.5Z"
+        d="M14.8 20C14.8 18.45 16.05 17.2 17.5 17.2C19.2 17.2 20.8 22.8 22.5 22.8C23.95 22.8 25.2 21.55 25.2 20C25.2 18.45 23.95 17.2 22.5 17.2C20.8 17.2 19.2 22.8 17.5 22.8C16.05 22.8 14.8 21.55 14.8 20Z"
         stroke="#FAF7F2"
-        strokeWidth="2.4"
+        strokeWidth="1.9"
         strokeLinecap="round"
         strokeLinejoin="round"
-        transform="translate(3.5, 2)"
       />
-      {/* Crimson petal / butterfly accent */}
-      <circle cx="29.5" cy="11.5" r="4" fill="#C83E37" />
-      <circle cx="29.5" cy="11.5" r="1.5" fill="#E5A93C" />
+      {/* Centered gold stamen point */}
+      <circle cx="20" cy="20" r="1.4" fill="#E5A93C" />
     </svg>
   );
 }

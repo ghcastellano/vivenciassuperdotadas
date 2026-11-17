@@ -1,33 +1,9 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-import { MercadoPagoConfig, Payment } from "mercadopago";
+import { Payment } from "mercadopago";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
-
-function verifyMercadoPagoSignature(
-  signatureHeader: string | null,
-  requestId: string | null,
-  dataId: string | null,
-  secret: string
-): boolean {
-  if (!signatureHeader || !requestId || !dataId) return false;
-  const parts: Record<string, string> = {};
-  for (const part of signatureHeader.split(",")) {
-    const [k, v] = part.split("=").map((s) => s.trim());
-    if (k && v) parts[k] = v;
-  }
-  const ts = parts.ts;
-  const v1 = parts.v1;
-  if (!ts || !v1) return false;
-
-  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
-  const computed = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
-  try {
-    return crypto.timingSafeEqual(Buffer.from(computed, "hex"), Buffer.from(v1, "hex"));
-  } catch {
-    return false;
-  }
-}
+import { getMercadoPagoClient, verifyMercadoPagoSignature } from "@/lib/mercadopago";
 
 export async function POST(req: Request) {
   const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
@@ -68,7 +44,10 @@ export async function POST(req: Request) {
   }
 
   try {
-    const client = new MercadoPagoConfig({ accessToken });
+    const client = getMercadoPagoClient(accessToken);
+    if (!client) {
+      return NextResponse.json({ error: "Mercado Pago not configured" }, { status: 503 });
+    }
     const paymentApi = new Payment(client);
     const payment = await paymentApi.get({ id: dataId });
 

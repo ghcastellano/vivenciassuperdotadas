@@ -67,7 +67,7 @@ const PATHFINDER: Record<
   apoiar: {
     title: "Transparência total em cada doação, compra e custo de infraestrutura",
     summary:
-      "Acompanhe tudo o que entra via Stripe (doações e lojinha) e tudo o que sai em impostos, domínio e infraestrutura.",
+      "Acompanhe tudo o que entra via Mercado Pago (doações e lojinha) e tudo o que sai em impostos, domínio e infraestrutura.",
     ctaLabel: "Apoiar & Ver Transparência",
     ctaHref: "/apoie",
     secondaryLabel: "Conhecer a Lojinha",
@@ -365,7 +365,7 @@ export default function HomePage() {
                 <HeartHandshake className="h-6 w-6" style={{ color: "var(--accent-amber)" }} />
                 <h3 className="mt-4 font-display text-xl font-semibold">Apoio & Transparência</h3>
                 <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                  Doações via Stripe, lojinha oficial e prestação de contas aberta com impostos, domínio e custos.
+                  Doações via Mercado Pago e APOIA.se, lojinha oficial e prestação de contas aberta com impostos, domínio e custos.
                 </p>
               </div>
               <div className="mt-5 flex gap-4">

@@ -1,6 +1,9 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { MercadoPagoConfig, Preference } from "mercadopago";
+import { Preference } from "mercadopago";
+import { auth } from "@/lib/auth";
+import { getMercadoPagoClient } from "@/lib/mercadopago";
 import { DEFAULT_PRODUCTS } from "@/lib/institutional-data";
 
 interface CartItemPayload {
@@ -40,9 +43,11 @@ export async function POST(req: Request) {
     }
 
     if (useMercadoPago && mpToken) {
-      const client = new MercadoPagoConfig({ accessToken: mpToken });
+      const client = getMercadoPagoClient(mpToken)!;
       const preference = new Preference(client);
       const isSandbox = mpToken.startsWith("TEST-");
+      const session = await auth().catch(() => null);
+      const payerEmail = session?.user?.email || undefined;
 
       if (kind === "donation") {
         const amountReais = Math.max(5, Math.min(50000, Number(body.amountReais || 25)));
@@ -63,6 +68,9 @@ export async function POST(req: Request) {
                 currency_id: "BRL",
               },
             ],
+            ...(payerEmail ? { payer: { email: payerEmail } } : {}),
+            statement_descriptor: "VIVENCIAS",
+            external_reference: `don_${crypto.randomUUID()}`,
             back_urls: {
               success: `${siteUrl}/apoie?status=sucesso`,
               failure: `${siteUrl}/apoie?status=cancelado`,
@@ -117,6 +125,9 @@ export async function POST(req: Request) {
       const result = await preference.create({
         body: {
           items: mpItems,
+          ...(payerEmail ? { payer: { email: payerEmail } } : {}),
+          statement_descriptor: "VIVENCIAS",
+          external_reference: `loja_${crypto.randomUUID()}`,
           back_urls: {
             success: `${siteUrl}/loja?status=sucesso`,
             failure: `${siteUrl}/loja?status=cancelado`,
