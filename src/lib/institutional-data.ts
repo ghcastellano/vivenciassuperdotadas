@@ -42,7 +42,7 @@ export const INSTITUTIONAL_DOC = {
 export interface KnowledgeItem {
   id: string;
   title: string;
-  category: "Ferramenta Interativa" | "Legislação Federal" | "Diretrizes MEC" | "Regulamentação";
+  category: "Legislação Federal" | "Diretrizes MEC" | "Regulamentação";
   summary: string;
   detail: string;
   source: string;
@@ -55,19 +55,6 @@ export interface KnowledgeItem {
 }
 
 export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
-  {
-    id: "atlas-vieses",
-    title: "Entrelinhas — Atlas de Vieses Cognitivos",
-    category: "Ferramenta Interativa",
-    summary:
-      "Mapeamento interativo de vieses cognitivos para treinar pensamento crítico e reconhecer atalhos mentais na interpretação de dados.",
-    detail:
-      "Ferramenta externa aberta e interativa recomendada para estudo de vieses cognitivos e tomada de decisão.",
-    source: "Projeto Entrelinhas · Atlas de Vieses Cognitivos",
-    href: "https://atlasvieses.vercel.app/",
-    external: true,
-    featured: true,
-  },
   {
     id: "cf-art-208",
     title: "Constituição Federal — Art. 208, inciso V",

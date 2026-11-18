@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ExternalLink, BookOpen, X, ArrowRight, Copy, Check } from "lucide-react";
 import { GLOSSARY_ITEMS, KNOWLEDGE_ITEMS, type KnowledgeItem } from "@/lib/institutional-data";
 
-const CATEGORIES = ["Todas", "Legislação Federal", "Diretrizes MEC", "Regulamentação", "Ferramenta Interativa"] as const;
+const CATEGORIES = ["Todas", "Legislação Federal", "Diretrizes MEC", "Regulamentação"] as const;
 
 export default function ConhecimentoPage() {
   const [selectedCat, setSelectedCat] = useState<string>("Todas");

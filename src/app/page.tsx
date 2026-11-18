@@ -69,7 +69,7 @@ export default function HomePage() {
       {/* ATO 1: Abertura Editorial + Prancha Botânica da Obra Fundadora */}
       <section className="border-b" style={{ borderColor: "var(--border-subtle)" }}>
         <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
             <div className="space-y-6">
               <p
                 className="font-mono-num text-[11px] font-semibold uppercase tracking-[0.14em]"
@@ -110,20 +110,20 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="lg:justify-self-end w-full max-w-md mx-auto lg:mx-0">
+            <div className="lg:justify-self-end w-full max-w-lg mx-auto lg:mx-0">
               <div
-                className="rounded-2xl border p-6 sm:p-7 space-y-6"
+                className="rounded-2xl border p-6 sm:p-8 space-y-6"
                 style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
               >
-                <div className="flex flex-col items-center text-center space-y-3">
-                  <BrandMark size={156} variant="vitral" />
-                  <p className="text-xs leading-relaxed max-w-xs" style={{ color: "var(--text-secondary)" }}>
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <BrandMark size={208} variant="vitral" />
+                  <p className="text-sm leading-relaxed max-w-sm" style={{ color: "var(--text-secondary)" }}>
                     Acolhimento, partilha e desenvolvimento para mentes de alto processamento.
                   </p>
                 </div>
 
                 <div
-                  className="grid grid-cols-2 gap-2.5 border-t pt-5 text-xs"
+                  className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 border-t pt-5 text-xs"
                   style={{ borderColor: "var(--border-subtle)" }}
                 >
                   <Link
@@ -134,7 +134,17 @@ export default function HomePage() {
                     <span className="block text-[10px] font-mono-num uppercase" style={{ color: "var(--accent-emerald)" }}>
                       Fontes Oficiais
                     </span>
-                    <span className="mt-0.5 block">LDB &amp; Diretrizes MEC</span>
+                    <span className="mt-0.5 block">LDB &amp; MEC</span>
+                  </Link>
+                  <Link
+                    href="/comunidade"
+                    className="rounded-lg border px-3 py-2.5 font-semibold transition-colors hover:bg-black/5"
+                    style={{ borderColor: "var(--border-subtle)" }}
+                  >
+                    <span className="block text-[10px] font-mono-num uppercase" style={{ color: "var(--accent-emerald)" }}>
+                      Comunidade
+                    </span>
+                    <span className="mt-0.5 block">Mural &amp; Relatos</span>
                   </Link>
                   <a
                     href="https://www.youtube.com/playlist?list=PLS5vk1WyJqME&si=xe0H_tzMX6EVbbCT"
