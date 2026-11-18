@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { LogOut, Sparkles, MessageSquarePlus, Shield } from "lucide-react";
+import { LogOut, Sparkles, MessageSquarePlus, Shield, Dumbbell, ExternalLink, Headphones } from "lucide-react";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
 
@@ -142,6 +142,72 @@ export function PerfilClient({ initialMe }: { initialMe: MeUser | null }) {
             </Link>
           )}
         </div>
+
+        {initialMe.membership_status === "active" && (
+          <div
+            className="grid gap-4 border-t pt-6 sm:grid-cols-2"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
+            <div
+              className="rounded-xl border p-4 space-y-2.5"
+              style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className="inline-flex items-center gap-1.5 font-mono-num text-[11px] font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--accent-emerald)" }}
+                >
+                  <Dumbbell className="h-3.5 w-3.5" /> Exclusivo Associados
+                </span>
+                <span
+                  className="rounded px-2 py-0.5 font-mono-num text-[10px] font-semibold"
+                  style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)" }}
+                >
+                  Código: IBQMRGZF
+                </span>
+              </div>
+              <h2 className="font-display text-base font-semibold">Clube de Movimento (GymRats)</h2>
+              <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                Mentes intensas também precisam de descarga física e rotina corporal. Participe do grupo privado da
+                associação.
+              </p>
+              <a
+                href="https://share.gymrats.app/join?code=IBQMRGZF"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary inline-flex min-h-[38px] items-center gap-1.5 rounded-md px-3.5 text-xs font-semibold"
+              >
+                <span>Entrar no GymRats</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+
+            <div
+              className="rounded-xl border p-4 space-y-2.5"
+              style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
+            >
+              <span
+                className="inline-flex items-center gap-1.5 font-mono-num text-[11px] font-semibold uppercase tracking-wider"
+                style={{ color: "var(--accent-crimson)" }}
+              >
+                <Headphones className="h-3.5 w-3.5" /> Curadoria Sonora
+              </span>
+              <h2 className="font-display text-base font-semibold">Rádio Vivências (YouTube)</h2>
+              <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                Playlist colaborativa da associação para foco, descompressão sensorial e troca cultural.
+              </p>
+              <a
+                href="https://www.youtube.com/playlist?list=PLS5vk1WyJqME&si=xe0H_tzMX6EVbbCT"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary inline-flex min-h-[38px] items-center gap-1.5 rounded-md px-3.5 text-xs font-semibold"
+              >
+                <span>Ouvir Playlist</span>
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

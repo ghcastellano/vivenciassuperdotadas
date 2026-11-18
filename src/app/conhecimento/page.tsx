@@ -2,14 +2,24 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ExternalLink, BookOpen, X, ArrowRight } from "lucide-react";
+import { ExternalLink, BookOpen, X, ArrowRight, Copy, Check } from "lucide-react";
 import { GLOSSARY_ITEMS, KNOWLEDGE_ITEMS, type KnowledgeItem } from "@/lib/institutional-data";
 
-const CATEGORIES = ["Todas", "Ferramenta Interativa", "Ciência & Mitos", "Direitos & Políticas", "Neuroinclusão"] as const;
+const CATEGORIES = ["Todas", "Legislação Federal", "Diretrizes MEC", "Regulamentação", "Ferramenta Interativa"] as const;
 
 export default function ConhecimentoPage() {
   const [selectedCat, setSelectedCat] = useState<string>("Todas");
   const [activeArticle, setActiveArticle] = useState<KnowledgeItem | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyOfficialText = async (item: KnowledgeItem) => {
+    const text = [item.title, item.source, ...(item.fullBody || [item.detail]), item.officialRefUrl || item.href]
+      .filter(Boolean)
+      .join("\n\n");
+    await navigator.clipboard.writeText(text);
+    setCopiedId(item.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const filtered =
     selectedCat === "Todas"
@@ -20,17 +30,17 @@ export default function ConhecimentoPage() {
     <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 lg:px-10">
       <div className="max-w-3xl space-y-3 border-b pb-8" style={{ borderColor: "var(--border-subtle)" }}>
         <p className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
-          Acervo &amp; Divulgação Científica
+          Legislação Federal, Diretrizes MEC &amp; Fontes Primárias
         </p>
         <h1 className="font-display text-3xl font-semibold sm:text-4xl">
-          Conhecimento, direitos e{" "}
+          Fontes oficiais,{" "}
           <em className="italic font-normal" style={{ color: "var(--accent-emerald)" }}>
-            ferramentas críticas
+            leis e diretrizes
           </em>
         </h1>
         <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-          Referências baseadas em evidências para combater estereótipos, orientar famílias e educadores — incluindo o
-          Atlas de Vieses Cognitivos como instrumento de estudo.
+          Transcrições literais da legislação brasileira e das diretrizes do Ministério da Educação (MEC), com links
+          diretos para os documentos originais — sem interpretação clínica ou autoral.
         </p>
       </div>
 
@@ -189,17 +199,27 @@ export default function ConhecimentoPage() {
               <span className="font-mono-num text-xs" style={{ color: "var(--text-muted)" }}>
                 Fonte: {activeArticle.source}
               </span>
-              {activeArticle.officialRefUrl && (
-                <a
-                  href={activeArticle.officialRefUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary inline-flex min-h-[42px] items-center gap-2 rounded-md px-4 py-2 text-xs sm:text-sm font-semibold"
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => copyOfficialText(activeArticle)}
+                  className="btn-secondary inline-flex min-h-[42px] items-center gap-2 rounded-md px-3.5 py-2 text-xs font-semibold"
                 >
-                  <span>{activeArticle.officialRefLabel || "Ver fonte oficial"}</span>
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
+                  {copiedId === activeArticle.id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  <span>{copiedId === activeArticle.id ? "Copiado!" : "Copiar texto oficial"}</span>
+                </button>
+                {activeArticle.officialRefUrl && (
+                  <a
+                    href={activeArticle.officialRefUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary inline-flex min-h-[42px] items-center gap-2 rounded-md px-4 py-2 text-xs sm:text-sm font-semibold"
+                  >
+                    <span>{activeArticle.officialRefLabel || "Ver fonte oficial"}</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                )}
+              </div>
             </div>
           </article>
         </div>

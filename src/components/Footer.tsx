@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
+import { AxiomEasterEgg } from "@/components/editorial/AxiomEasterEgg";
 
 const SOCIAL_LINKS = [
   { label: "Instagram", href: "https://www.instagram.com/vivenciassuperdotadas/" },
   { label: "YouTube", href: "https://www.youtube.com/@Viv%C3%AAnciasSuperdotadas" },
+  { label: "Rádio Vivências", href: "https://www.youtube.com/playlist?list=PLS5vk1WyJqME&si=xe0H_tzMX6EVbbCT" },
   { label: "TikTok", href: "https://www.tiktok.com/@vivenciassuperdotadas" },
   { label: "WhatsApp", href: "https://chat.whatsapp.com/IkD3gldncwsBmvSH1j8N6b" },
   { label: "APOIA.se", href: "https://apoia.se/vivenciassuperdotadas" },
@@ -26,12 +28,12 @@ export function Footer() {
           className="flex flex-col justify-between gap-8 border-b pb-10 lg:flex-row lg:items-end"
           style={{ borderColor: "var(--border-subtle)" }}
         >
-          <div className="flex items-start gap-3.5 max-w-xl">
-            <BrandMark size={38} />
+          <div className="flex items-center gap-4 max-w-xl">
+            <BrandMark size={68} variant="vitral" />
             <div>
-              <p className="font-display text-xl font-semibold tracking-tight">Vivências Superdotadas</p>
+              <p className="font-display text-xl sm:text-2xl font-semibold tracking-tight">Vivências Superdotadas</p>
               <p className="text-xs sm:text-sm mt-1 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                Associação de Apoio às Altas Habilidades/Superdotação e Dupla Excepcionalidade
+                Acolhimento, partilha e desenvolvimento para mentes de alto processamento
               </p>
             </div>
           </div>
@@ -100,7 +102,10 @@ export function Footer() {
           style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
         >
           <span>© {new Date().getFullYear()} Associação Vivências Superdotadas.</span>
-          <span className="font-mono-num">Cada pessoa é única · ∞</span>
+          <div className="flex flex-wrap items-center gap-4">
+            <AxiomEasterEgg />
+            <span className="font-mono-num">Cada pessoa é única · ∞</span>
+          </div>
         </div>
       </div>
     </footer>

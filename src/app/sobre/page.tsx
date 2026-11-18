@@ -1,4 +1,5 @@
 import { INSTITUTIONAL_DOC } from "@/lib/institutional-data";
+import { BrandMark } from "@/components/BrandMark";
 
 export const metadata = {
   title: "Missão, Visão e Valores",
@@ -76,6 +77,35 @@ export default function SobrePage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Nossa Simbologia */}
+      <section className="mt-16 border-t pt-12" style={{ borderColor: "var(--border-subtle)" }}>
+        <div className="grid gap-8 lg:grid-cols-[auto_1fr] lg:items-center">
+          <div className="flex items-center justify-center gap-4">
+            <BrandMark size={112} variant="vitral" />
+            <BrandMark size={112} variant="flat" />
+          </div>
+          <div className="space-y-3">
+            <span className="font-mono-num text-xs font-semibold" style={{ color: "var(--accent-emerald)" }}>
+              05 · Simbologia Institucional
+            </span>
+            <h2 className="font-display text-2xl font-semibold">Papoula, Espiral &amp; Borboleta</h2>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              A <strong>papoula vermelha</strong> representa a intensidade afetiva e criativa; o{" "}
+              <strong>miolo em espiral esmeralda</strong> simboliza o pensamento em rede, recursivo e não linear; e a{" "}
+              <strong>borboleta dourada</strong> evoca a metamorfose contínua de quem aprende a habitar o mundo em primeira
+              pessoa.
+            </p>
+          </div>
+        </div>
+
+        <p
+          className="mt-12 text-center text-xs italic"
+          style={{ color: "var(--text-muted)" }}
+        >
+          “Nenhum sistema formal consistente consegue esgotar todas as verdades sobre si mesmo.”
+        </p>
       </section>
     </div>
   );

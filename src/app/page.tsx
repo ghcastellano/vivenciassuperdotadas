@@ -2,47 +2,47 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight, ExternalLink, Headphones } from "lucide-react";
 import { ScrollReveal } from "@/components/EditorialEffects";
-import { BotanicalSpecimenFrame } from "@/components/editorial/BotanicalSpecimenFrame";
+import { BrandMark } from "@/components/BrandMark";
 import { EditorialIndexRail, type IndexJourneyItem } from "@/components/editorial/EditorialIndexRail";
 import { AssynchronyDiagram } from "@/components/editorial/AssynchronyDiagram";
 
 const JOURNEYS: IndexJourneyItem[] = [
   {
     key: "entender",
-    num: "01",
+    num: "02",
     shortLabel: "Estou buscando entender o tema",
     eyebrow: "Leitura & Encaminhamento",
-    title: "Informação científica sem mitos — e encaminhamento ético",
+    title: "Legislação oficial, diretrizes do MEC e encaminhamento ético",
     summary:
-      "A superdotação não é sinônimo de genialidade solitária nem de nota 10 em tudo. Conheça nosso guia para leigos, leia sobre dupla excepcionalidade e encontre especialistas.",
-    ctaLabel: "Explorar Conhecimento",
+      "A superdotação não é sinônimo de genialidade solitária nem de nota 10 em tudo. Consulte os textos oficiais da LDB/MEC na íntegra e encontre especialistas.",
+    ctaLabel: "Consultar Legislação & MEC",
     ctaHref: "/conhecimento",
     secondaryLabel: "Buscar Profissionais",
     secondaryHref: "/profissionais",
   },
   {
     key: "identificado",
-    num: "02",
+    num: "03",
     shortLabel: "Sou ou me identifico como AH/SD",
     eyebrow: "Comunidade & Pertencimento",
     title: "Um lugar para existir em primeira pessoa, sem precisar performar",
     summary:
-      "Associe-se gratuitamente, crie seu avatar único com traços de neurodivergência e compartilhe vivências, artes e referências na comunidade.",
-    ctaLabel: "Criar Meu Avatar",
+      "Associe-se gratuitamente, personalize seu avatar ou foto e compartilhe vivências, artes e referências na comunidade.",
+    ctaLabel: "Criar Meu Perfil",
     ctaHref: "/associe-se",
     secondaryLabel: "Ver Comunidade",
     secondaryHref: "/comunidade",
   },
   {
     key: "aliado",
-    num: "03",
+    num: "05",
     shortLabel: "Sou neurodivergente, familiar ou educador",
     eyebrow: "Convivência & Direitos",
     title: "Pontes entre neurotipos para convivência e educação inclusiva",
     summary:
-      "Acesse guias práticos sem estereótipos, direitos educacionais (LDB/AEE), o Atlas de Vieses Cognitivos e nossos próximos encontros abertos.",
+      "Acesse textos oficiais da legislação (LDB/AEE), o Atlas de Vieses Cognitivos e nossos próximos encontros abertos.",
     ctaLabel: "Ler Missão e Princípios",
     ctaHref: "/sobre",
     secondaryLabel: "Próximos Eventos",
@@ -50,7 +50,7 @@ const JOURNEYS: IndexJourneyItem[] = [
   },
   {
     key: "apoiar",
-    num: "04",
+    num: "07",
     shortLabel: "Quero apoiar ou ver transparência",
     eyebrow: "Sustentabilidade Aberta",
     title: "Transparência total em cada doação, compra e custo operacional",
@@ -110,8 +110,46 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="lg:justify-self-end w-full">
-              <BotanicalSpecimenFrame />
+            <div className="lg:justify-self-end w-full max-w-md mx-auto lg:mx-0">
+              <div
+                className="rounded-2xl border p-6 sm:p-7 space-y-6"
+                style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+              >
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <BrandMark size={156} variant="vitral" />
+                  <p className="text-xs leading-relaxed max-w-xs" style={{ color: "var(--text-secondary)" }}>
+                    Acolhimento, partilha e desenvolvimento para mentes de alto processamento.
+                  </p>
+                </div>
+
+                <div
+                  className="grid grid-cols-2 gap-2.5 border-t pt-5 text-xs"
+                  style={{ borderColor: "var(--border-subtle)" }}
+                >
+                  <Link
+                    href="/conhecimento"
+                    className="rounded-lg border px-3 py-2.5 font-semibold transition-colors hover:bg-black/5"
+                    style={{ borderColor: "var(--border-subtle)" }}
+                  >
+                    <span className="block text-[10px] font-mono-num uppercase" style={{ color: "var(--accent-emerald)" }}>
+                      Fontes Oficiais
+                    </span>
+                    <span className="mt-0.5 block">LDB &amp; Diretrizes MEC</span>
+                  </Link>
+                  <a
+                    href="https://www.youtube.com/playlist?list=PLS5vk1WyJqME&si=xe0H_tzMX6EVbbCT"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg border px-3 py-2.5 font-semibold transition-colors hover:bg-black/5"
+                    style={{ borderColor: "var(--border-subtle)" }}
+                  >
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono-num uppercase" style={{ color: "var(--accent-crimson)" }}>
+                      <Headphones className="h-3 w-3" /> Playlist
+                    </span>
+                    <span className="mt-0.5 block">Rádio Vivências ↗</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

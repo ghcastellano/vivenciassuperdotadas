@@ -42,7 +42,7 @@ export const INSTITUTIONAL_DOC = {
 export interface KnowledgeItem {
   id: string;
   title: string;
-  category: "Ferramenta Interativa" | "Ciência & Mitos" | "Direitos & Políticas" | "Neuroinclusão";
+  category: "Ferramenta Interativa" | "Legislação Federal" | "Diretrizes MEC" | "Regulamentação";
   summary: string;
   detail: string;
   source: string;
@@ -60,84 +60,101 @@ export const KNOWLEDGE_ITEMS: KnowledgeItem[] = [
     title: "Entrelinhas — Atlas de Vieses Cognitivos",
     category: "Ferramenta Interativa",
     summary:
-      "Mapeamento interativo de vieses cognitivos para treinar pensamento crítico, reconhecer atalhos mentais e evitar armadilhas interpretativas.",
+      "Mapeamento interativo de vieses cognitivos para treinar pensamento crítico e reconhecer atalhos mentais na interpretação de dados.",
     detail:
-      "Mesmo mentes analíticas e com alta capacidade de abstração estão sujeitas a vieses cognitivos — inclusive ao interpretar a própria trajetória. O Atlas de Vieses é um dos recursos recomendados da nossa Área de Conhecimento.",
+      "Ferramenta externa aberta e interativa recomendada para estudo de vieses cognitivos e tomada de decisão.",
     source: "Projeto Entrelinhas · Atlas de Vieses Cognitivos",
     href: "https://atlasvieses.vercel.app/",
     external: true,
     featured: true,
   },
   {
-    id: "mitos-fatos",
-    title: "AH/SD sem Romantização e sem Patologização",
-    category: "Ciência & Mitos",
+    id: "cf-art-208",
+    title: "Constituição Federal — Art. 208, inciso V",
+    category: "Legislação Federal",
     summary:
-      "Por que superdotação não é garantia de sucesso acadêmico/profissional — e por que todo sofrimento psíquico não deve ser reduzido automaticamente à AH/SD.",
+      "Texto constitucional literal que garante acesso aos níveis mais elevados do ensino, da pesquisa e da criação artística, segundo a capacidade de cada um.",
     detail:
-      "Revisão acessível baseada na literatura brasileira (Delou, Virgolim, Fleith & Alencar) e internacional sobre divergências metodológicas, assincronia e singularidade de trajetória.",
-    source: "Literatura AH/SD · MEC/SEESP & Delou",
-    href: "/sobre",
-    fullBody: [
-      "As Altas Habilidades/Superdotação (AH/SD) constituem um fenômeno neurofisiológico estudado há mais de um século pela psicologia e pela educação, ainda com debates teóricos e metodológicos importantes sobre definição e avaliação.",
-      "Na esfera pública, dois extremos prejudicam quem vive essa realidade: a romantização (a ideia de que ser superdotado garante sucesso automático, notas altas ou genialidade performática) e a patologização (atribuir automaticamente qualquer sofrimento emocional à superdotação).",
-      "A identificação com AH/SD não determina personalidade, sucesso ou trajetória de vida. Cada pessoa deve ser compreendida em sua singularidade, contexto e eventuais necessidades específicas de suporte baseado em evidências.",
-    ],
-    officialRefUrl: "https://portal.mec.gov.br/seesp/arquivos/pdf/altashabilidades.pdf",
-    officialRefLabel: "Caderno MEC/SEESP — Altas Habilidades",
-  },
-  {
-    id: "avaliacao-crp",
-    title: "Como funciona a Avaliação Oficial (CRP) e por que envolve QI",
-    category: "Ciência & Mitos",
-    summary:
-      "Entenda a diferença entre autoexploração aberta e avaliação neuropsicológica/psicológica oficial conduzida por profissional habilitado.",
-    detail:
-      "No Brasil, a identificação formal considera múltiplas dimensões (intelectual, criatividade, comprometimento, liderança, arte/psicomotora) e inclui instrumentos padronizados de inteligência (QI) privativos de psicólogos.",
-    source: "Resoluções CFP / SATEPSI",
-    href: "/profissionais",
-    fullBody: [
-      "Testes gratuitos ou questionários online não têm validade diagnóstica. No Brasil, a avaliação psicológica e neuropsicológica formal é atividade privativa de profissionais inscritos no Conselho Regional de Psicologia (CRP).",
-      "Os protocolos validados pelo SATEPSI avaliam não apenas características comportamentais, criatividade e motivação, mas também o funcionamento cognitivo por meio de testes padronizados de inteligência (QI) e funções executivas.",
-      "Essa investigação cuidadosa também ajuda a diferenciar AH/SD de outras condições ou identificar quadros de Dupla Excepcionalidade (2e), garantindo encaminhamento clínico e educacional responsável.",
-    ],
-    officialRefUrl: "https://satepsi.cfp.org.br/",
-    officialRefLabel: "Consultar SATEPSI (CFP)",
-  },
-  {
-    id: "direitos-ldb",
-    title: "Direitos Educacionais no Brasil (LDB / AEE)",
-    category: "Direitos & Políticas",
-    summary:
-      "O que diz a Lei nº 12.796/2013 sobre o Atendimento Educacional Especializado (AEE) e o direito à aceleração e enriquecimento curricular.",
-    detail:
-      "Estudantes com AH/SD integram o público da Educação Especial na perspectiva inclusiva, com direito a enriquecimento, suplementação e registro no Censo Escolar.",
-    source: "Lei nº 9.394/1996 (alterada pela Lei nº 12.796/2013)",
-    href: "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12796.htm",
+      "“Art. 208. O dever do Estado com a educação será efetivado mediante a garantia de: [...] V - acesso aos níveis mais elevados do ensino, da pesquisa e da criação artística, segundo a capacidade de cada um.”",
+    source: "Constituição da República Federativa do Brasil de 1988",
+    href: "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm#art208",
     external: true,
     fullBody: [
-      "A Lei de Diretrizes e Bases da Educação Nacional (LDB, Lei nº 9.394/1996, alterada pela Lei nº 12.796/2013) inclui expressamente os educandos com altas habilidades ou superdotação no público da Educação Especial.",
-      "O Art. 59 assegura currículos, métodos, técnicas e recursos educativos específicos para atender às suas necessidades, incluindo aceleração para concluir em menor tempo o programa escolar, quando pertinente, além de suplementação e enriquecimento curricular no contraturno (AEE).",
-      "Conhecer a legislação permite que famílias e educadores dialoguem com as secretarias de educação e escolas de forma fundamentada.",
+      "Art. 208. O dever do Estado com a educação será efetivado mediante a garantia de:",
+      "III - atendimento educacional especializado aos portadores de deficiência, preferencialmente na rede regular de ensino;",
+      "V - acesso aos níveis mais elevados do ensino, da pesquisa e da criação artística, segundo a capacidade de cada um.",
     ],
-    officialRefUrl: "https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2013/lei/l12796.htm",
-    officialRefLabel: "Texto Oficial — Lei nº 12.796/2013 (Planalto)",
+    officialRefUrl: "https://www.planalto.gov.br/ccivil_03/constituicao/constituicao.htm#art208",
+    officialRefLabel: "Consultar Constituição Federal (Planalto)",
   },
   {
-    id: "dupla-excepcionalidade",
-    title: "Dupla Excepcionalidade (2e) & Mascaramento (Masking)",
-    category: "Neuroinclusão",
+    id: "ldb-arts-58-59",
+    title: "LDB — Lei nº 9.394/1996 (Arts. 58, 59 e 59-A)",
+    category: "Legislação Federal",
     summary:
-      "Quando AH/SD coexiste com TDAH, TEA, Dislexia ou outras condições, gerando compensações que atrasam a identificação.",
+      "Texto literal da Lei de Diretrizes e Bases da Educação Nacional sobre Educação Especial, aceleração para superdotados e Cadastro Nacional.",
     detail:
-      "O esforço contínuo para esconder diferenças (masking) gera exaustão. Compreender o próprio funcionamento ajuda a buscar suporte específico baseado em evidências.",
-    source: "Pesquisas sobre Twice-Exceptionality (2e)",
-    href: "/profissionais",
+      "Inclui educandos com altas habilidades ou superdotação no público da Educação Especial, assegura aceleração para concluir em menor tempo e institui o cadastro nacional.",
+    source: "Lei nº 9.394/1996 (redação dada pelas Leis nº 12.796/2013 e nº 13.234/2015)",
+    href: "https://www.planalto.gov.br/ccivil_03/leis/l9394.htm#art58",
+    external: true,
     fullBody: [
-      "Na Dupla Excepcionalidade (2e), a pessoa apresenta Altas Habilidades/Superdotação simultaneamente a outra neurodivergência ou transtorno do neurodesenvolvimento, como TDAH, TEA, dislexia ou discalculia.",
-      "Com frequência, o alto potencial cognitivo compensa dificuldades específicas por anos — enquanto essas dificuldades mascaram o alto potencial. O resultado costuma ser diagnóstico tardio e sobrecarga emocional.",
-      "O mascaramento social (masking), isto é, adaptar continuamente a própria forma de agir para caber em expectativas rígidas, está fortemente ligado à exaustão. Ambientes acolhedores e avaliação especializada ajudam a construir estratégias saudáveis.",
+      "Art. 58. Entende-se por educação especial, para os efeitos desta Lei, a modalidade de educação escolar oferecida preferencialmente na rede regular de ensino, para educandos com deficiência, transtornos globais do desenvolvimento e altas habilidades ou superdotação. (Redação dada pela Lei nº 12.796, de 2013)",
+      "Art. 59. Os sistemas de ensino assegurarão aos educandos com deficiência, transtornos globais do desenvolvimento e altas habilidades ou superdotação: I - currículos, métodos, técnicas, recursos educativos e organização específicos, para atender às suas necessidades; II - terminalidade específica para aqueles que não puderem atingir o nível exigido para a conclusão do ensino fundamental, em virtude de suas deficiências, e aceleração para concluir em menor tempo o programa escolar para os superdotados;",
+      "Art. 59-A. O poder público deverá instituir cadastro nacional de alunos com altas habilidades ou superdotação matriculados na educação básica e na educação superior, a fim de fomentar a execução de políticas públicas destinadas ao desenvolvimento pleno das potencialidades desse alunado. (Incluído pela Lei nº 13.234, de 2015)",
     ],
+    officialRefUrl: "https://www.planalto.gov.br/ccivil_03/leis/l9394.htm#art58",
+    officialRefLabel: "Texto Integral — LDB (Planalto)",
+  },
+  {
+    id: "resolucao-cne-4-2009",
+    title: "Resolução CNE/CEB nº 4/2009 — Diretrizes do AEE (MEC)",
+    category: "Diretrizes MEC",
+    summary:
+      "Diretrizes Operacionais para o Atendimento Educacional Especializado na Educação Básica: suplementação e enriquecimento curricular.",
+    detail:
+      "Estabelece que o AEE para estudantes com altas habilidades/superdotação tem caráter de suplementação e enriquecimento curricular em salas de recursos multifuncionais ou núcleos específicos.",
+    source: "Ministério da Educação · Conselho Nacional de Educação (CNE/CEB)",
+    href: "https://portal.mec.gov.br/dmdocuments/rceb004_09.pdf",
+    external: true,
+    fullBody: [
+      "Art. 4º Para fins destas Diretrizes, considera-se público-alvo do AEE: [...] III – Alunos com altas habilidades/superdotação: aqueles que apresentam um potencial elevado e grande envolvimento com as áreas do conhecimento humano, isoladas ou combinadas: intelectual, liderança, psicomotora, artes e criatividade.",
+      "Art. 7º Os alunos com altas habilidades/superdotação terão suas atividades de enriquecimento curricular desenvolvidas no âmbito de escolas públicas de ensino regular em interface com os núcleos de atividades para altas habilidades/superdotação e com as instituições de ensino superior e institutos voltados ao desenvolvimento e promoção da pesquisa, das artes e dos esportes.",
+    ],
+    officialRefUrl: "https://portal.mec.gov.br/dmdocuments/rceb004_09.pdf",
+    officialRefLabel: "PDF Oficial — Resolução CNE/CEB nº 4/2009 (MEC)",
+  },
+  {
+    id: "pnee-mec-2008",
+    title: "Política Nacional de Educação Especial — MEC (2008)",
+    category: "Diretrizes MEC",
+    summary:
+      "Definição oficial adotada pelo Ministério da Educação para Altas Habilidades/Superdotação na perspectiva da educação inclusiva.",
+    detail:
+      "Documento-base do MEC/SEESP que conceitua Altas Habilidades/Superdotação e orienta o Atendimento Educacional Especializado.",
+    source: "Ministério da Educação · SECADI/SEESP (2008)",
+    href: "https://portal.mec.gov.br/arquivos/pdf/politicaeducespecial.pdf",
+    external: true,
+    fullBody: [
+      "“Alunos com altas habilidades/superdotação demonstram potencial elevado em qualquer uma das seguintes áreas, isoladas ou combinadas: intelectual, acadêmica, liderança, psicomotricidade e artes. Também apresentam elevada criatividade, grande envolvimento na aprendizagem e realização de tarefas em áreas de seu interesse.” (Política Nacional de Educação Especial na Perspectiva da Educação Inclusiva, MEC, 2008).",
+      "Para consulta completa sobre identificação, núcleos (NAAH/S) e orientações pedagógicas, acesse diretamente os documentos oficiais do Ministério da Educação.",
+    ],
+    officialRefUrl: "https://portal.mec.gov.br/arquivos/pdf/politicaeducespecial.pdf",
+    officialRefLabel: "Documento Oficial — MEC (2008)",
+  },
+  {
+    id: "satepsi-cfp",
+    title: "SATEPSI — Sistema de Avaliação de Testes Psicológicos (CFP)",
+    category: "Regulamentação",
+    summary:
+      "Sistema oficial do Conselho Federal de Psicologia para consulta pública de instrumentos psicológicos padronizados e privativos.",
+    detail:
+      "Avaliações formais são conduzidas exclusivamente por profissionais habilitados (CRP). Consulte diretamente os instrumentos aprovados pelo CFP.",
+    source: "Conselho Federal de Psicologia (CFP)",
+    href: "https://satepsi.cfp.org.br/",
+    external: true,
+    officialRefUrl: "https://satepsi.cfp.org.br/",
+    officialRefLabel: "Acessar SATEPSI Oficial (CFP)",
   },
 ];
 

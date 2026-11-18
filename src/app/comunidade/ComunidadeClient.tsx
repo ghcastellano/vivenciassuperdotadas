@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2, Users, Heart } from "lucide-react";
+import { Link2, MessageSquareQuote, MessageCircle, ExternalLink, CheckCircle2, Users, Heart, Headphones } from "lucide-react";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
 import { ImageCurtainReveal } from "@/components/EditorialEffects";
@@ -310,29 +310,43 @@ export function ComunidadeClient({
         </form>
       )}
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        {(
-          [
-            ["todos", "Tudo"],
-            ["relato", "Relatos em 1ª Pessoa"],
-            ["arte", "Artes & Criações"],
-            ["link", "Links de Conhecimento"],
-          ] as const
-        ).map(([k, label]) => (
-          <button
-            key={k}
-            type="button"
-            onClick={() => setKindFilter(k)}
-            className="min-h-[40px] rounded-md border px-3.5 py-1.5 text-xs sm:text-sm font-semibold"
-            style={{
-              backgroundColor: kindFilter === k ? "var(--accent-emerald)" : "var(--bg-card)",
-              color: kindFilter === k ? "#FFFFFF" : "var(--text-primary)",
-              borderColor: kindFilter === k ? "var(--accent-emerald)" : "var(--border-subtle)",
-            }}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              ["todos", "Tudo"],
+              ["relato", "Relatos em 1ª Pessoa"],
+              ["arte", "Artes & Criações"],
+              ["link", "Links de Conhecimento"],
+            ] as const
+          ).map(([k, label]) => (
+            <button
+              key={k}
+              type="button"
+              onClick={() => setKindFilter(k)}
+              className="min-h-[40px] rounded-md border px-3.5 py-1.5 text-xs sm:text-sm font-semibold"
+              style={{
+                backgroundColor: kindFilter === k ? "var(--accent-emerald)" : "var(--bg-card)",
+                color: kindFilter === k ? "#FFFFFF" : "var(--text-primary)",
+                borderColor: kindFilter === k ? "var(--accent-emerald)" : "var(--border-subtle)",
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <a
+          href="https://www.youtube.com/playlist?list=PLS5vk1WyJqME&si=xe0H_tzMX6EVbbCT"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-[40px] shrink-0 items-center gap-2 rounded-md border px-3.5 py-1.5 text-xs font-semibold transition-colors hover:bg-black/5"
+          style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)", color: "var(--text-primary)" }}
+        >
+          <Headphones className="h-3.5 w-3.5" style={{ color: "var(--accent-crimson)" }} />
+          <span>Rádio Vivências</span>
+          <ExternalLink className="h-3 w-3 opacity-60" />
+        </a>
       </div>
 
       {filtered.length === 0 ? (
