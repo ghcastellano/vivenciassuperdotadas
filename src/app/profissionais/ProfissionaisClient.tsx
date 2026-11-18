@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, UserPlus } from "lucide-react";
 import {
   filterProfessionals,
   REGIONS,
@@ -70,11 +70,14 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
         <button
           type="button"
           onClick={() => setFormOpen((v) => !v)}
-          className="btn-primary min-h-[44px] shrink-0 px-5 py-2.5 text-sm font-semibold"
+          className="btn-secondary inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold"
         >
-          {formOpen ? "Fechar cadastro" : "Sou profissional · Quero me cadastrar"}
+          <UserPlus className="h-4 w-4" />
+          <span>{formOpen ? "Fechar cadastro" : "Sou profissional · Cadastrar-se"}</span>
         </button>
       </div>
+
+      <div id="cadastro-profissional" />
 
       {submitted && (
         <div
@@ -181,24 +184,6 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
             )}
           </div>
         </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
-          <span>
-            {filtered.length === 1
-              ? "1 profissional encontrado"
-              : `${filtered.length} profissionais encontrados`}
-          </span>
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={clearFilters}
-              className="rounded-md border px-3 py-1 font-semibold transition-colors hover:opacity-80"
-              style={{ borderColor: "var(--border-subtle)", color: "var(--text-primary)" }}
-            >
-              Limpar filtros
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Professionals Grid */}
@@ -220,6 +205,38 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
           ))}
         </div>
       )}
+
+      {/* Convite dedicado para profissionais após a grade */}
+      <section
+        className="mt-14 rounded-2xl border p-6 sm:p-8 flex flex-col justify-between gap-6 md:flex-row md:items-center"
+        style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
+      >
+        <div className="max-w-xl space-y-1.5">
+          <p className="font-mono-num text-[11px] font-semibold uppercase tracking-widest" style={{ color: "var(--accent-emerald)" }}>
+            Rede de Encaminhamento Ético
+          </p>
+          <h2 className="font-display text-xl font-semibold sm:text-2xl">
+            Atende pessoas com AH/SD ou Dupla Excepcionalidade?
+          </h2>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+            Psicólogos(as), neuropsicólogos(as), psicopedagogos(as) e educadores(as) podem solicitar inclusão gratuita no
+            diretório oficial após validação da diretoria.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setFormOpen(true);
+            setTimeout(() => {
+              document.getElementById("cadastro-profissional")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 60);
+          }}
+          className="btn-primary inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold"
+        >
+          <UserPlus className="h-4 w-4" />
+          <span>Quero me cadastrar</span>
+        </button>
+      </section>
     </div>
   );
 }
