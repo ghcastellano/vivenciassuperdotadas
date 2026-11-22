@@ -112,6 +112,26 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   }
 
+  if (action === "edit_professional") {
+    const id = String(body.id || "").trim();
+    const name = String(body.name || "").trim().slice(0, 120);
+    const specialty = String(body.specialty || "").trim().slice(0, 160);
+    const registryCode = String(body.registryCode || "").trim().slice(0, 80);
+    const cityState = String(body.cityState || "").trim().slice(0, 120);
+    const email = String(body.email || "").trim().toLowerCase().slice(0, 160);
+    if (!id || !name || !specialty) {
+      return NextResponse.json({ error: "Nome e especialidade são obrigatórios." }, { status: 400 });
+    }
+    await query(
+      `UPDATE partner_professionals
+       SET name = $1, specialty = $2, registry_code = $3, city_state = $4, email = $5
+       WHERE id = $6`,
+      [name, specialty, registryCode, cityState, email, id]
+    );
+    revalidatePath("/profissionais");
+    return NextResponse.json({ ok: true });
+  }
+
   if (action === "moderate_submission") {
     const id = String(body.id || "");
     const status = body.status === "approved" ? "approved" : "rejected";
@@ -202,6 +222,8 @@ export async function POST(req: Request) {
         ? "active"
         : body.status === "suspended"
         ? "suspended"
+        : body.status === "deleted"
+        ? "deleted"
         : "rejected";
     const approver = session.user?.email || "admin";
 
@@ -223,6 +245,7 @@ export async function POST(req: Request) {
       `UPDATE memberships
        SET membership_status = $1,
            member_number = $2,
+           show_in_directory = CASE WHEN $1 IN ('suspended', 'deleted', 'rejected') THEN FALSE ELSE show_in_directory END,
            approved_at = CASE WHEN $1 = 'active' THEN COALESCE(approved_at, NOW()) ELSE approved_at END,
            approved_by = CASE WHEN $1 = 'active' THEN $3 ELSE approved_by END
        WHERE id = $4`,

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Shuffle, Download, Share2, Check, MessageCircle, Camera, Sparkles } from "lucide-react";
+import { Shuffle, Download, Share2, Check, MessageCircle, Camera, Sparkles, Info } from "lucide-react";
 import {
   AVATAR_OPTIONS,
   NEURODIVERGENCE_BADGES,
@@ -12,6 +12,17 @@ import {
 } from "@/lib/avatar";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import { PhotoAvatarEditorModal } from "@/components/PhotoAvatarEditorModal";
+
+const LANYARD_INFO: Record<string, string> = {
+  sunflowerLanyard:
+    "Cordão de Girassol: símbolo internacional para deficiências ocultas e condições previstas na legislação PcD (Lei nº 14.624/2023), indicando necessidade de compreensão ou atendimento prioritário.",
+  infinityLanyard:
+    "Cordão do Infinito: representa a neurodiversidade de forma ampla (AH/SD, TDAH, TEA, Dislexia e outras variações neurocognitivas).",
+  puzzleLanyard:
+    "Cordão Quebra-Cabeça: símbolo tradicional historicamente associado ao Transtorno do Espectro Autista (TEA).",
+  noiseHeadphones:
+    "Abafador de Ruídos: recurso de regulação sensorial utilizado para reduzir sobrecarga auditiva em ambientes intensos.",
+};
 
 type TabKey = "cabeca" | "rosto" | "roupa" | "neuro";
 
@@ -378,12 +389,38 @@ export function AvatarStudio({
                 options={AVATAR_OPTIONS.clothesColor}
                 onChange={(v) => onChange({ ...config, clothesColor: v })}
               />
-              <SelectField
-                label="Cordão / Acessório Sensorial"
-                value={config.neuroAccessory || "none"}
-                options={AVATAR_OPTIONS.neuroAccessory}
-                onChange={(v) => onChange({ ...config, neuroAccessory: v })}
-              />
+              <div className="space-y-2 sm:col-span-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+                    Cordão / Acessório Sensorial
+                  </span>
+                  <span
+                    title="Passe ou selecione para ver o significado de cada cordão"
+                    className="inline-flex items-center text-[var(--accent-emerald)]"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+                <SelectField
+                  label=""
+                  value={config.neuroAccessory || "none"}
+                  options={AVATAR_OPTIONS.neuroAccessory}
+                  onChange={(v) => onChange({ ...config, neuroAccessory: v })}
+                />
+                {config.neuroAccessory && config.neuroAccessory !== "none" && LANYARD_INFO[config.neuroAccessory] && (
+                  <p
+                    className="flex items-start gap-2 rounded-xl border p-3 text-xs leading-relaxed"
+                    style={{
+                      backgroundColor: "var(--bg-surface)",
+                      borderColor: "var(--border-subtle)",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    <Info className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--accent-emerald)" }} />
+                    <span>{LANYARD_INFO[config.neuroAccessory]}</span>
+                  </p>
+                )}
+              </div>
             </div>
           )}
 

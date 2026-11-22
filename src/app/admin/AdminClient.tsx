@@ -2,7 +2,7 @@
 
 import React, { useCallback, useState } from "react";
 import Link from "next/link";
-import { Shield, Check, X, Trash2, Plus, Users, Stethoscope, Calendar, Receipt, MessageSquare } from "lucide-react";
+import { Shield, Check, X, Trash2, Plus, Users, Stethoscope, Calendar, Receipt, MessageSquare, Pencil, Table2, LayoutGrid, Search } from "lucide-react";
 
 export interface AdminData {
   readOnly: boolean;
@@ -68,6 +68,17 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
   const [tab, setTab] = useState<AdminTab>("profissionais");
   const [actionNotice, setActionNotice] = useState("");
   const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [viewMode, setViewMode] = useState<"cards" | "table">("table");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [editingProf, setEditingProf] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    registryCode: string;
+    specialty: string;
+    cityState: string;
+  } | null>(null);
 
   const [evForm, setEvForm] = useState({
     title: "",
@@ -123,6 +134,27 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
   const approvedProfs = data.professionals.filter((p) => p.status === "approved");
   const pendingSubs = data.submissions.filter((s) => s.status === "pending");
   const pendingMembers = (data.memberships || []).filter((m) => m.membership_status === "pending");
+
+  const qLower = searchQuery.trim().toLowerCase();
+  const filteredMembers = (data.memberships || []).filter((m) => {
+    const matchesStatus = statusFilter === "all" || m.membership_status === statusFilter;
+    const matchesQ =
+      !qLower ||
+      [m.name, m.email, m.profile, m.city_state, m.member_number]
+        .filter(Boolean)
+        .some((v) => v.toLowerCase().includes(qLower));
+    return matchesStatus && matchesQ;
+  });
+
+  const filteredProfs = data.professionals.filter((p) => {
+    const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+    const matchesQ =
+      !qLower ||
+      [p.name, p.email, p.specialty, p.registry_code, p.city_state]
+        .filter(Boolean)
+        .some((v) => v.toLowerCase().includes(qLower));
+    return matchesStatus && matchesQ;
+  });
 
   const mergedAccounts = React.useMemo(() => {
     const map = new Map<string, { id: string; name: string; email: string; role: string }>();
@@ -228,7 +260,10 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
           <button
             key={key}
             type="button"
-            onClick={() => setTab(key)}
+            onClick={() => {
+              setTab(key);
+              setStatusFilter("all");
+            }}
             className="min-h-[42px] rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-colors"
             style={{
               backgroundColor: tab === key ? "var(--accent-emerald)" : "var(--bg-surface)",
@@ -240,16 +275,172 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
         ))}
       </div>
 
+      {/* Barra de Busca, Filtro & Modo Tabela/Cards para Associações e Profissionais */}
+      {(tab === "associacoes" || tab === "profissionais") && (
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[220px]">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                tab === "associacoes"
+                  ? "Buscar por nome, e-mail, matrícula, perfil ou cidade..."
+                  : "Buscar por nome, especialidade, CRP/CRM ou cidade..."
+              }
+              className="min-h-[40px] w-full rounded-xl border pl-9 pr-3 text-xs sm:text-sm"
+              style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+            />
+          </div>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filtrar por status"
+            className="min-h-[40px] rounded-xl border px-3 text-xs sm:text-sm"
+            style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+          >
+            <option value="all">Status: Todos</option>
+            <option value="pending">Pendentes</option>
+            <option value={tab === "associacoes" ? "active" : "approved"}>
+              {tab === "associacoes" ? "Ativos" : "Aprovados"}
+            </option>
+            {tab === "associacoes" && <option value="suspended">Suspensos</option>}
+            <option value="rejected">Recusados</option>
+            {tab === "associacoes" && <option value="deleted">Inativos (Excluídos)</option>}
+          </select>
+
+          <div
+            className="inline-flex rounded-xl border p-1"
+            style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+          >
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+              style={{
+                backgroundColor: viewMode === "table" ? "var(--accent-emerald)" : "transparent",
+                color: viewMode === "table" ? "#FFFFFF" : "var(--text-secondary)",
+              }}
+            >
+              <Table2 className="h-3.5 w-3.5" />
+              <span>Tabela</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("cards")}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
+              style={{
+                backgroundColor: viewMode === "cards" ? "var(--accent-emerald)" : "transparent",
+                color: viewMode === "cards" ? "#FFFFFF" : "var(--text-secondary)",
+              }}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span>Cards</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* TAB 0: Associações */}
       {tab === "associacoes" && (
         <section className="space-y-4">
-          {(data.memberships || []).length === 0 ? (
+          {filteredMembers.length === 0 ? (
             <div className="rounded-2xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
-              Nenhuma solicitação de associação recebida ainda.
+              Nenhuma solicitação encontrada para os filtros selecionados.
+            </div>
+          ) : viewMode === "table" ? (
+            <div
+              className="overflow-x-auto rounded-2xl border"
+              style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+            >
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead className="border-b text-[11px] uppercase tracking-wider" style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)", backgroundColor: "var(--bg-surface)" }}>
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Nome &amp; E-mail</th>
+                    <th className="px-4 py-3 font-semibold">Perfil / Cidade</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
+                  {filteredMembers.map((m) => (
+                    <tr key={m.id} className="hover:bg-black/[0.02]">
+                      <td className="px-4 py-3">
+                        <p className="font-semibold">{m.name}</p>
+                        <p className="font-mono-num text-xs" style={{ color: "var(--text-muted)" }}>{m.email}</p>
+                      </td>
+                      <td className="px-4 py-3 text-xs">
+                        <p>{m.profile}</p>
+                        {m.city_state && <p style={{ color: "var(--text-muted)" }}>{m.city_state}</p>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                          style={{
+                            backgroundColor: "var(--bg-surface)",
+                            color:
+                              m.membership_status === "active"
+                                ? "var(--accent-emerald)"
+                                : m.membership_status === "pending"
+                                ? "var(--accent-amber)"
+                                : "var(--accent-crimson)",
+                          }}
+                        >
+                          {m.membership_status === "active"
+                            ? `Ativo${m.member_number ? ` · ${m.member_number}` : ""}`
+                            : m.membership_status === "pending"
+                            ? "Pendente"
+                            : m.membership_status === "suspended"
+                            ? "Suspenso"
+                            : m.membership_status === "deleted"
+                            ? "Inativo"
+                            : "Recusado"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="inline-flex flex-wrap justify-end gap-1.5">
+                          {m.membership_status !== "active" && (
+                            <button
+                              type="button"
+                              onClick={() => act({ action: "moderate_membership", id: m.id, status: "active" })}
+                              className="rounded-md px-2.5 py-1 text-[11px] font-semibold text-white"
+                              style={{ backgroundColor: "var(--accent-emerald)" }}
+                            >
+                              {m.membership_status === "pending" ? "Aprovar" : "Reativar"}
+                            </button>
+                          )}
+                          {m.membership_status === "active" && (
+                            <button
+                              type="button"
+                              onClick={() => act({ action: "moderate_membership", id: m.id, status: "suspended" })}
+                              className="rounded-md border px-2.5 py-1 text-[11px] font-semibold"
+                              style={{ borderColor: "var(--border-subtle)", color: "var(--accent-crimson)" }}
+                            >
+                              Suspender
+                            </button>
+                          )}
+                          {m.membership_status !== "deleted" && (
+                            <button
+                              type="button"
+                              onClick={() => act({ action: "moderate_membership", id: m.id, status: "deleted" })}
+                              className="rounded-md border px-2.5 py-1 text-[11px] font-semibold"
+                              style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
+                            >
+                              Inativar
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {data.memberships.map((m) => (
+              {filteredMembers.map((m) => (
                 <div
                   key={m.id}
                   className="rounded-2xl border p-4 flex flex-col justify-between gap-3"
@@ -357,8 +548,102 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       {/* TAB 1: Profissionais */}
       {tab === "profissionais" && (
         <section className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {data.professionals.map((p) => (
+          {filteredProfs.length === 0 ? (
+            <div className="rounded-2xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+              Nenhum profissional encontrado para os filtros selecionados.
+            </div>
+          ) : viewMode === "table" ? (
+            <div
+              className="overflow-x-auto rounded-2xl border"
+              style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+            >
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead className="border-b text-[11px] uppercase tracking-wider" style={{ borderColor: "var(--border-subtle)", color: "var(--text-muted)", backgroundColor: "var(--bg-surface)" }}>
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Profissional &amp; Registro</th>
+                    <th className="px-4 py-3 font-semibold">Especialidade / Local</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
+                  {filteredProfs.map((p) => (
+                    <tr key={p.id} className="hover:bg-black/[0.02]">
+                      <td className="px-4 py-3">
+                        <p className="font-semibold">{p.name}</p>
+                        <p className="font-mono-num text-xs" style={{ color: "var(--text-muted)" }}>
+                          {p.registry_code || "Sem registro"} {p.email ? `· ${p.email}` : ""}
+                        </p>
+                      </td>
+                      <td className="px-4 py-3 text-xs">
+                        <p>{p.specialty}</p>
+                        {p.city_state && <p style={{ color: "var(--text-muted)" }}>{p.city_state}</p>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                          style={{
+                            backgroundColor: "var(--bg-surface)",
+                            color:
+                              p.status === "approved"
+                                ? "var(--accent-emerald)"
+                                : p.status === "pending"
+                                ? "var(--accent-amber)"
+                                : "var(--accent-crimson)",
+                          }}
+                        >
+                          {p.status === "approved" ? "Aprovado" : p.status === "pending" ? "Pendente" : "Oculto"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="inline-flex flex-wrap justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEditingProf({
+                                id: p.id,
+                                name: p.name,
+                                email: p.email || "",
+                                registryCode: p.registry_code || "",
+                                specialty: p.specialty,
+                                cityState: p.city_state || "",
+                              })
+                            }
+                            className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-[11px] font-semibold hover:bg-black/5"
+                            style={{ borderColor: "var(--border-subtle)" }}
+                          >
+                            <Pencil className="h-3 w-3" /> Editar
+                          </button>
+                          {p.status !== "approved" && (
+                            <button
+                              type="button"
+                              onClick={() => act({ action: "moderate_professional", id: p.id, status: "approved" })}
+                              className="rounded-md px-2.5 py-1 text-[11px] font-semibold text-white"
+                              style={{ backgroundColor: "var(--accent-emerald)" }}
+                            >
+                              Aprovar
+                            </button>
+                          )}
+                          {p.status === "approved" && (
+                            <button
+                              type="button"
+                              onClick={() => act({ action: "moderate_professional", id: p.id, status: "rejected" })}
+                              className="rounded-md border px-2.5 py-1 text-[11px] font-semibold"
+                              style={{ borderColor: "var(--border-subtle)", color: "var(--accent-crimson)" }}
+                            >
+                              Ocultar
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {filteredProfs.map((p) => (
               <div
                 key={p.id}
                 className="rounded-2xl border p-4 flex flex-col justify-between gap-3"
@@ -393,6 +678,23 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                 </div>
 
                 <div className="flex items-center justify-between gap-2 border-t pt-3" style={{ borderColor: "var(--border-subtle)" }}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setEditingProf({
+                        id: p.id,
+                        name: p.name,
+                        email: p.email || "",
+                        registryCode: p.registry_code || "",
+                        specialty: p.specialty,
+                        cityState: p.city_state || "",
+                      })
+                    }
+                    className="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold hover:bg-black/5"
+                    style={{ borderColor: "var(--border-subtle)" }}
+                  >
+                    <Pencil className="h-3 w-3" /> Editar
+                  </button>
                   {p.status === "pending" ? (
                     <>
                       <button
@@ -444,7 +746,8 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </section>
       )}
 
@@ -758,6 +1061,99 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
             </button>
           </form>
         </section>
+      )}
+
+      {/* Modal de Edição de Profissional */}
+      {editingProf && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]"
+          onClick={() => setEditingProf(null)}
+        >
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              await act({ action: "edit_professional", ...editingProf });
+              setEditingProf(null);
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md rounded-2xl border p-6 shadow-2xl space-y-4"
+            style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-lg font-semibold">Editar Profissional</h3>
+              <button
+                type="button"
+                onClick={() => setEditingProf(null)}
+                className="flex h-8 w-8 items-center justify-center rounded-full border hover:bg-black/5"
+                style={{ borderColor: "var(--border-subtle)" }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <label className="block space-y-1 text-xs">
+              <span className="font-medium">Nome *</span>
+              <input
+                required
+                value={editingProf.name}
+                onChange={(e) => setEditingProf({ ...editingProf, name: e.target.value })}
+                className="w-full min-h-[40px] rounded-lg border px-3 text-sm"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+              />
+            </label>
+            <label className="block space-y-1 text-xs">
+              <span className="font-medium">Especialidade *</span>
+              <input
+                required
+                value={editingProf.specialty}
+                onChange={(e) => setEditingProf({ ...editingProf, specialty: e.target.value })}
+                className="w-full min-h-[40px] rounded-lg border px-3 text-sm"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block space-y-1 text-xs">
+                <span className="font-medium">Registro (CRP/CRM)</span>
+                <input
+                  value={editingProf.registryCode}
+                  onChange={(e) => setEditingProf({ ...editingProf, registryCode: e.target.value })}
+                  className="w-full min-h-[40px] rounded-lg border px-3 text-sm"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+                />
+              </label>
+              <label className="block space-y-1 text-xs">
+                <span className="font-medium">Cidade / UF</span>
+                <input
+                  value={editingProf.cityState}
+                  onChange={(e) => setEditingProf({ ...editingProf, cityState: e.target.value })}
+                  className="w-full min-h-[40px] rounded-lg border px-3 text-sm"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+                />
+              </label>
+            </div>
+            <label className="block space-y-1 text-xs">
+              <span className="font-medium">E-mail</span>
+              <input
+                type="email"
+                value={editingProf.email}
+                onChange={(e) => setEditingProf({ ...editingProf, email: e.target.value })}
+                className="w-full min-h-[40px] rounded-lg border px-3 text-sm"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-canvas)" }}
+              />
+            </label>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setEditingProf(null)}
+                className="btn-secondary rounded-lg px-4 py-2 text-xs font-semibold"
+              >
+                Cancelar
+              </button>
+              <button type="submit" className="btn-primary rounded-lg px-4 py-2 text-xs font-semibold">
+                Salvar alterações
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );

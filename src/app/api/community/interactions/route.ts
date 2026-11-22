@@ -220,6 +220,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Entre na sua conta para curtir ou comentar." }, { status: 401 });
   }
 
+  if (actor.role !== "admin") {
+    const mRows = await query<{ membership_status: string }>(
+      "SELECT membership_status FROM memberships WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1",
+      [actor.userId]
+    );
+    const st = mRows[0]?.membership_status;
+    if (st === "suspended" || st === "deleted") {
+      return NextResponse.json(
+        { error: "Sua associação está suspensa ou inativa no momento." },
+        { status: 403 }
+      );
+    }
+  }
+
   try {
     const body = await req.json();
     const action = String(body.action || "");
