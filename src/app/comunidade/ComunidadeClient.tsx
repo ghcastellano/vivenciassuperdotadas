@@ -48,6 +48,7 @@ export function ComunidadeClient({
   const { data: session } = useSession();
   const [submissions] = useState<CommunitySubmissionItem[]>(initialSubmissions);
   const [kindFilter, setKindFilter] = useState("todos");
+  const [visibleCount, setVisibleCount] = useState(24);
   const [showAllAvatars, setShowAllAvatars] = useState(false);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [interactionsMap, setInteractionsMap] =
@@ -361,8 +362,9 @@ export function ComunidadeClient({
           Nenhuma publicação aprovada nesta categoria ainda. Seja a primeira pessoa associada a compartilhar um relato, arte ou link de conhecimento!
         </div>
       ) : (
+        <>
         <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((s) => {
+        {filtered.slice(0, visibleCount).map((s) => {
           const postCounts = counts[s.id] || { likes: 0, comments: 0 };
           const isLiked = likedIds.has(s.id);
           const isHighlighted = highlightedPostId === s.id;
@@ -468,6 +470,18 @@ export function ComunidadeClient({
           );
         })}
         </div>
+        {filtered.length > visibleCount && (
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((c) => c + 24)}
+              className="btn-secondary min-h-[42px] rounded-md px-5 py-2 text-xs sm:text-sm font-semibold"
+            >
+              Carregar mais publicações ({filtered.length - visibleCount} restantes)
+            </button>
+          </div>
+        )}
+        </>
       )}
 
       {/* Painel Coletivo da Comunidade — Escalável para 200+ membros com privacidade */}

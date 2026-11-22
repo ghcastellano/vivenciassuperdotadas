@@ -24,6 +24,7 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
   const [specialtyFilter, setSpecialtyFilter] = useState("todas");
   const [serviceFilter, setServiceFilter] = useState("todos");
   const [onlineOnly, setOnlineOnly] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(24);
   const [formOpen, setFormOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -218,11 +219,24 @@ export function ProfissionaisClient({ initialPartners }: { initialPartners: Part
           )}
         </div>
       ) : (
+        <>
         <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((p) => (
+          {filtered.slice(0, visibleCount).map((p) => (
             <ProfessionalCard key={p.id} partner={p} />
           ))}
         </div>
+        {filtered.length > visibleCount && (
+          <div className="mt-6 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((c) => c + 24)}
+              className="btn-secondary min-h-[42px] rounded-md px-5 py-2 text-xs sm:text-sm font-semibold"
+            >
+              Carregar mais profissionais ({filtered.length - visibleCount} restantes)
+            </button>
+          </div>
+        )}
+        </>
       )}
 
       {/* Convite dedicado para profissionais após a grade */}

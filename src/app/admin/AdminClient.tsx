@@ -71,6 +71,12 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
   const [viewMode, setViewMode] = useState<"cards" | "table">("table");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [kindFilter, setKindFilter] = useState("all");
+  const [eventFilter, setEventFilter] = useState<"all" | "upcoming" | "past">("all");
+  const [expenseCatFilter, setExpenseCatFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "member">("all");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 25;
   const [editingProf, setEditingProf] = useState<{
     id: string;
     name: string;
@@ -156,6 +162,43 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
     return matchesStatus && matchesQ;
   });
 
+  const filteredSubmissions = data.submissions.filter((s) => {
+    const matchesStatus = statusFilter === "all" || s.status === statusFilter;
+    const matchesKind = kindFilter === "all" || s.kind === kindFilter;
+    const matchesQ =
+      !qLower ||
+      [s.title, s.author_name, s.content]
+        .filter(Boolean)
+        .some((v) => v.toLowerCase().includes(qLower));
+    return matchesStatus && matchesKind && matchesQ;
+  });
+
+  const nowMs = Date.now();
+  const filteredEvents = data.events.filter((ev) => {
+    const evTime = ev.event_date ? new Date(ev.event_date).getTime() : 0;
+    const matchesPeriod =
+      eventFilter === "all" ||
+      (eventFilter === "upcoming" ? evTime >= nowMs : evTime > 0 && evTime < nowMs);
+    const matchesQ =
+      !qLower ||
+      [ev.title, ev.format, ev.description || ""].some((v) => v.toLowerCase().includes(qLower));
+    return matchesPeriod && matchesQ;
+  });
+
+  const filteredExpenses = data.expenses.filter((ex) => {
+    const matchesCat = expenseCatFilter === "all" || ex.category === expenseCatFilter;
+    const matchesQ =
+      !qLower ||
+      [ex.description, ex.category].some((v) => v.toLowerCase().includes(qLower));
+    return matchesCat && matchesQ;
+  });
+  const filteredExpensesTotalCents = filteredExpenses.reduce((acc, ex) => acc + Number(ex.amount_cents || 0), 0);
+
+  const paginate = <T,>(items: T[]): T[] => {
+    const start = (page - 1) * PAGE_SIZE;
+    return items.slice(start, start + PAGE_SIZE);
+  };
+
   const mergedAccounts = React.useMemo(() => {
     const map = new Map<string, { id: string; name: string; email: string; role: string }>();
     for (const u of data.users || []) {
@@ -169,6 +212,56 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
     }
     return Array.from(map.values());
   }, [data.users, data.memberships]);
+
+  const filteredAccounts = mergedAccounts.filter((u) => {
+    const isMaster = u.email.toLowerCase() === "ghcastellano@gmail.com";
+    const isAdmin = u.role === "admin" || isMaster;
+    const matchesRole = roleFilter === "all" || (roleFilter === "admin" ? isAdmin : !isAdmin);
+    const matchesQ = !qLower || [u.name, u.email].some((v) => v.toLowerCase().includes(qLower));
+    return matchesRole && matchesQ;
+  });
+
+  const pagedMembers = paginate(filteredMembers);
+  const pagedProfs = paginate(filteredProfs);
+  const pagedSubmissions = paginate(filteredSubmissions);
+  const pagedEvents = paginate(filteredEvents);
+  const pagedExpenses = paginate(filteredExpenses);
+  const pagedAccounts = paginate(filteredAccounts);
+
+  const renderPagination = (totalItems: number) => {
+    const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+    if (totalItems <= PAGE_SIZE) return null;
+    return (
+      <div
+        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border px-4 py-2.5 text-xs"
+        style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
+      >
+        <span className="font-mono-num" style={{ color: "var(--text-muted)" }}>
+          Página {page} de {totalPages} · {totalItems} registros
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className="rounded-md border px-3 py-1 font-semibold disabled:opacity-40"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
+            Anterior
+          </button>
+          <button
+            type="button"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            className="rounded-md border px-3 py-1 font-semibold disabled:opacity-40"
+            style={{ borderColor: "var(--border-subtle)" }}
+          >
+            Próxima
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="mx-auto max-w-[1400px] px-5 py-10 sm:px-8 lg:px-10 space-y-8">
@@ -263,11 +356,16 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
             onClick={() => {
               setTab(key);
               setStatusFilter("all");
+              setKindFilter("all");
+              setEventFilter("all");
+              setExpenseCatFilter("all");
+              setRoleFilter("all");
+              setPage(1);
             }}
-            className="min-h-[42px] rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-colors"
+            className="min-h-[40px] rounded-md px-4 py-2 text-xs sm:text-sm font-semibold transition-colors"
             style={{
               backgroundColor: tab === key ? "var(--accent-emerald)" : "var(--bg-surface)",
-              color: tab === key ? "#FAF7F2" : "var(--text-primary)",
+              color: tab === key ? "#FFFFFF" : "var(--text-primary)",
             }}
           >
             {label}
@@ -283,7 +381,10 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
             <input
               type="search"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(1);
+              }}
               placeholder={
                 tab === "associacoes"
                   ? "Buscar por nome, e-mail, matrícula, perfil ou cidade..."
@@ -296,7 +397,10 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
 
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
             aria-label="Filtrar por status"
             className="min-h-[40px] rounded-xl border px-3 text-xs sm:text-sm"
             style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
@@ -365,7 +469,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
-                  {filteredMembers.map((m) => (
+                  {pagedMembers.map((m) => (
                     <tr key={m.id} className="hover:bg-black/[0.02]">
                       <td className="px-4 py-3">
                         <p className="font-semibold">{m.name}</p>
@@ -440,7 +544,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
             </div>
           ) : (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {filteredMembers.map((m) => (
+              {pagedMembers.map((m) => (
                 <div
                   key={m.id}
                   className="rounded-2xl border p-4 flex flex-col justify-between gap-3"
@@ -542,6 +646,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               ))}
             </div>
           )}
+          {renderPagination(filteredMembers.length)}
         </section>
       )}
 
@@ -567,7 +672,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
-                  {filteredProfs.map((p) => (
+                  {pagedProfs.map((p) => (
                     <tr key={p.id} className="hover:bg-black/[0.02]">
                       <td className="px-4 py-3">
                         <p className="font-semibold">{p.name}</p>
@@ -643,7 +748,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
             </div>
           ) : (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {filteredProfs.map((p) => (
+              {pagedProfs.map((p) => (
               <div
                 key={p.id}
                 className="rounded-2xl border p-4 flex flex-col justify-between gap-3"
@@ -748,19 +853,65 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
             ))}
             </div>
           )}
+          {renderPagination(filteredProfs.length)}
         </section>
       )}
 
       {/* TAB 2: Comunidade */}
       {tab === "comunidade" && (
         <section className="space-y-4">
-          {data.submissions.length === 0 ? (
-            <div className="rounded-2xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
-              Nenhuma submissão na fila ainda. Quando membros enviarem artes, links ou relatos em <code>/comunidade</code>, eles aparecerão aqui para aprovação.
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative flex-1 min-w-[220px]">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "var(--text-muted)" }} />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Buscar por título, autor(a) ou conteúdo..."
+                className="min-h-[40px] w-full rounded-xl border pl-9 pr-3 text-xs sm:text-sm"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
+              className="min-h-[40px] rounded-xl border px-3 text-xs sm:text-sm"
+              style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+            >
+              <option value="all">Status: Todos</option>
+              <option value="pending">Pendentes</option>
+              <option value="approved">Aprovados</option>
+              <option value="rejected">Recusados</option>
+            </select>
+            <select
+              value={kindFilter}
+              onChange={(e) => {
+                setKindFilter(e.target.value);
+                setPage(1);
+              }}
+              className="min-h-[40px] rounded-xl border px-3 text-xs sm:text-sm"
+              style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+            >
+              <option value="all">Tipo: Todos</option>
+              <option value="relato">Relato</option>
+              <option value="arte">Arte</option>
+              <option value="link">Link</option>
+            </select>
+          </div>
+
+          {filteredSubmissions.length === 0 ? (
+            <div className="rounded-xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+              Nenhuma submissão encontrada para os filtros selecionados.
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
-              {data.submissions.map((s) => (
+              {pagedSubmissions.map((s) => (
                 <div
                   key={s.id}
                   className="min-w-0 overflow-hidden rounded-2xl border p-5 flex flex-col justify-between gap-4"
@@ -831,6 +982,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               ))}
             </div>
           )}
+          {renderPagination(filteredSubmissions.length)}
         </section>
       )}
 
@@ -838,13 +990,41 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       {tab === "eventos" && (
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
           <div className="space-y-3">
-            <h2 className="font-display text-xl font-semibold">Eventos Publicados</h2>
-            {data.events.length === 0 ? (
-              <p className="text-sm rounded-2xl border p-6" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
-                Nenhum evento publicado no banco ainda. Use o formulário ao lado para adicionar o próximo encontro.
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-display text-xl font-semibold">Eventos Publicados</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Buscar evento..."
+                  className="min-h-[36px] rounded-lg border px-3 text-xs"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+                />
+                <select
+                  value={eventFilter}
+                  onChange={(e) => {
+                    setEventFilter(e.target.value as "all" | "upcoming" | "past");
+                    setPage(1);
+                  }}
+                  className="min-h-[36px] rounded-lg border px-2.5 text-xs"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+                >
+                  <option value="all">Todos</option>
+                  <option value="upcoming">Próximos</option>
+                  <option value="past">Passados</option>
+                </select>
+              </div>
+            </div>
+            {filteredEvents.length === 0 ? (
+              <p className="text-sm rounded-xl border p-6" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
+                Nenhum evento encontrado para o filtro selecionado.
               </p>
             ) : (
-              data.events.map((ev) => (
+              pagedEvents.map((ev) => (
                 <div key={ev.id} className="rounded-xl border p-4 flex items-start justify-between gap-4" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
                   <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -891,6 +1071,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                 </div>
               ))
             )}
+            {renderPagination(filteredEvents.length)}
           </div>
 
           <form
@@ -920,16 +1101,49 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       {tab === "custos" && (
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] items-start">
           <div className="space-y-3">
-            <h2 className="font-display text-xl font-semibold flex items-center gap-2">
-              <Receipt className="h-5 w-5" style={{ color: "var(--accent-crimson)" }} />
-              <span>Custos Registrados (Transparência)</span>
-            </h2>
-            {data.expenses.length === 0 ? (
-              <p className="text-sm rounded-2xl border p-6" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
-                Nenhum custo lançado ainda. Lance impostos, domínio e infraestrutura ao lado para alimentar a página <code>/apoie</code>.
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-display text-xl font-semibold flex items-center gap-2">
+                <Receipt className="h-5 w-5" style={{ color: "var(--accent-crimson)" }} />
+                <span>Custos Registrados</span>
+              </h2>
+              <span className="font-mono-num text-xs font-semibold" style={{ color: "var(--accent-crimson)" }}>
+                Subtotal: R$ {(filteredExpensesTotalCents / 100).toFixed(2)}
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Buscar descrição..."
+                className="min-h-[36px] flex-1 min-w-[180px] rounded-lg border px-3 text-xs"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+              />
+              <select
+                value={expenseCatFilter}
+                onChange={(e) => {
+                  setExpenseCatFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="min-h-[36px] rounded-lg border px-2.5 text-xs"
+                style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+              >
+                <option value="all">Categoria: Todas</option>
+                <option value="impostos">Impostos / Tributos</option>
+                <option value="infraestrutura">Infraestrutura</option>
+                <option value="eventos">Eventos / Divulgação</option>
+                <option value="outros">Outros</option>
+              </select>
+            </div>
+            {filteredExpenses.length === 0 ? (
+              <p className="text-sm rounded-xl border p-6" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
+                Nenhum custo encontrado para os filtros selecionados.
               </p>
             ) : (
-              data.expenses.map((ex) => (
+              pagedExpenses.map((ex) => (
                 <div key={ex.id} className="rounded-xl border p-4 flex items-center justify-between" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
                   <div>
                     <p className="font-semibold text-sm">[{ex.category}] {ex.description}</p>
@@ -943,6 +1157,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                 </div>
               ))
             )}
+            {renderPagination(filteredExpenses.length)}
           </div>
 
           <form
@@ -975,13 +1190,41 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       {tab === "admins" && (
         <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] items-start">
           <div className="space-y-3">
-            <h2 className="font-display text-xl font-semibold">Contas Cadastradas & Permissões</h2>
-            {mergedAccounts.length === 0 ? (
-              <p className="text-sm rounded-2xl border p-6" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
-                Nenhuma conta registrada ainda. Quando os membros entrarem ou você pré-autorizar um e-mail ao lado, eles aparecerão aqui.
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-display text-xl font-semibold">Contas Cadastradas &amp; Permissões</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Buscar nome ou e-mail..."
+                  className="min-h-[36px] rounded-lg border px-3 text-xs"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+                />
+                <select
+                  value={roleFilter}
+                  onChange={(e) => {
+                    setRoleFilter(e.target.value as "all" | "admin" | "member");
+                    setPage(1);
+                  }}
+                  className="min-h-[36px] rounded-lg border px-2.5 text-xs"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+                >
+                  <option value="all">Todos</option>
+                  <option value="admin">Apenas Admins</option>
+                  <option value="member">Apenas Membros</option>
+                </select>
+              </div>
+            </div>
+            {filteredAccounts.length === 0 ? (
+              <p className="text-sm rounded-xl border p-6" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border-subtle)" }}>
+                Nenhuma conta encontrada para os filtros selecionados.
               </p>
             ) : (
-              mergedAccounts.map((u) => {
+              pagedAccounts.map((u) => {
                 const isMaster = u.email.toLowerCase() === "ghcastellano@gmail.com";
                 const isAdmin = u.role === "admin" || isMaster;
                 return (
@@ -1031,6 +1274,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                 );
               })
             )}
+            {renderPagination(filteredAccounts.length)}
           </div>
 
           <form

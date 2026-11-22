@@ -49,24 +49,31 @@ export default async function AdminPage() {
     try {
       const [professionals, submissions, events, expenses, users, memberships] = await Promise.all([
         query<AdminData["professionals"][number]>(
-          "SELECT id, name, email, registry_code, specialty, city_state, status FROM partner_professionals ORDER BY created_at DESC"
+          `SELECT id, name, email, registry_code, specialty, city_state, status
+           FROM partner_professionals
+           ORDER BY CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC
+           LIMIT 500`
         ),
         query<AdminData["submissions"][number]>(
-          "SELECT id, author_name, kind, title, content, status FROM community_submissions ORDER BY created_at DESC"
+          `SELECT id, author_name, kind, title, LEFT(content, 400) AS content, status
+           FROM community_submissions
+           ORDER BY CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC
+           LIMIT 500`
         ),
         query<AdminData["events"][number]>(
-          "SELECT id, title, description, event_date::text, format, event_link FROM events ORDER BY event_date ASC"
+          "SELECT id, title, description, event_date::text, format, event_link FROM events ORDER BY event_date DESC LIMIT 500"
         ),
         query<AdminData["expenses"][number]>(
-          "SELECT id, category, description, amount_cents, reference_date::text FROM financial_expenses ORDER BY reference_date DESC, created_at DESC"
+          "SELECT id, category, description, amount_cents, reference_date::text FROM financial_expenses ORDER BY reference_date DESC, created_at DESC LIMIT 500"
         ),
         query<AdminData["users"][number]>(
-          "SELECT id, name, email, role, created_at::text FROM users ORDER BY CASE WHEN role = 'admin' THEN 0 ELSE 1 END, created_at DESC"
+          "SELECT id, name, email, role, created_at::text FROM users WHERE account_status != 'deleted' ORDER BY CASE WHEN role = 'admin' THEN 0 ELSE 1 END, created_at DESC LIMIT 500"
         ),
         query<AdminData["memberships"][number]>(
           `SELECT id, name, email, profile, city_state, has_medical_report, manifesto, membership_status, member_number, accepted_at::text, created_at::text
            FROM memberships
-           ORDER BY CASE WHEN membership_status = 'pending' THEN 0 WHEN membership_status = 'active' THEN 1 ELSE 2 END, created_at DESC`
+           ORDER BY CASE WHEN membership_status = 'pending' THEN 0 WHEN membership_status = 'active' THEN 1 ELSE 2 END, created_at DESC
+           LIMIT 500`
         ),
       ]);
 
