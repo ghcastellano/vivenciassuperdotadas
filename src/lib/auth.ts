@@ -10,6 +10,8 @@ interface DbUser {
   email: string;
   password_hash: string | null;
   role: string;
+  email_verified?: boolean;
+  account_status?: string;
 }
 
 async function syncAvatarFromMembership(userId: string, email: string): Promise<void> {
@@ -107,11 +109,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isDatabaseConfigured()) return null;
 
         const rows = await query<DbUser>(
-          "SELECT id, name, email, password_hash, role FROM users WHERE LOWER(email) = $1 LIMIT 1",
+          "SELECT id, name, email, password_hash, role, email_verified, account_status FROM users WHERE LOWER(email) = $1 LIMIT 1",
           [email]
         );
         const user = rows[0];
         if (!user || !user.password_hash) return null;
+        if (user.account_status === "deleted") return null;
+        if (user.email_verified === false) return null;
 
         const valid = await bcrypt.compare(password, user.password_hash);
         if (!valid) return null;
@@ -127,19 +131,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.provider === "google" && user.email && isDatabaseConfigured()) {
         const email = user.email.toLowerCase();
         const existing = await query<DbUser>(
-          "SELECT id, role FROM users WHERE LOWER(email) = $1 LIMIT 1",
+          "SELECT id, role, account_status FROM users WHERE LOWER(email) = $1 LIMIT 1",
           [email]
         );
+        if (existing[0]?.account_status === "deleted") {
+          return false;
+        }
         let userId = existing[0]?.id;
         const role = isAdminEmail(email) ? "admin" : existing[0]?.role || "member";
         if (!userId) {
           userId = crypto.randomUUID();
           await query(
-            "INSERT INTO users (id, name, email, role) VALUES ($1, $2, $3, $4)",
+            "INSERT INTO users (id, name, email, role, email_verified, account_status) VALUES ($1, $2, $3, $4, TRUE, 'active')",
             [userId, user.name || "Membro Vivências", email, role]
           );
         } else if (role === "admin" && existing[0]?.role !== "admin") {
-          await query("UPDATE users SET role = 'admin' WHERE id = $1", [userId]);
+          await query("UPDATE users SET role = 'admin', email_verified = TRUE WHERE id = $1", [userId]);
         }
         await syncAvatarFromMembership(userId, email);
       }

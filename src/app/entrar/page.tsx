@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
@@ -36,18 +36,33 @@ export default function EntrarPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [callbackUrl, setCallbackUrl] = useState("/perfil");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("verified") === "1") {
+      setNotice("E-mail confirmado com sucesso! Já pode entrar com sua senha.");
+    }
+    const cb = params.get("callbackUrl");
+    if (cb && cb.startsWith("/")) {
+      setCallbackUrl(cb);
+    }
+  }, []);
 
   const handleGoogle = () => {
     setError("");
     setGoogleLoading(true);
-    signIn("google", { callbackUrl: "/perfil" });
+    signIn("google", { callbackUrl });
   };
 
   const handleCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setNotice("");
     setLoading(true);
 
     try {
@@ -63,6 +78,15 @@ export default function EntrarPage() {
           setLoading(false);
           return;
         }
+        if (data.requiresVerification) {
+          setLoading(false);
+          setMode("login");
+          setNotice(
+            data.message ||
+              "Conta criada! Enviamos um link de confirmação para o seu e-mail. Confirme antes de entrar."
+          );
+          return;
+        }
       }
 
       const res = await signIn("credentials", {
@@ -75,13 +99,13 @@ export default function EntrarPage() {
       if (!res || res.error || res.ok === false) {
         setError(
           mode === "login"
-            ? "E-mail ou senha não encontrados. Se for seu primeiro acesso por senha, clique em 'Criar conta'."
+            ? "E-mail/senha inválidos ou e-mail ainda não confirmado. Verifique sua caixa de entrada."
             : "Conta criada, mas não foi possível iniciar a sessão automaticamente. Tente entrar na aba 'Já tenho conta'."
         );
         return;
       }
 
-      router.push("/perfil");
+      router.push(callbackUrl);
       router.refresh();
     } catch {
       setLoading(false);
@@ -168,6 +192,16 @@ export default function EntrarPage() {
             Criar conta
           </button>
         </div>
+
+        {notice && (
+          <p
+            role="status"
+            className="rounded-lg border p-3 text-center text-xs font-medium"
+            style={{ borderColor: "var(--accent-emerald)", color: "var(--accent-emerald)", backgroundColor: "var(--bg-surface)" }}
+          >
+            {notice}
+          </p>
+        )}
 
         {error && (
           <p

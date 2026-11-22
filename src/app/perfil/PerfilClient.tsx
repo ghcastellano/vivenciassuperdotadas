@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { LogOut, Sparkles, MessageSquarePlus, Shield, Dumbbell, ExternalLink, Headphones } from "lucide-react";
+import { LogOut, Sparkles, MessageSquarePlus, Shield, Dumbbell, ExternalLink, Headphones, Trash2 } from "lucide-react";
 import { AvatarDisplay } from "@/components/AvatarDisplay";
 import type { AvatarConfig } from "@/lib/avatar";
 
@@ -27,6 +27,12 @@ const REPORT_LABELS: Record<string, string> = {
 };
 
 export function PerfilClient({ initialMe }: { initialMe: MeUser | null }) {
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteMode, setDeleteMode] = useState<"deactivate" | "anonymize">("deactivate");
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
   if (!initialMe) {
     return (
       <div className="mx-auto max-w-xl px-5 py-16 text-center">
@@ -208,6 +214,112 @@ export function PerfilClient({ initialMe }: { initialMe: MeUser | null }) {
             </div>
           </div>
         )}
+
+        {/* LGPD / GDPR: Encerramento de Conta */}
+        <div className="border-t pt-5" style={{ borderColor: "var(--border-subtle)" }}>
+          <button
+            type="button"
+            onClick={() => setDeleteOpen((v) => !v)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+            style={{ color: "var(--text-muted)" }}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>{deleteOpen ? "Fechar opções de encerramento" : "Privacidade & Encerrar minha conta (LGPD / GDPR)"}</span>
+          </button>
+
+          {deleteOpen && (
+            <div
+              className="mt-4 rounded-xl border p-4 sm:p-5 space-y-4"
+              style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
+            >
+              <div className="space-y-1">
+                <p className="font-display text-sm font-semibold">Encerrar conta e tratar meus dados</p>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                  Escolha se deseja apenas desativar seu acesso (exclusão lógica) ou anonimizar permanentemente seus dados
+                  pessoais (nome, e-mail, avatar e ficha) conforme a LGPD e o GDPR.
+                </p>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setDeleteMode("deactivate")}
+                  className="rounded-lg border p-3 text-left transition-colors"
+                  style={{
+                    borderColor: deleteMode === "deactivate" ? "var(--accent-emerald)" : "var(--border-subtle)",
+                    backgroundColor: "var(--bg-card)",
+                  }}
+                >
+                  <span className="block font-semibold">Desativar conta (exclusão lógica)</span>
+                  <span className="mt-0.5 block text-[11px]" style={{ color: "var(--text-muted)" }}>
+                    Inativa seu acesso e oculta seu avatar do mural público.
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteMode("anonymize")}
+                  className="rounded-lg border p-3 text-left transition-colors"
+                  style={{
+                    borderColor: deleteMode === "anonymize" ? "#BD4626" : "var(--border-subtle)",
+                    backgroundColor: "var(--bg-card)",
+                  }}
+                >
+                  <span className="block font-semibold" style={{ color: "#BD4626" }}>
+                    Anonimizar dados (LGPD / GDPR)
+                  </span>
+                  <span className="mt-0.5 block text-[11px]" style={{ color: "var(--text-muted)" }}>
+                    Remove permanentemente nome, e-mail, senha, avatar e dados da ficha.
+                  </span>
+                </button>
+              </div>
+
+              {deleteError && (
+                <p className="text-xs font-medium" style={{ color: "#BD4626" }}>
+                  {deleteError}
+                </p>
+              )}
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+                <input
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder='Digite EXCLUIR para confirmar'
+                  className="min-h-[40px] flex-1 rounded-md border px-3 text-xs"
+                  style={{ borderColor: "var(--border-subtle)", backgroundColor: "var(--bg-card)" }}
+                />
+                <button
+                  type="button"
+                  disabled={deleting || confirmText.trim().toUpperCase() !== "EXCLUIR"}
+                  onClick={async () => {
+                    setDeleting(true);
+                    setDeleteError("");
+                    try {
+                      const res = await fetch("/api/account/delete", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ mode: deleteMode, confirmText }),
+                      });
+                      const data = await res.json();
+                      if (!res.ok) {
+                        setDeleteError(data.error || "Não foi possível encerrar a conta.");
+                        setDeleting(false);
+                        return;
+                      }
+                      await signOut({ callbackUrl: "/" });
+                    } catch {
+                      setDeleteError("Erro de conexão ao encerrar a conta.");
+                      setDeleting(false);
+                    }
+                  }}
+                  className="min-h-[40px] rounded-md px-4 text-xs font-semibold text-white disabled:opacity-40"
+                  style={{ backgroundColor: "#BD4626" }}
+                >
+                  {deleting ? "Processando..." : "Confirmar encerramento"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

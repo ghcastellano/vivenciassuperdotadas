@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
 import { escapeHtml, isValidEmail, sanitizeHttpUrl } from "@/lib/security";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function GET() {
   if (!isDatabaseConfigured()) {
@@ -23,6 +25,17 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const rl = checkRateLimit("professionals_post", getClientIp(req), 6, 15 * 60 * 1000);
+    if (!rl.allowed) return rateLimitResponse(rl.retryAfterSeconds);
+
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: "Entre na sua conta antes de enviar seu cadastro profissional." },
+        { status: 401 }
+      );
+    }
+
     if (!isDatabaseConfigured()) {
       return NextResponse.json(
         { error: "Banco de dados ainda não configurado." },

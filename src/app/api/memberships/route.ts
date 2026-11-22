@@ -4,9 +4,12 @@ import { auth } from "@/lib/auth";
 import { query, isDatabaseConfigured } from "@/lib/db";
 import { sendVivenciasEmail } from "@/lib/email";
 import { escapeHtml, isValidEmail } from "@/lib/security";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
+    const rl = checkRateLimit("memberships_post", getClientIp(req), 10, 10 * 60 * 1000);
+    if (!rl.allowed) return rateLimitResponse(rl.retryAfterSeconds);
     if (!isDatabaseConfigured()) {
       return NextResponse.json(
         { error: "Banco de dados ainda não configurado (DATABASE_URL ausente)." },

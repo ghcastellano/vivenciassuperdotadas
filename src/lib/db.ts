@@ -48,6 +48,12 @@ export async function ensureSchema(): Promise<void> {
         ALTER TABLE users ADD COLUMN IF NOT EXISTS has_medical_report TEXT DEFAULT 'nao_informado';
         ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email_likes BOOLEAN NOT NULL DEFAULT TRUE;
         ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_email_comments BOOLEAN NOT NULL DEFAULT TRUE;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT TRUE;
+        ALTER TABLE users ALTER COLUMN email_verified SET DEFAULT FALSE;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token TEXT DEFAULT '';
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_expires TIMESTAMPTZ;
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS account_status TEXT NOT NULL DEFAULT 'active';
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
 
         CREATE TABLE IF NOT EXISTS memberships (
           id TEXT PRIMARY KEY,

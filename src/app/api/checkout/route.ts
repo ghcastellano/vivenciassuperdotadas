@@ -5,6 +5,7 @@ import { Preference } from "mercadopago";
 import { auth } from "@/lib/auth";
 import { getMercadoPagoClient } from "@/lib/mercadopago";
 import { DEFAULT_PRODUCTS } from "@/lib/institutional-data";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 interface CartItemPayload {
   productId: string;
@@ -21,6 +22,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const rl = checkRateLimit("checkout_post", getClientIp(req), 10, 10 * 60 * 1000);
+    if (!rl.allowed) return rateLimitResponse(rl.retryAfterSeconds);
     const mpToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
     const stripeSecret = process.env.STRIPE_SECRET_KEY;
 
