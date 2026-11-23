@@ -287,7 +287,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
 
       {/* KPI Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
+        <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
           <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
             <span>Associados Ativos</span>
             <Users className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
@@ -300,7 +300,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
           </p>
         </div>
 
-        <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
+        <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
           <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
             <span>Profissionais</span>
             <Stethoscope className="h-4 w-4" style={{ color: "var(--accent-emerald)" }} />
@@ -313,7 +313,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
           </p>
         </div>
 
-        <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
+        <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
           <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
             <span>Comunidade</span>
             <MessageSquare className="h-4 w-4" style={{ color: "var(--accent-crimson)" }} />
@@ -326,7 +326,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
           </p>
         </div>
 
-        <div className="rounded-2xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
+        <div className="rounded-xl border p-5" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
           <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-muted)" }}>
             <span>Eventos & Custos</span>
             <Calendar className="h-4 w-4" style={{ color: "var(--accent-amber)" }} />
@@ -451,12 +451,12 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       {tab === "associacoes" && (
         <section className="space-y-4">
           {filteredMembers.length === 0 ? (
-            <div className="rounded-2xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+            <div className="rounded-xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
               Nenhuma solicitação encontrada para os filtros selecionados.
             </div>
           ) : viewMode === "table" ? (
             <div
-              className="overflow-x-auto rounded-2xl border"
+              className="overflow-x-auto rounded-xl border"
               style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
             >
               <table className="w-full text-left text-xs sm:text-sm">
@@ -481,7 +481,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                          className="inline-block rounded-md px-2.5 py-0.5 text-[11px] font-semibold uppercase"
                           style={{
                             backgroundColor: "var(--bg-surface)",
                             color:
@@ -547,13 +547,13 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               {pagedMembers.map((m) => (
                 <div
                   key={m.id}
-                  className="rounded-2xl border p-4 flex flex-col justify-between gap-3"
+                  className="rounded-xl border p-4 flex flex-col justify-between gap-3"
                   style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                        className="rounded-md px-2.5 py-0.5 text-[11px] font-semibold uppercase"
                         style={{
                           backgroundColor: "var(--bg-surface)",
                           color:
@@ -654,12 +654,12 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
       {tab === "profissionais" && (
         <section className="space-y-4">
           {filteredProfs.length === 0 ? (
-            <div className="rounded-2xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
+            <div className="rounded-xl border p-8 text-center text-sm" style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}>
               Nenhum profissional encontrado para os filtros selecionados.
             </div>
           ) : viewMode === "table" ? (
             <div
-              className="overflow-x-auto rounded-2xl border"
+              className="overflow-x-auto rounded-xl border"
               style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
             >
               <table className="w-full text-left text-xs sm:text-sm">
@@ -686,7 +686,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                          className="inline-block rounded-md px-2.5 py-0.5 text-[11px] font-semibold uppercase"
                           style={{
                             backgroundColor: "var(--bg-surface)",
                             color:
@@ -751,13 +751,13 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               {pagedProfs.map((p) => (
               <div
                 key={p.id}
-                className="rounded-2xl border p-4 flex flex-col justify-between gap-3"
+                className="rounded-xl border p-4 flex flex-col justify-between gap-3"
                 style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
                     <span
-                      className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                      className="rounded-md px-2.5 py-0.5 text-[11px] font-semibold uppercase"
                       style={{
                         backgroundColor: "var(--bg-surface)",
                         color:
@@ -914,7 +914,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               {pagedSubmissions.map((s) => (
                 <div
                   key={s.id}
-                  className="min-w-0 overflow-hidden rounded-2xl border p-5 flex flex-col justify-between gap-4"
+                  className="min-w-0 overflow-hidden rounded-xl border p-5 flex flex-col justify-between gap-4"
                   style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
                 >
                   <div className="min-w-0">
@@ -1080,7 +1080,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               act({ action: "create_event", ...evForm });
               setEvForm({ title: "", description: "", eventDate: "", format: "Online", imageUrl: "", eventLink: "" });
             }}
-            className="rounded-2xl border p-5 space-y-3"
+            className="rounded-xl border p-5 space-y-3"
             style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
           >
             <h2 className="font-display text-xl font-semibold">Novo Evento</h2>
@@ -1166,7 +1166,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               act({ action: "create_expense", ...expForm });
               setExpForm({ category: "infraestrutura", description: "", amountReais: "", referenceDate: new Date().toISOString().slice(0, 10) });
             }}
-            className="rounded-2xl border p-5 space-y-3"
+            className="rounded-xl border p-5 space-y-3"
             style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
           >
             <h2 className="font-display text-xl font-semibold">Lançar Custo / Imposto</h2>
@@ -1237,7 +1237,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-sm truncate">{u.name}</p>
                         <span
-                          className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase"
+                          className="rounded-md px-2.5 py-0.5 text-[11px] font-semibold uppercase"
                           style={{
                             backgroundColor: "var(--bg-surface)",
                             color: isAdmin ? "var(--accent-emerald)" : "var(--text-muted)",
@@ -1283,7 +1283,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               act({ action: "set_user_role", email: newAdminEmail, role: "admin" });
               setNewAdminEmail("");
             }}
-            className="rounded-2xl border p-5 space-y-3"
+            className="rounded-xl border p-5 space-y-3"
             style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
           >
             <h2 className="font-display text-xl font-semibold">Conceder Acesso Admin</h2>
@@ -1320,7 +1320,7 @@ export function AdminClient({ initialData }: { initialData: AdminData }) {
               setEditingProf(null);
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-2xl border p-6 shadow-2xl space-y-4"
+            className="w-full max-w-md rounded-xl border p-6 shadow-2xl space-y-4"
             style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border-subtle)" }}
           >
             <div className="flex items-center justify-between">
